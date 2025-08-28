@@ -1,0 +1,56 @@
+package xyz.crunchmunch.mods.gamemaster.game
+
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.minecraft.core.HolderLookup
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
+import xyz.crunchmunch.mods.gamemaster.scoreboard.SidebarManager
+import java.util.*
+
+/**
+ * The central game manager of custom games. Games may be created via [createGame], as long as
+ * the metadata has been provided in the respective data locations.
+ */
+open class GameManager(open val sidebarManager: SidebarManager) {
+    private val gamesInternal = mutableSetOf<CustomGame>()
+
+    val games: Collection<CustomGame> = Collections.unmodifiableSet(gamesInternal)
+    val activeGames: Collection<CustomGame>
+        get() {
+            return this.games.filter { it.isActive }
+        }
+
+    init {
+        ServerTickEvents.END_WORLD_TICK.register { level ->
+            for (game in this.activeGames) {
+                if (game.settings.worldId == level.dimension().location() || game.level == level) {
+                    game.doTick()
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets a game by its respective game ID.
+     */
+    fun <T : CustomGame> getGameById(id: ResourceLocation): T? {
+        return this.games.firstOrNull { it.id == id } as? T?
+    }
+
+    /**
+     * Creates a game by a game ID, assuming a metadata entry exists for it.
+     */
+    fun <T : CustomGame> createGame(registry: HolderLookup.Provider, id: ResourceLocation): T {
+        if (this.getGameById<CustomGame>(id) != null) {
+            throw IllegalArgumentException("A game by the ID $id already exists!")
+        }
+
+        val initializer = CustomGameManager.GAME_REGISTRY.getValue(id) as CustomGameManager.CustomGameInitializer<T>
+        val metadata = registry.lookupOrThrow(CustomGameManager.GAME_METADATA_REGISTRY_KEY)
+            .getOrThrow(ResourceKey.create(CustomGameManager.GAME_METADATA_REGISTRY_KEY, id))
+
+        return initializer.create(this, id, metadata.value()).apply {
+            gamesInternal.add(this)
+        }
+    }
+}

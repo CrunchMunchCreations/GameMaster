@@ -1,0 +1,25 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "xyz.crunchmunch.mods.gamemaster.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "devtools.ClientboundResourcePackPushPacketMixin",
+        "devtools.DebugPacketsMixin",
+        "devtools.MobAccessor",
+        "devtools.PathMixin",
+        "devtools.SharedConstantsMixin",
+        "devtools.debug.CommandsMixin",
+        "devtools.debug.ConnectionMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+        "devtools.DebugRendererMixin",
+        "devtools.KeyboardHandlerMixin",
+        "devtools.MinecraftMixin",
+        "devtools.debug.GuiMixin"
+    ],
+    "plugin": "xyz.crunchmunch.mods.gamemaster.GameMasterMixinPlugin"
+}
