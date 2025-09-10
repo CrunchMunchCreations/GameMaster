@@ -4,6 +4,7 @@
     "package": "xyz.crunchmunch.mods.gamemaster.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
+        "accessors.DisplayAccessor",
         "devtools.ClientboundResourcePackPushPacketMixin",
         "devtools.DebugPacketsMixin",
         "devtools.MobAccessor",

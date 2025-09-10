@@ -8,6 +8,7 @@ import com.mojang.serialization.JsonOps
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import xyz.crunchmunch.mods.gamemaster.GameMaster
@@ -20,7 +21,8 @@ import kotlin.io.path.*
  * Represents metric data for players. These files get stored into the server's root directory,
  * under "crunchmunch/gamemaster/metrics/{namespace}/{path}/{uuid}.json", where each JSON file represents a player.
  *
- * The manager lazily loads metric data, only retrieving them when actually needed. This allows a reduced memory footprint,
+ * The manager lazily loads metric data, only retrieving them when actually needed. This allows a reduced memory footprint
+ * for the manager.
  *
  * @property [dataCodec] Represents the codec used for serializing and deserializing the metric data into JSON.
  * @property [defaultData] Represents the default data, used if the player doesn't initially exist in the metrics.
@@ -66,6 +68,17 @@ class MetricManager<T>(
      */
     fun get(profile: GameProfile): MetricData<T> {
         return metrics.computeIfAbsent(profile.id) { tryLoad(profile.id) ?: MetricData(profile, defaultData) }
+    }
+
+    fun get(player: Player): MetricData<T> {
+        return get(player.gameProfile)
+    }
+
+    /**
+     * Direct access to the wrapped metric data rather than the wrapper data.
+     */
+    fun getDirect(player: Player): T? {
+        return get(player.gameProfile).data
     }
 
     /**

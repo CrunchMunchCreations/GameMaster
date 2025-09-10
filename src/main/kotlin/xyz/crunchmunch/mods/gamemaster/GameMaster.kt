@@ -3,6 +3,7 @@ package xyz.crunchmunch.mods.gamemaster
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import java.nio.file.Path
@@ -14,6 +15,7 @@ class GameMaster : ModInitializer {
     override fun onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register { server ->
             GameMaster.server = server
+            adventure = MinecraftServerAudiences.of(server)
         }
     }
 
@@ -21,6 +23,8 @@ class GameMaster : ModInitializer {
         const val MOD_ID = "gamemaster"
 
         lateinit var server: MinecraftServer
+        lateinit var adventure: MinecraftServerAudiences
+
         private val rootPath = FabricLoader.getInstance().gameDir.resolve("crunchmunch/gamemaster")
 
         @JvmStatic

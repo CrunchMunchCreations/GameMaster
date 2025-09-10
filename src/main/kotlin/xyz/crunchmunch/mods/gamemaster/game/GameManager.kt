@@ -5,13 +5,18 @@ import net.minecraft.core.HolderLookup
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import xyz.crunchmunch.mods.gamemaster.scoreboard.SidebarManager
+import xyz.crunchmunch.mods.gamemaster.team.TeamManager
 import java.util.*
 
 /**
  * The central game manager of custom games. Games may be created via [createGame], as long as
  * the metadata has been provided in the respective data locations.
  */
-open class GameManager(open val sidebarManager: SidebarManager) {
+open class GameManager(
+    open val sidebarManager: SidebarManager,
+    open val teamManager: TeamManager,
+    open val countdownManager: CountdownManager
+) {
     private val gamesInternal = mutableSetOf<CustomGame>()
 
     val games: Collection<CustomGame> = Collections.unmodifiableSet(gamesInternal)
@@ -24,7 +29,7 @@ open class GameManager(open val sidebarManager: SidebarManager) {
         ServerTickEvents.END_WORLD_TICK.register { level ->
             for (game in this.activeGames) {
                 if (game.settings.worldId == level.dimension().location() || game.level == level) {
-                    game.doTick()
+                    game.tick()
                 }
             }
         }

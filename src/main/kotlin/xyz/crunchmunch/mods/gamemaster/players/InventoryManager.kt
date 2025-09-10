@@ -17,6 +17,9 @@ object InventoryManager {
     private val dir = GameMaster.resolvePath("inventory")
     private val alreadyStored = mutableListOf<UUID>()
 
+    /**
+     *
+     */
     fun saveAndClearPlayerInventory(player: ServerPlayer, storageDir: String = "hub") {
         if (alreadyStored.contains(player.uuid)) {
             player.inventory.clearContent()

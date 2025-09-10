@@ -14,7 +14,7 @@ import java.nio.file.StandardOpenOption
 import java.util.*
 import kotlin.io.path.*
 
-class TeamManager(dataPath: Path) : Iterable<Team> {
+open class TeamManager(dataPath: Path) : Iterable<Team> {
     private val file = dataPath.resolve("teams.json")
     private val teams = Collections.synchronizedList(mutableListOf<Team>())
 
@@ -105,6 +105,18 @@ class TeamManager(dataPath: Path) : Iterable<Team> {
         val teamPlayer = this.getTeamPlayer(player) ?: return
         teamPlayer.transientPoints += points
     }
+
+    fun commitPoints(player: Player) {
+        val teamPlayer = this.getTeamPlayer(player) ?: return
+        commitPoints(teamPlayer)
+    }
+
+    open fun commitPoints(teamPlayer: TeamPlayer) {
+        teamPlayer.points += teamPlayer.transientPoints
+        teamPlayer.transientPoints = 0
+        save()
+    }
+
 
     /**
      * Queues a data save to occur later. If multiple have been queued at the same time, only one will ever go through.

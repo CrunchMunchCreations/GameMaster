@@ -2,6 +2,6 @@ package xyz.crunchmunch.mods.gamemaster.game
 
 enum class GameState {
     STOPPED, STOPPING,
-    PAUSED,
+    PAUSING, PAUSED, UNPAUSING,
     STARTING, STARTED
 }
