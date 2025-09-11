@@ -16,7 +16,7 @@ import java.nio.file.StandardOpenOption
 import java.util.*
 import kotlin.io.path.*
 
-open class TeamManager(dataPath: Path) : Iterable<Team> {
+open class TeamManager(dataPath: Path) : Collection<Team> {
     private val file = dataPath.resolve("teams.json")
     private val teams = Collections.synchronizedList(mutableListOf<Team>())
 
@@ -242,13 +242,14 @@ open class TeamManager(dataPath: Path) : Iterable<Team> {
         teams.addAll(CODEC.decode(JsonOps.INSTANCE, json).orThrow.first)
     }
 
-    override fun iterator(): Iterator<Team> {
-        return this.teams.iterator()
-    }
+    override val size: Int
+        get() = teams.size
 
-    override fun spliterator(): Spliterator<Team> {
-        return this.teams.spliterator()
-    }
+    override fun isEmpty(): Boolean = teams.isEmpty()
+    override fun contains(element: Team): Boolean = teams.contains(element)
+    override fun containsAll(elements: Collection<Team>): Boolean = teams.containsAll(elements)
+    override fun iterator(): Iterator<Team> = teams.iterator()
+    override fun spliterator(): Spliterator<Team> = teams.spliterator()
 
     companion object {
         private val GSON = GsonBuilder()
