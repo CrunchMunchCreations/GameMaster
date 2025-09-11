@@ -25,6 +25,6 @@ object CustomGameManager {
     }
 
     fun interface CustomGameInitializer<T : CustomGame> {
-        fun create(manager: GameManager, gameId: ResourceLocation, metadata: CustomGameMetadata): T
+        fun create(manager: GameManager<*, *, *>, gameId: ResourceLocation, metadata: CustomGameMetadata): T
     }
 }

@@ -2,6 +2,7 @@ package xyz.crunchmunch.mods.gamemaster.events
 
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
+import xyz.crunchmunch.mods.gamemaster.game.CustomGame
 import xyz.crunchmunch.mods.gamemaster.team.Team
 import xyz.crunchmunch.mods.gamemaster.team.TeamPlayer
 
@@ -28,9 +29,9 @@ object TeamEvents {
 
     private fun genericTeamPointsEvent(): Event<GenericTeamPointsCallback> {
         return EventFactory.createArrayBacked(GenericTeamPointsCallback::class.java) { callbacks ->
-            GenericTeamPointsCallback { team, player, points ->
+            GenericTeamPointsCallback { game, team, player, points ->
                 for (callback in callbacks) {
-                    callback.onTeamPointsEvent(team, player, points)
+                    callback.onTeamPointsEvent(game, team, player, points)
                 }
             }
         }
@@ -82,6 +83,6 @@ object TeamEvents {
     }
 
     fun interface GenericTeamPointsCallback {
-        fun onTeamPointsEvent(team: Team, player: TeamPlayer, points: Int)
+        fun onTeamPointsEvent(game: CustomGame?, team: Team, player: TeamPlayer, points: Int)
     }
 }

@@ -12,10 +12,10 @@ import java.util.*
  * The central game manager of custom games. Games may be created via [createGame], as long as
  * the metadata has been provided in the respective data locations.
  */
-open class GameManager(
-    open val sidebarManager: SidebarManager,
-    open val teamManager: TeamManager,
-    open val countdownManager: CountdownManager
+open class GameManager<S : SidebarManager, T : TeamManager, C : CountdownManager>(
+    open val sidebarManager: S,
+    open val teamManager: T,
+    open val countdownManager: C
 ) {
     private val gamesInternal = mutableSetOf<CustomGame>()
 
@@ -57,5 +57,14 @@ open class GameManager(
         return initializer.create(this, id, metadata.value()).apply {
             gamesInternal.add(this)
         }
+    }
+
+    companion object {
+        private val managersInternal = mutableListOf<GameManager<*, *, *>>()
+
+        /**
+         * Displays all game managers that have been created, for commands to access.
+         */
+        val managers: List<GameManager<*, *, *>> = Collections.unmodifiableList(managersInternal)
     }
 }

@@ -37,6 +37,11 @@ data class TeamPlayer(
             return GameMaster.server.playerList.getPlayer(this.id)
         }
 
+    /**
+     * The player's game profile. Note that this does NOT store the player's skin!
+     */
+    val gameProfile = GameProfile(id, username)
+
     companion object {
         val CODEC = RecordCodecBuilder.create { instance ->
             instance.group(

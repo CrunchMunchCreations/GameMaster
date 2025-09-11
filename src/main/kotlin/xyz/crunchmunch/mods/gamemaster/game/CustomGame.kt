@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.seconds
  * Represents a custom game created under GameMaster.
  */
 abstract class CustomGame(
-    val gameManager: GameManager,
+    val gameManager: GameManager<*, *, *>,
     val id: ResourceLocation,
     val settings: CustomGameMetadata,
     val properties: CustomGameProperties = CustomGameProperties()
@@ -87,7 +87,7 @@ abstract class CustomGame(
      * Runs preparations for the game before the game begins. This includes teleporting players to
      * the designated level.
      */
-    internal fun prepareStart() {
+    fun prepareStart() {
         if (level == null)
             throw IllegalStateException("The game level does not exist!")
 
@@ -153,8 +153,8 @@ abstract class CustomGame(
         this.state = GameState.STARTING
         remainingTicks = 30.seconds.ticks
 
-        this.gameManager.countdownManager.setVisibility(this, true)
-        this.gameManager.countdownManager.update(this, remainingTicks)
+        this.gameManager.countdownManager.setVisibility(true, this)
+        this.gameManager.countdownManager.update(remainingTicks, this)
     }
 
     @ApiStatus.OverrideOnly
@@ -222,7 +222,7 @@ abstract class CustomGame(
         // only update every second, otherwise if we update every tick
         // we would screw over people's bandwidths.
         if (remainingTicks % 20L == 0L) {
-            this.gameManager.countdownManager.update(this, remainingTicks)
+            this.gameManager.countdownManager.update(remainingTicks, this)
 
             if (state == GameState.STARTING || state == GameState.UNPAUSING) {
                 val seconds = remainingTicks / 20
@@ -428,7 +428,7 @@ abstract class CustomGame(
 
     fun fullStop() {
         this.state = GameState.STOPPED
-        this.gameManager.countdownManager.setVisibility(this, false)
+        this.gameManager.countdownManager.setVisibility(false, this)
         this.isActive = false
         this.currentRound = 1
 

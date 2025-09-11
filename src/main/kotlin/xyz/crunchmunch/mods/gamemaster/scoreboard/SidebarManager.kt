@@ -152,6 +152,9 @@ abstract class SidebarManager(
      * Override [updatePlayer] if you want to add your own lines.
      */
     fun doUpdatePlayer(player: ServerPlayer, force: Boolean = false) {
+        if (!isDirty && !force)
+            return
+
         val lines = this.additionalLines.computeIfAbsent(player.uuid) { mutableListOf() }
 
         updatePlayer(player, force, lines)

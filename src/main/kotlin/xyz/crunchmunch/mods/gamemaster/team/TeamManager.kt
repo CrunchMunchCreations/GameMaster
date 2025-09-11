@@ -5,9 +5,11 @@ import com.google.gson.JsonParser
 import com.mojang.serialization.JsonOps
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.events.TeamEvents
+import xyz.crunchmunch.mods.gamemaster.game.CustomGame
 import xyz.crunchmunch.mods.gamemaster.game.GameEvents
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -44,17 +46,19 @@ open class TeamManager(dataPath: Path) : Iterable<Team> {
 
         this.teams.add(team)
         TeamEvents.TEAM_ADDED.invoker().onTeamEvent(team)
+        TeamEvents.TEAM_UPDATED.invoker().onTeamEvent(team)
         save()
     }
 
     fun removeTeam(team: Team) {
         this.teams.remove(team)
         TeamEvents.TEAM_REMOVED.invoker().onTeamEvent(team)
+        TeamEvents.TEAM_UPDATED.invoker().onTeamEvent(team)
         save()
     }
 
-    fun getTeam(id: String): Team {
-        return this.teams.first { it.id == id }
+    fun getTeam(id: String): Team? {
+        return this.teams.firstOrNull { it.id == id }
     }
 
     fun hasTeam(id: String): Boolean {
@@ -89,6 +93,16 @@ open class TeamManager(dataPath: Path) : Iterable<Team> {
         save()
     }
 
+    fun removePlayerFromTeam(player: TeamPlayer, team: Team) {
+        if (team.players.removeIf { it.id == player.id }) {
+            TeamEvents.TEAM_PLAYER_REMOVED.invoker().onTeamPlayerEvent(team, player)
+            TeamEvents.TEAM_UPDATED.invoker().onTeamEvent(team)
+            team.mcTeam.players.remove(player.username)
+        }
+
+        save()
+    }
+
     fun removePlayerFromTeam(player: TeamPlayer) {
         for (team in teams) {
             if (team.players.removeIf { it.id == player.id }) {
@@ -101,22 +115,88 @@ open class TeamManager(dataPath: Path) : Iterable<Team> {
         save()
     }
 
-    fun awardPoints(player: Player, points: Int) {
+    fun awardPoints(player: Player, points: Int, game: CustomGame? = null) {
         val teamPlayer = this.getTeamPlayer(player) ?: return
+        val team = this.getPlayerTeam(teamPlayer) ?: return
         teamPlayer.transientPoints += points
+        TeamEvents.TEAM_PLAYER_POINTS_AWARDED.invoker().onTeamPointsEvent(game, team, teamPlayer, points)
+        TeamEvents.TEAM_UPDATED.invoker().onTeamEvent(team)
     }
 
-    fun commitPoints(player: Player) {
+    fun commitPoints(player: Player, game: CustomGame? = null) {
         val teamPlayer = this.getTeamPlayer(player) ?: return
-        commitPoints(teamPlayer)
+        commitPoints(teamPlayer, game)
     }
 
-    open fun commitPoints(teamPlayer: TeamPlayer) {
+    open fun commitPoints(teamPlayer: TeamPlayer, game: CustomGame? = null) {
+        val team = this.getPlayerTeam(teamPlayer) ?: return
         teamPlayer.points += teamPlayer.transientPoints
         teamPlayer.transientPoints = 0
+        TeamEvents.TEAM_PLAYER_POINTS_COMMITTED.invoker().onTeamPointsEvent(game, team, teamPlayer, teamPlayer.transientPoints)
+        TeamEvents.TEAM_UPDATED.invoker().onTeamEvent(team)
         save()
     }
 
+    /**
+     * If [transient] is true, the placement is based on the player's transient points, rather than
+     * their total collected points.
+     *
+     * @return The current individual placement of the player, or -1 if the player is not a
+     *         participant.
+     */
+    fun getIndividualPlacement(player: ServerPlayer, transient: Boolean = false): Int {
+        val teamPlayer = this.getTeamPlayer(player) ?: return -1
+        val index = this.getIndividualLeaderboard(transient)
+            .indexOfFirst { it.first == teamPlayer }
+
+        if (index == -1)
+            return -1
+
+        return index + 1
+    }
+
+    /**
+     * If [transient] is true, the placement is based on the team's transient points, rather than
+     * their total collected points.
+     *
+     * @return The current individual placement of the team, or -1 if the team is not participating.
+     */
+    fun getTeamPlacement(team: Team, transient: Boolean = false): Int {
+        val index = this.getTeamLeaderboard(transient)
+            .indexOfFirst { it.first == team }
+
+        if (index == -1)
+            return -1
+
+        return index + 1
+    }
+
+    /**
+     * Returns a sorted leaderboard of all the individual players, in descending order from most points to the least points.
+     *
+     * If [transient] is true, the points provided are all the currently transient points. Note that if it is false,
+     * the transient points are NOT included in the points number.
+     */
+    fun getIndividualLeaderboard(transient: Boolean = false): List<Pair<TeamPlayer, Int>> {
+        return this.teams
+            .filter { it.type == Team.Type.PLAYER } // Only display the player teams
+            .flatMap { it.players } // Flatten the teams into just their players
+            .sortedByDescending { if (transient) it.transientPoints else it.points } // Sort by points in descending order
+            .map { it to (if (transient) it.transientPoints else it.points) } // Then map it into a pair.
+    }
+
+    /**
+     * Returns a sorted leaderboard of all the teams (that are players), in descending order from most points to the least points.
+     *
+     * If [transient] is true, the points provided are all the currently transient points. Note that if it is false,
+     * the transient points are NOT included in the points number.
+     */
+    fun getTeamLeaderboard(transient: Boolean = false): List<Pair<Team, Int>> {
+        return this.teams
+            .filter { it.type == Team.Type.PLAYER } // Only display the player teams
+            .sortedByDescending { if (transient) it.transientPoints else it.points } // Sort by points in descending order
+            .map { it to (if (transient) it.transientPoints else it.points) } // Then map it into a pair.
+    }
 
     /**
      * Queues a data save to occur later. If multiple have been queued at the same time, only one will ever go through.

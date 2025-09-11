@@ -134,6 +134,11 @@ fun <T : CommandSourceStack> DSLCommandNode<T>.execute(function: CommandContext<
     }
 }
 
+// This was annoying me, so I simplified it
+fun CommandSourceStack.sendSuccess(text: VanillaComponent, allowLogging: Boolean = true) {
+    this.sendSuccess({ text }, allowLogging)
+}
+
 fun VanillaComponent.toAdventure(): AdventureComponent {
     return GameMaster.adventure.asAdventure(this)
 }
