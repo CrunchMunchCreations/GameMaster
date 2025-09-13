@@ -17,10 +17,10 @@ open class GameManager<S : SidebarManager, T : TeamManager, C : CountdownManager
     open val teamManager: T,
     open val countdownManager: C
 ) {
-    private val gamesInternal = mutableSetOf<CustomGame>()
+    private val gamesInternal = mutableSetOf<CustomGame<*, *, *>>()
 
-    val games: Collection<CustomGame> = Collections.unmodifiableSet(gamesInternal)
-    val activeGames: Collection<CustomGame>
+    val games: Collection<CustomGame<*, *, *>> = Collections.unmodifiableSet(gamesInternal)
+    val activeGames: Collection<CustomGame<*, *, *>>
         get() {
             return this.games.filter { it.isActive }
         }
@@ -38,25 +38,25 @@ open class GameManager<S : SidebarManager, T : TeamManager, C : CountdownManager
     /**
      * Gets a game by its respective game ID.
      */
-    fun <T : CustomGame> getGameById(id: ResourceLocation): T? {
+    fun <T : CustomGame<*, *, *>> getGameById(id: ResourceLocation): T? {
         return this.games.firstOrNull { it.id == id } as? T?
     }
 
     /**
      * Creates a game by a game ID, assuming a metadata entry exists for it.
      */
-    fun <T : CustomGame> createGame(registry: HolderLookup.Provider, id: ResourceLocation): T {
-        if (this.getGameById<CustomGame>(id) != null) {
+    fun <T : CustomGame<*, *, *>> createGame(registry: HolderLookup.Provider, id: ResourceLocation): T {
+        if (this.getGameById<CustomGame<*, *, *>>(id) != null) {
             throw IllegalArgumentException("A game by the ID $id already exists!")
         }
 
-        val initializer = CustomGameManager.GAME_REGISTRY.getValue(id) as CustomGameManager.CustomGameInitializer<T>
+        val initializer = CustomGameManager.GAME_REGISTRY.getValue(id) as CustomGameManager.CustomGameInitializer
         val metadata = registry.lookupOrThrow(CustomGameManager.GAME_METADATA_REGISTRY_KEY)
             .getOrThrow(ResourceKey.create(CustomGameManager.GAME_METADATA_REGISTRY_KEY, id))
 
         return initializer.create(this, id, metadata.value()).apply {
             gamesInternal.add(this)
-        }
+        } as T
     }
 
     companion object {

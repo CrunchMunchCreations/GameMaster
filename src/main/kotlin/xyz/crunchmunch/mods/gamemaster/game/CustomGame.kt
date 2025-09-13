@@ -11,13 +11,16 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.level.GameType
+import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.ApiStatus
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.metadata.CustomGameMetadata
 import xyz.crunchmunch.mods.gamemaster.game.metadata.CustomGameProperties
 import xyz.crunchmunch.mods.gamemaster.players.FreezeManager
 import xyz.crunchmunch.mods.gamemaster.players.InventoryManager
+import xyz.crunchmunch.mods.gamemaster.scoreboard.SidebarManager
 import xyz.crunchmunch.mods.gamemaster.team.Team
+import xyz.crunchmunch.mods.gamemaster.team.TeamManager
 import xyz.crunchmunch.mods.gamemaster.utils.sendTitle
 import xyz.crunchmunch.mods.gamemaster.utils.setTitleAnimationTimes
 import xyz.crunchmunch.mods.gamemaster.utils.teleportTo
@@ -31,8 +34,8 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Represents a custom game created under GameMaster.
  */
-abstract class CustomGame(
-    val gameManager: GameManager<*, *, *>,
+abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownManager>(
+    val gameManager: GameManager<S, T, C>,
     val id: ResourceLocation,
     val settings: CustomGameMetadata,
     val properties: CustomGameProperties = CustomGameProperties()
@@ -83,6 +86,10 @@ abstract class CustomGame(
             return GameMaster.server.playerList.players
         }
 
+    open fun getSpawnPos(player: ServerPlayer): Vec3 {
+        return this.settings.spawnSettings.pos
+    }
+
     /**
      * Runs preparations for the game before the game begins. This includes teleporting players to
      * the designated level.
@@ -112,10 +119,12 @@ abstract class CustomGame(
 
             InventoryManager.saveAndClearPlayerInventory(player, "${this.id.namespace}/${this.id.path}")
 
+            val spawnPos = getSpawnPos(player)
+
             // Teleport players to their respective locations
-            player.teleportTo(level!!, spawnSettings.pos.x, spawnSettings.pos.y, spawnSettings.pos.z, spawnSettings.yaw, 0f)
+            player.teleportTo(level!!, spawnPos.x, spawnPos.y, spawnPos.z, spawnSettings.yaw, 0f)
             // Set a default respawn position
-            player.setRespawnPosition(ServerPlayer.RespawnConfig(level!!.dimension(), BlockPos.containing(spawnSettings.pos), spawnSettings.yaw, false), false)
+            player.setRespawnPosition(ServerPlayer.RespawnConfig(level!!.dimension(), BlockPos.containing(spawnPos), spawnSettings.yaw, false), false)
 
             if (team.type == Team.Type.PLAYER) {
                 // Players should be in adventure mode by default.
@@ -141,6 +150,8 @@ abstract class CustomGame(
         // Reset the game after all that is set up.
         if (!this.properties.doesPreReset)
             this.reset()
+        else
+            this.softReset()
 
         // Starts the countdown for the game.
         this.beginCountdown()

@@ -46,12 +46,12 @@ abstract class SidebarManager(
     /**
      * All the globally available lines in this sidebar.
      */
-    val lines = Collections.synchronizedList(mutableListOf<SidebarLine>())
+    val lines = SidebarLines(this)
 
     /**
      * All the available per-player lines.
      */
-    val additionalLines = Collections.synchronizedMap(mutableMapOf<UUID, MutableList<SidebarLine>>())
+    val additionalLines = Collections.synchronizedMap(mutableMapOf<UUID, SidebarLines>())
 
     private var isDirty = false
 
@@ -87,6 +87,10 @@ abstract class SidebarManager(
                 this.doUpdateAll(true)
             }
         }
+    }
+
+    fun getAdditionalLinesFor(uuid: UUID): SidebarLines {
+        return this.additionalLines.computeIfAbsent(uuid) { SidebarLines(this) }
     }
 
     /**
@@ -155,7 +159,7 @@ abstract class SidebarManager(
         if (!isDirty && !force)
             return
 
-        val lines = this.additionalLines.computeIfAbsent(player.uuid) { mutableListOf() }
+        val lines = this.additionalLines.computeIfAbsent(player.uuid) { SidebarLines(this) }
 
         updatePlayer(player, force, lines)
 
@@ -169,12 +173,12 @@ abstract class SidebarManager(
      * You may mutate [lines] for adding/updating lines for specific players.
      */
     @ApiStatus.OverrideOnly
-    protected open fun updatePlayer(player: ServerPlayer, force: Boolean = false, lines: MutableList<SidebarLine>) {}
+    protected open fun updatePlayer(player: ServerPlayer, force: Boolean = false, lines: SidebarLines) {}
 
     /**
      * Sends line updates to players, if the lines have been marked as dirty, or if [force] is marked as true.
      */
-    protected fun MutableList<SidebarLine>.sendToClient(player: ServerPlayer, force: Boolean = false) {
+    protected fun SidebarLines.sendToClient(player: ServerPlayer, force: Boolean = false) {
         for (line in this) {
             if (!line.visible && (line.isDirty || force)) {
                 player.connection.send(ClientboundResetScorePacket(line.name, objective.name))
@@ -182,58 +186,6 @@ abstract class SidebarManager(
                 val score = ClientboundSetScorePacket(line.name, objective.name, line.priority, Optional.of(line.text), Optional.of(numberFormat))
                 player.connection.send(score)
             }
-        }
-    }
-
-    protected fun MutableList<SidebarLine>.addLine(name: String, text: Component, priority: Int? = null) {
-        val actualPriority = priority ?: ((this.minOfOrNull { it.priority } ?: 25) - 1)
-        this.add(SidebarLine(this@SidebarManager, name, text, actualPriority).apply {
-            this.isDirty = true
-        })
-    }
-
-    protected fun MutableList<SidebarLine>.addSeparator(priority: Int) {
-        addOrModifyLine("separator_${priority}", Component.empty(), priority)
-    }
-
-    protected fun MutableList<SidebarLine>.removeLine(name: String) {
-        this.setLineVisibility(false, name)
-    }
-
-    protected fun MutableList<SidebarLine>.modifyLine(name: String, text: Component) {
-        val line = this.first { it.name == name }
-
-        if (line.text != text) {
-            line.text = text
-            line.isDirty = true
-        }
-
-        if (!line.visible) {
-            line.visible = true
-            line.isDirty = true
-        }
-    }
-
-    protected fun MutableList<SidebarLine>.addOrModifyLine(name: String, text: Component, priority: Int) {
-        if (this.none { it.name == name })
-            this.addLine(name, text, priority)
-        else
-            this.modifyLine(name, text)
-    }
-
-    protected fun MutableList<SidebarLine>.setLineVisibility(visible: Boolean, vararg names: String) {
-        for (name in names) {
-            val line = this.firstOrNull { it.name == name }
-            line?.visible = visible
-            line?.isDirty = true
-        }
-
-        markDirty()
-    }
-
-    private fun MutableList<SidebarLine>.markAllUpdated() {
-        for (line in this) {
-            line.isDirty = false
         }
     }
 }
