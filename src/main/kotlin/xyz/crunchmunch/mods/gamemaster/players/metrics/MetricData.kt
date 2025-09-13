@@ -8,7 +8,7 @@ import org.jetbrains.annotations.ApiStatus
 
 data class MetricData<T>(
     val profile: GameProfile,
-    val data: T?
+    val data: T
 ) {
     @ApiStatus.Internal
     internal var isDirty = false

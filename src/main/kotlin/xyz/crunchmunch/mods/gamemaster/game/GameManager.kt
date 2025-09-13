@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.minecraft.core.HolderLookup
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.scoreboard.SidebarManager
 import xyz.crunchmunch.mods.gamemaster.team.TeamManager
 import java.util.*
@@ -40,6 +41,11 @@ open class GameManager<S : SidebarManager, T : TeamManager, C : CountdownManager
      */
     fun <T : CustomGame<*, *, *>> getGameById(id: ResourceLocation): T? {
         return this.games.firstOrNull { it.id == id } as? T?
+    }
+
+    @Deprecated("This method is not recommended for public usage.")
+    fun <T : CustomGame<*, *, *>> getOrCreateGameById(id: ResourceLocation): T {
+        return this.getGameById(id) ?: this.createGame(GameMaster.server.registryAccess(), id)
     }
 
     /**

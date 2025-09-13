@@ -59,7 +59,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
      */
     var isActive = false
 
-    private val queuedTicks = mutableListOf<BooleanSupplier>()
+    protected val queuedTicks = mutableListOf<BooleanSupplier>()
 
     /**
      * The current round of the game.
