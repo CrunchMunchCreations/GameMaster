@@ -24,6 +24,6 @@ object GameEvents {
     @JvmField val UNPAUSE = genericGameEvent()
 
     fun interface GenericGameCallback {
-        fun onGameEvent(game: CustomGame)
+        fun onGameEvent(game: CustomGame<*, *, *>)
     }
 }

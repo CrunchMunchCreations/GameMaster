@@ -31,7 +31,7 @@ import kotlin.io.path.*
  */
 class MetricManager<T>(
     dataCodec: Codec<T>,
-    val defaultData: T,
+    val defaultData: () -> T,
     val id: ResourceLocation,
 
     private val saveInterval: Int = 100
@@ -67,7 +67,7 @@ class MetricManager<T>(
      * Retrieves metrics by a player's profile, and creates one if unavailable. Also tries to lazily load the metric data if needed.
      */
     fun get(profile: GameProfile): MetricData<T> {
-        return metrics.computeIfAbsent(profile.id) { tryLoad(profile.id) ?: MetricData(profile, defaultData) }
+        return metrics.computeIfAbsent(profile.id) { tryLoad(profile.id) ?: MetricData(profile, defaultData.invoke()) }
     }
 
     fun get(player: Player): MetricData<T> {
