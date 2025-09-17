@@ -360,7 +360,12 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
     protected open fun unpauseGame() {
     }
 
+    @ApiStatus.OverrideOnly
+    protected open fun beforeStopGame() {}
+
     fun stop() {
+        beforeStopGame()
+
         this.state = GameState.STOPPING
         this.remainingTicks = 15.seconds.ticks
 

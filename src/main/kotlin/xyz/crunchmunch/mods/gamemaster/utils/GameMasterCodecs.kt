@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import java.util.function.Function
 
 object GameMasterCodecs {
     @JvmField
@@ -17,5 +18,9 @@ object GameMasterCodecs {
                 .forGetter(AABB::getMaxPosition)
         )
             .apply(instance, ::AABB)
+    }
+
+    fun <T> Codec<T>.mutableListOf(): Codec<MutableList<T>> {
+        return this.listOf().xmap({ it.toMutableList() }, Function.identity())
     }
 }
