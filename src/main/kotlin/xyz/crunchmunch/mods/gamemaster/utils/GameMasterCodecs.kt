@@ -20,6 +20,19 @@ object GameMasterCodecs {
             .apply(instance, ::AABB)
     }
 
+    @JvmField
+    val INT_RANGE: Codec<IntRange> = RecordCodecBuilder.create { instance ->
+        instance.group(
+            Codec.INT
+                .fieldOf("from")
+                .forGetter(IntRange::start),
+            Codec.INT
+                .fieldOf("to")
+                .forGetter(IntRange::endInclusive)
+        )
+            .apply(instance, ::IntRange)
+    }
+
     fun <T> Codec<T>.mutableListOf(): Codec<MutableList<T>> {
         return this.listOf().xmap({ it.toMutableList() }, Function.identity())
     }

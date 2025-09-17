@@ -35,7 +35,7 @@ class MetricManager<T>(
     val id: ResourceLocation,
 
     private val saveInterval: Int = 100
-) {
+) : Iterable<MetricData<T>> {
     private val metricsPath = GameMaster.resolvePath("metrics/${id.namespace}/${id.path}")
     val codec = MetricData.makeCodec(dataCodec)
 
@@ -142,6 +142,10 @@ class MetricManager<T>(
 
         playerMetricsPath.writeText(gson.toJson(codec.encodeStart(JsonOps.INSTANCE, metricData).orThrow), options = arrayOf(StandardOpenOption.WRITE, StandardOpenOption.CREATE))
         metricData.isDirty = false
+    }
+
+    override fun iterator(): Iterator<MetricData<T>> {
+        return this.metrics.values.iterator()
     }
 
     companion object {
