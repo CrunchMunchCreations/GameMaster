@@ -83,6 +83,6 @@ object TeamEvents {
     }
 
     fun interface GenericTeamPointsCallback {
-        fun onTeamPointsEvent(game: CustomGame?, team: Team, player: TeamPlayer, points: Int)
+        fun onTeamPointsEvent(game: CustomGame<*, *, *>?, team: Team, player: TeamPlayer, points: Int)
     }
 }

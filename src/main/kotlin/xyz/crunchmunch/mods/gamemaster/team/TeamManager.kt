@@ -115,7 +115,7 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
         save()
     }
 
-    fun awardPoints(player: Player, points: Int, game: CustomGame? = null) {
+    fun awardPoints(player: Player, points: Int, game: CustomGame<*, *, *>? = null) {
         val teamPlayer = this.getTeamPlayer(player) ?: return
         val team = this.getPlayerTeam(teamPlayer) ?: return
         teamPlayer.transientPoints += points
@@ -123,12 +123,12 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
         TeamEvents.TEAM_UPDATED.invoker().onTeamEvent(team)
     }
 
-    fun commitPoints(player: Player, game: CustomGame? = null) {
+    fun commitPoints(player: Player, game: CustomGame<*, *, *>? = null) {
         val teamPlayer = this.getTeamPlayer(player) ?: return
         commitPoints(teamPlayer, game)
     }
 
-    open fun commitPoints(teamPlayer: TeamPlayer, game: CustomGame? = null) {
+    open fun commitPoints(teamPlayer: TeamPlayer, game: CustomGame<*, *, *>? = null) {
         val team = this.getPlayerTeam(teamPlayer) ?: return
         teamPlayer.points += teamPlayer.transientPoints
         teamPlayer.transientPoints = 0
