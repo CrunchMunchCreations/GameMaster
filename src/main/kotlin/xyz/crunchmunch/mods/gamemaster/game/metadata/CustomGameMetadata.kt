@@ -2,8 +2,8 @@ package xyz.crunchmunch.mods.gamemaster.game.metadata
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import kotlinx.serialization.Transient
-import net.kyori.adventure.text.minimessage.MiniMessage
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.ComponentSerialization
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.Vec3
@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3
  * The file location is in a datapack, under "data/chrunchy_christmas/gamemaster/custom_games/parkour.json" for example.
  */
 data class CustomGameMetadata(
-    val name: String,
+    val displayName: Component,
     val rounds: Int,
 
     val maxSecondsPerRound: Long,
@@ -41,14 +41,11 @@ data class CustomGameMetadata(
         }
     }
 
-    @Transient
-    val displayName = MiniMessage.miniMessage().deserialize(name)
-
     companion object {
         val CODEC: Codec<CustomGameMetadata> = RecordCodecBuilder.create { instance ->
             instance.group(
-                Codec.STRING.fieldOf("name")
-                    .forGetter(CustomGameMetadata::name),
+                ComponentSerialization.CODEC.fieldOf("display_name")
+                    .forGetter(CustomGameMetadata::displayName),
                 ExtraCodecs.POSITIVE_INT.fieldOf("rounds")
                     .forGetter(CustomGameMetadata::rounds),
                 Codec.LONG.fieldOf("max_seconds_per_round")
