@@ -11,6 +11,7 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.DisplaySlot
+import net.minecraft.world.scores.Objective
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.criteria.ObjectiveCriteria
 import org.jetbrains.annotations.ApiStatus
@@ -21,16 +22,21 @@ import java.util.*
  * Handles sidebars, also known as scoreboards.
  */
 abstract class SidebarManager(
-    displayName: Component,
+    displayName: Lazy<Component>,
     renderType: ObjectiveCriteria.RenderType = ObjectiveCriteria.RenderType.INTEGER,
     displayAutoUpdate: Boolean = true,
     private val numberFormat: NumberFormat = BlankFormat.INSTANCE
 ) {
     private val internalScoreboard = Scoreboard()
-    protected val objective = internalScoreboard.addObjective("gamemaster_internal_sidebar",
-        ObjectiveCriteria.DUMMY,
-        displayName, renderType, displayAutoUpdate, numberFormat
-    )
+    private val internalObjective = lazy {
+        internalScoreboard.addObjective("gamemaster_internal_sidebar",
+            ObjectiveCriteria.DUMMY,
+            displayName.value, renderType, displayAutoUpdate, numberFormat
+        )
+    }
+
+    protected val objective: Objective
+        get() = internalObjective.value
 
     /**
      * The list of players that should be receiving this sidebar.
