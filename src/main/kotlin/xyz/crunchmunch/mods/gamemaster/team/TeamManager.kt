@@ -36,7 +36,7 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
         // Automatically adds the players to their designated teams
         ServerPlayConnectionEvents.JOIN.register { listener, sender, server ->
             val playerTeam = this.getPlayerTeam(listener.getPlayer()) ?: return@register
-            listener.getPlayer().scoreboard.addPlayerToTeam(listener.getPlayer().scoreboardName, playerTeam.mcTeam)
+            server.scoreboard.addPlayerToTeam(listener.getPlayer().scoreboardName, playerTeam.mcTeam)
         }
     }
 

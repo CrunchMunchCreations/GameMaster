@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.level.GameType
+import net.minecraft.world.level.storage.LevelData
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.ApiStatus
 import xyz.crunchmunch.mods.gamemaster.GameMaster
@@ -122,9 +123,9 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
             val spawnPos = getSpawnPos(player)
 
             // Teleport players to their respective locations
-            player.teleportTo(level!!, spawnPos.x, spawnPos.y, spawnPos.z, spawnSettings.yaw, 0f)
+            player.teleportTo(level!!, spawnPos.x, spawnPos.y, spawnPos.z, spawnSettings.yaw, spawnSettings.pitch)
             // Set a default respawn position
-            player.setRespawnPosition(ServerPlayer.RespawnConfig(level!!.dimension(), BlockPos.containing(spawnPos), spawnSettings.yaw, false), false)
+            player.setRespawnPosition(ServerPlayer.RespawnConfig(LevelData.RespawnData.of(level!!.dimension(), BlockPos.containing(spawnPos), spawnSettings.yaw, spawnSettings.pitch), false), false)
 
             if (team.type == Team.Type.PLAYER) {
                 // Players should be in adventure mode by default.
@@ -449,8 +450,9 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
         this.currentRound = 1
 
         val hubWorld = GameMaster.server.overworld()
-        val spawnPos = hubWorld.sharedSpawnPos
-        val spawnYaw = hubWorld.sharedSpawnAngle
+        val spawnPos = hubWorld.respawnData.pos()
+        val spawnYaw = hubWorld.respawnData.yaw()
+        val spawnPitch = hubWorld.respawnData.pitch()
 
         GameEvents.STOP.invoker().onGameEvent(this)
 
@@ -462,7 +464,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
             player.disableCustomSpectator()
             InventoryManager.loadPreviousPlayerInventory(player, "${this.id.namespace}/${this.id.path}")
 
-            player.teleportTo(hubWorld, spawnPos.x + 0.5, spawnPos.y.toDouble(), spawnPos.z + 0.5, spawnYaw, 0f)
+            player.teleportTo(hubWorld, spawnPos.x + 0.5, spawnPos.y.toDouble(), spawnPos.z + 0.5, spawnYaw, spawnPitch)
         }
 
         // Mark the sidebar as changed.

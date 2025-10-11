@@ -1,0 +1,12 @@
+accessWidener v2 named
+
+# Mannequin / NPC AWs
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin getProfile ()Lnet/minecraft/world/item/component/ResolvableProfile;
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin setProfile (Lnet/minecraft/world/item/component/ResolvableProfile;)V
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin getImmovable ()Z
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin setImmovable (Z)V
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin getDescription ()Lnet/minecraft/network/chat/Component;
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin setDescription (Lnet/minecraft/network/chat/Component;)V
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin setHideDescription (Z)V
+transitive-accessible method net/minecraft/world/entity/decoration/Mannequin isImmobile ()Z
+transitive-accessible method net/minecraft/world/item/component/ResolvableProfile create (Lcom/mojang/datafixers/util/Either;Lnet/minecraft/world/entity/player/PlayerSkin$Patch;)Lnet/minecraft/world/item/component/ResolvableProfile;

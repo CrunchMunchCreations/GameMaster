@@ -24,7 +24,7 @@ data class MetricData<T>(
         fun <T> makeCodec(dataCodec: Codec<T>): Codec<MetricData<T>> {
             return RecordCodecBuilder.create { instance ->
                 instance.group(
-                    ExtraCodecs.GAME_PROFILE
+                    ExtraCodecs.AUTHLIB_GAME_PROFILE
                         .fieldOf("profile")
                         .forGetter(MetricData<T>::profile),
                     dataCodec

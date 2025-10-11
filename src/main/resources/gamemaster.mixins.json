@@ -6,19 +6,18 @@
     "mixins": [
         "accessors.DisplayAccessor",
         "devtools.ClientboundResourcePackPushPacketMixin",
-        "devtools.DebugPacketsMixin",
         "devtools.MobAccessor",
         "devtools.PathMixin",
         "devtools.SharedConstantsMixin",
         "devtools.debug.CommandsMixin",
-        "devtools.debug.ConnectionMixin"
+        "devtools.debug.ConnectionMixin",
+        "events.ResultSlotMixin",
+        "events.ServerPlayerMixin"
     ],
     "injectors": {
         "defaultRequire": 1
     },
     "client": [
-        "devtools.DebugRendererMixin",
-        "devtools.KeyboardHandlerMixin",
         "devtools.MinecraftMixin",
         "devtools.debug.GuiMixin"
     ],

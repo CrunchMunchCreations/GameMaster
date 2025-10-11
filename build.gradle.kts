@@ -1,12 +1,16 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.2.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.10"
+    id("org.jetbrains.kotlin.jvm") version "2.2.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
     id("fabric-loom") version "1.11-SNAPSHOT"
     id("maven-publish")
 }
 
 group = "xyz.crunchmunch"
 version = "1.0.0"
+
+loom {
+    accessWidenerPath = file("src/main/resources/gamemaster.accesswidener")
+}
 
 repositories {
     mavenCentral()

@@ -26,15 +26,18 @@ data class CustomGameMetadata(
 ) {
     data class SpawnSettings(
         val pos: Vec3,
-        val yaw: Float
+        val yaw: Float = 0f,
+        val pitch: Float = 0f
     ) {
         companion object {
             val CODEC = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     Vec3.CODEC.fieldOf("pos")
                         .forGetter(SpawnSettings::pos),
-                    Codec.FLOAT.fieldOf("yaw")
-                        .forGetter(SpawnSettings::yaw)
+                    Codec.FLOAT.optionalFieldOf("yaw", 0f)
+                        .forGetter(SpawnSettings::yaw),
+                    Codec.FLOAT.optionalFieldOf("pitch", 0f)
+                        .forGetter(SpawnSettings::pitch)
                 )
                     .apply(instance, ::SpawnSettings)
             }

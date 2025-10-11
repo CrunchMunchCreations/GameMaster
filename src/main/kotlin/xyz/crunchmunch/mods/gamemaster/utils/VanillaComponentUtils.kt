@@ -18,7 +18,7 @@ fun textComponent(text: String, color: ChatFormatting = ChatFormatting.RESET, bo
             it.withColor(color)
                 .withBold(bold)
                 .withItalic(italic)
-                .withFont(font)
+                .withFont(if (font != null) FontDescription.Resource(font) else FontDescription.DEFAULT)
         }
 }
 
@@ -28,7 +28,7 @@ fun textComponent(text: String, color: Int, bold: Boolean = false, italic: Boole
             it.withColor(color)
                 .withBold(bold)
                 .withItalic(italic)
-                .withFont(font)
+                .withFont(if (font != null) FontDescription.Resource(font) else FontDescription.DEFAULT)
         }
 }
 
@@ -38,14 +38,14 @@ fun textComponent(text: String, color: String, bold: Boolean = false, italic: Bo
             it
                 .withBold(bold)
                 .withItalic(italic)
-                .withFont(font)
+                .withFont(if (font != null) FontDescription.Resource(font) else FontDescription.DEFAULT)
                 .run {
                     this.withColor(TextColor.parseColor(color).orThrow)
                 }
         }
 }
 
-fun charComponent(char: Char, font: ResourceLocation = Style.DEFAULT_FONT): Component {
+fun charComponent(char: Char, font: ResourceLocation? = null): Component {
     return textComponent(
         text = "$char",
         font = font

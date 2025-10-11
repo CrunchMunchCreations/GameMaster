@@ -30,5 +30,6 @@
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
         "fabric-language-kotlin": "*"
-    }
+    },
+    "accessWidener": "gamemaster.accesswidener"
 }
