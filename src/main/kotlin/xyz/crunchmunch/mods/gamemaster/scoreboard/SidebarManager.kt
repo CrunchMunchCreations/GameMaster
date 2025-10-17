@@ -76,19 +76,19 @@ abstract class SidebarManager(
         }
 
     init {
-        ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
-            if (playerList.contains(handler.player)) {
-                addDisplayTo(handler.player)
-                trackedPlayers.add(handler.player.uuid)
-            }
-        }
-
         ServerPlayConnectionEvents.DISCONNECT.register { handler, server ->
             // Removing directly from the set, just in case.
             trackedPlayers.remove(handler.player.uuid)
         }
 
-        ServerTickEvents.END_SERVER_TICK.register {
+        ServerTickEvents.END_SERVER_TICK.register { server ->
+            for (player in playerList) {
+                if (!trackedPlayers.contains(player.uuid)) {
+                    addDisplayTo(player)
+                    trackedPlayers.add(player.uuid)
+                }
+            }
+
             if (isDirty && isVisible) {
                 this.doUpdateAll(true)
             }
