@@ -24,6 +24,8 @@ object CustomGameManager {
         DynamicRegistries.register(GAME_METADATA_REGISTRY_KEY, CustomGameMetadata.CODEC)
     }
 
+    fun init() {}
+
     fun interface CustomGameInitializer {
         fun create(manager: GameManager<*, *, *>, gameId: ResourceLocation, metadata: CustomGameMetadata): CustomGame<*, *, *>
     }

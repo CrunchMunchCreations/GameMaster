@@ -6,6 +6,7 @@ import net.fabricmc.loader.api.FabricLoader
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import java.nio.file.Path
 
 // A more common variant of the minigame system used in Chrunchy Christmas for being used
@@ -17,6 +18,8 @@ class GameMaster : ModInitializer {
             GameMaster.server = server
             adventure = MinecraftServerAudiences.of(server)
         }
+
+        CustomGameManager.init()
     }
 
     companion object {
