@@ -216,7 +216,7 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
      */
     fun forceSaveSynchronously() {
         if (!file.parent.exists())
-            file.createParentDirectories()
+            file.parent.createParentDirectories()
 
         if (!file.exists())
             file.createFile()
@@ -238,7 +238,7 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
         if (!file.exists())
             return
 
-        val json = file.reader(Charsets.UTF_8).use { JsonParser.parseReader(it) }
+        val json = file.reader(Charsets.UTF_8, StandardOpenOption.READ).use { JsonParser.parseReader(it) }
         teams.addAll(CODEC.decode(JsonOps.INSTANCE, json).orThrow.first)
     }
 
