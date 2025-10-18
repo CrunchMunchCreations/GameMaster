@@ -29,8 +29,8 @@ object InventoryManager {
         val file = dir.resolve("$storageDir/${player.uuid}.dat")
 
         if (!file.exists()) {
-            if (!dir.exists())
-                dir.createDirectories()
+            if (!file.parent.exists())
+                file.parent.createDirectories()
 
             file.createFile()
         }
@@ -47,8 +47,8 @@ object InventoryManager {
         val file = dir.resolve("$storageDir/${player.uuid}.dat")
 
         if (!file.exists()) {
-            if (!dir.exists())
-                dir.createDirectories()
+            if (!file.parent.exists())
+                file.parent.createDirectories()
 
             return
         }
