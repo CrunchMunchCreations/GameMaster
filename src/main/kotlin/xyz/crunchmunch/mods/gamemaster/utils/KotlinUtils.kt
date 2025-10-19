@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.CustomModelData
 import net.minecraft.world.item.component.ItemLore
+import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import xyz.crunchmunch.mods.gamemaster.GameMaster
@@ -54,6 +55,10 @@ fun Duration.getTimeString(): String {
 
 fun ChatFormatting.toTextColor(): TextColor {
     return TextColor.fromLegacyFormat(this)!!
+}
+
+fun Vec3.copy(): Vec3 {
+    return Vec3(this.x, this.y, this.z)
 }
 
 fun range(first: Int, second: Int): IntRange {

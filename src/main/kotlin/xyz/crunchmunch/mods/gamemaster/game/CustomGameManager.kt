@@ -10,12 +10,12 @@ import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.metadata.CustomGameMetadata
 
 object CustomGameManager {
-    val GAME_REGISTRY_KEY: ResourceKey<Registry<CustomGameInitializer>> = ResourceKey.createRegistryKey<CustomGameInitializer>(GameMaster.id("games"))
-    val GAME_REGISTRY: Registry<CustomGameInitializer> = FabricRegistryBuilder.createSimple(GAME_REGISTRY_KEY)
+    @JvmField val GAME_REGISTRY_KEY: ResourceKey<Registry<CustomGameInitializer>> = ResourceKey.createRegistryKey<CustomGameInitializer>(GameMaster.id("games"))
+    @JvmField val GAME_REGISTRY: Registry<CustomGameInitializer> = FabricRegistryBuilder.createSimple(GAME_REGISTRY_KEY)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()
 
-    val GAME_METADATA_REGISTRY_KEY: ResourceKey<Registry<CustomGameMetadata>> = ResourceKey.createRegistryKey(GameMaster.id("custom_games"))
+    @JvmField val GAME_METADATA_REGISTRY_KEY: ResourceKey<Registry<CustomGameMetadata>> = ResourceKey.createRegistryKey(GameMaster.id("custom_games"))
     /*val GAME_METADATA_REGISTRY: Registry<CustomGameMetadata> = FabricRegistryBuilder.createSimple(GAME_METADATA_REGISTRY_KEY)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()*/

@@ -5,6 +5,7 @@
     "compatibilityLevel": "JAVA_21",
     "mixins": [
         "accessors.DisplayAccessor",
+        "accessors.EntityAccessor",
         "devtools.ClientboundResourcePackPushPacketMixin",
         "devtools.MobAccessor",
         "devtools.PathMixin",
