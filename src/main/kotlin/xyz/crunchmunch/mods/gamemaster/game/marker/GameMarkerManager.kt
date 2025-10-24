@@ -36,8 +36,8 @@ object GameMarkerManager {
                 // was unloaded, our entity object would no longer synchronize correctly.
                 synchronized(gameMarkers) {
                     for (gameMarker in gameMarkers) {
-                        if (gameMarker.entity.uuid == entity.uuid) {
-                            gameMarker.entity = entity
+                        if (gameMarker.marker.uuid == entity.uuid) {
+                            gameMarker.marker = entity
                             gameMarker.entityLoaded()
 
                             return@register
@@ -56,7 +56,7 @@ object GameMarkerManager {
                 // Make sure to notify the game marker that the marker has unloaded.
                 synchronized(gameMarkers) {
                     for (gameMarker in gameMarkers) {
-                        if (gameMarker.entity.uuid == entity.uuid) {
+                        if (gameMarker.marker.uuid == entity.uuid) {
                             gameMarker.entityUnloaded()
 
                             // If the entity was actually deleted, we need to handle that.
@@ -74,7 +74,7 @@ object GameMarkerManager {
         ServerTickEvents.END_WORLD_TICK.register { level ->
             synchronized(gameMarkers) {
                 for (gameMarker in gameMarkers) {
-                    if (gameMarker.entity.level() == level) {
+                    if (gameMarker.marker.level() == level) {
                         gameMarker.tick()
                     }
                 }
@@ -118,6 +118,10 @@ object GameMarkerManager {
      */
     fun <M : GameMarker<D>, D : Any> getMarkersByType(type: GameMarkerType<M, D>): Collection<M> {
         return this.gameMarkers.filter { it.type == type } as Collection<M>
+    }
+
+    fun <M : GameMarker<D>, D : Any> getMarkersByClass(clazz: Class<out M>): Collection<M> {
+        return this.gameMarkers.filter { clazz.isAssignableFrom(it.javaClass) } as Collection<M>
     }
 
     private fun <M : GameMarker<D>, D : Any> tryLoadMarker(marker: Marker, level: ServerLevel): M? {

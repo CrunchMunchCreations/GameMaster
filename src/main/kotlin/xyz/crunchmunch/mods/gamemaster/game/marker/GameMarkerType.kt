@@ -10,7 +10,7 @@ data class GameMarkerType<MARKER : GameMarker<DATA>, DATA : Any>(
     val dataCodec: MapCodec<DATA>,
 
     /**
-     * Initializer for creating the game marker. Only initializes based on [loadType].
+     * Initializer for creating the game marker.
      */
     val initializer: (Marker, DATA) -> MARKER
 )

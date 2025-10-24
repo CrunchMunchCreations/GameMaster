@@ -12,7 +12,7 @@ abstract class GameMarker<DATA : Any>(
         onEntityLoad()
     }
 
-    var entity: Marker = entity
+    var marker: Marker = entity
         internal set
 
     protected var isUnloaded: Boolean = false
@@ -35,7 +35,7 @@ abstract class GameMarker<DATA : Any>(
             return
         }
 
-        this.entity.customData.update { tag ->
+        this.marker.customData.update { tag ->
             tag.store(this.type.dataCodec, this.data)
         }
 
