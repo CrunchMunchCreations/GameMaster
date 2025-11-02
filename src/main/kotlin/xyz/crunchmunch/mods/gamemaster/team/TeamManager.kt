@@ -223,7 +223,7 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
 
         synchronized(teams) {
             val json = CODEC.encodeStart(JsonOps.INSTANCE, teams).orThrow
-            file.writeText(GSON.toJson(json), Charsets.UTF_8, StandardOpenOption.WRITE)
+            file.writeText(GSON.toJson(json), Charsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
 
             isDirty = false
         }

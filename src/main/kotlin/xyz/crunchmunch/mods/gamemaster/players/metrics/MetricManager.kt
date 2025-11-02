@@ -140,7 +140,7 @@ class MetricManager<T>(
             playerMetricsPath.createFile()
         }
 
-        playerMetricsPath.writeText(gson.toJson(codec.encodeStart(JsonOps.INSTANCE, metricData).orThrow), options = arrayOf(StandardOpenOption.WRITE, StandardOpenOption.CREATE))
+        playerMetricsPath.writeText(gson.toJson(codec.encodeStart(JsonOps.INSTANCE, metricData).orThrow), options = arrayOf(StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))
         metricData.isDirty = false
     }
 
