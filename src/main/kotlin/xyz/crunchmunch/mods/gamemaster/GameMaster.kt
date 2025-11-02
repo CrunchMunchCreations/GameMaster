@@ -1,13 +1,17 @@
 package xyz.crunchmunch.mods.gamemaster
 
+import de.phyrone.brig.wrapper.literal
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
+import net.minecraft.commands.Commands
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import xyz.crunchmunch.mods.gamemaster.commands.gameMarkerCommands
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import java.nio.file.Path
@@ -24,6 +28,14 @@ class GameMaster : ModInitializer {
 
         CustomGameManager.init()
         GameMarkerManager.init()
+
+        CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess, environment ->
+            dispatcher.literal("gamemaster") {
+                require { hasPermission(Commands.LEVEL_GAMEMASTERS) }
+
+                gameMarkerCommands()
+            }
+        }
     }
 
     companion object {
