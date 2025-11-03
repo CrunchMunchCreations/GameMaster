@@ -12,8 +12,10 @@ import net.minecraft.server.MinecraftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import xyz.crunchmunch.mods.gamemaster.commands.gameMarkerCommands
+import xyz.crunchmunch.mods.gamemaster.commands.inventoryCommands
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
+import xyz.crunchmunch.mods.gamemaster.server.GameMasterNotificationService
 import java.nio.file.Path
 
 // A more common variant of the minigame system used in Chrunchy Christmas for being used
@@ -24,6 +26,8 @@ class GameMaster : ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register { server ->
             GameMaster.server = server
             adventure = MinecraftServerAudiences.of(server)
+
+            server.notificationManager().registerService(GameMasterNotificationService())
         }
 
         CustomGameManager.init()
@@ -34,6 +38,7 @@ class GameMaster : ModInitializer {
                 require { hasPermission(Commands.LEVEL_GAMEMASTERS) }
 
                 gameMarkerCommands()
+                inventoryCommands()
             }
         }
     }

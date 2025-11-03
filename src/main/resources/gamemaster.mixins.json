@@ -6,6 +6,7 @@
     "mixins": [
         "accessors.DisplayAccessor",
         "accessors.EntityAccessor",
+        "accessors.LivingEntityAccessor",
         "devtools.ClientboundResourcePackPushPacketMixin",
         "devtools.MobAccessor",
         "devtools.PathMixin",
