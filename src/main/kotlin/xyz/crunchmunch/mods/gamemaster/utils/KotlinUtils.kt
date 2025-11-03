@@ -7,6 +7,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.TextColor
+import net.minecraft.network.protocol.common.ClientboundClearDialogPacket
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket
@@ -200,6 +201,10 @@ var ItemStack.customModel: String?
 
 fun ServerPlayer.openDialog(dialog: ResourceKey<Dialog>) {
     this.openDialog(this.registryAccess().lookupOrThrow(Registries.DIALOG).getOrThrow(dialog))
+}
+
+fun ServerPlayer.closeDialogVanilla() {
+    this.connection.send(ClientboundClearDialogPacket.INSTANCE)
 }
 
 fun ServerPlayer.setTitleAnimationTimes(fadeIn: Int = 10, stay: Int = 70, fadeOut: Int = 20) {
