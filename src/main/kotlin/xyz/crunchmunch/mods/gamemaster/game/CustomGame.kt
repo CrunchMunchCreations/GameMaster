@@ -185,6 +185,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
 
     fun softReset() {
         this.queuedTicks.clear()
+        GameEvents.SOFT_RESET.invoker().onGameEvent(this)
         this.softResetGame()
     }
 
@@ -198,6 +199,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
 
     fun reset() {
         resetGame()
+        GameEvents.RESET.invoker().onGameEvent(this)
         this.hasPreReset = true
 
         softReset()
@@ -299,6 +301,8 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
 
             return
         }
+
+        GameEvents.TICK.invoker().onGameEvent(this)
 
         if (state == GameState.STARTED) {
             this.checkShouldFinishGame()
