@@ -7,10 +7,16 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.CraftingRecipe
+import net.minecraft.world.item.crafting.RecipeHolder
 
 interface PlayerEvents {
     fun interface DropItemEvent {
         fun onDropItem(player: ServerPlayer, item: ItemEntity): Boolean
+    }
+
+    fun interface CanCraftItemEvent {
+        fun checkCanCraftItem(player: ServerPlayer, recipe: RecipeHolder<CraftingRecipe>, craftingSlots: CraftingContainer): Boolean
     }
 
     fun interface CraftItemEvent {
@@ -50,6 +56,18 @@ interface PlayerEvents {
          */
         @JvmField
         val LEAVE: Event<GenericPlayerEvent> = createGenericEvent()
+
+        @JvmField
+        val CAN_CRAFT_ITEM: Event<CanCraftItemEvent> = EventFactory.createArrayBacked(CanCraftItemEvent::class.java) { callbacks ->
+            CanCraftItemEvent { player, recipe, slots ->
+                for (callback in callbacks) {
+                    if (!callback.checkCanCraftItem(player, recipe, slots))
+                        return@CanCraftItemEvent false
+                }
+
+                true
+            }
+        }
 
         @JvmField
         val CRAFT_ITEM: Event<CraftItemEvent> = EventFactory.createArrayBacked(CraftItemEvent::class.java) { callbacks ->
