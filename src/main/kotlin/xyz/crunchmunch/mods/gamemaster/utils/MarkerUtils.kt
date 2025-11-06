@@ -1,10 +1,13 @@
 package xyz.crunchmunch.mods.gamemaster.utils
 
+import net.minecraft.core.component.DataComponents
 import net.minecraft.world.entity.Marker
 import net.minecraft.world.item.component.CustomData
-import xyz.crunchmunch.mods.gamemaster.mixin.accessors.EntityAccessor
 
-val Marker.customData: CustomData
+var Marker.customData: CustomData
     get() {
-        return (this as EntityAccessor).customData
+        return this.get(DataComponents.CUSTOM_DATA) ?: CustomData.EMPTY
+    }
+    set(value) {
+        this.setComponent(DataComponents.CUSTOM_DATA, value)
     }
