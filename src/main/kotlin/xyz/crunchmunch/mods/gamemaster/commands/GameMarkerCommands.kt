@@ -4,6 +4,7 @@ import de.phyrone.brig.wrapper.DSLCommandNode
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
@@ -31,8 +32,11 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
                             sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded):"))
 
                             for (gameMarker in levelGameMarkers) {
-                                sendSystemMessage(Component.literal(" - ${gameMarker.marker.position()} (${gameMarker.javaClass.name})")
-                                    .withStyle { it.withHoverEvent(HoverEvent.ShowText(Component.literal(gameMarker.marker.uuid.toString()))) })
+                                sendSystemMessage(Component.literal(" - ${gameMarker.marker.position()} (${gameMarker.javaClass.simpleName})")
+                                    .withStyle {
+                                        it.withHoverEvent(HoverEvent.ShowText(Component.literal(gameMarker.marker.uuid.toString())))
+                                            .withClickEvent(ClickEvent.SuggestCommand("/tp @s ${gameMarker.marker.uuid}"))
+                                    })
                             }
                         }
 
