@@ -63,7 +63,7 @@ data class Team(
                 val team = scoreboard.getPlayerTeam("gamemaster_$id") ?: scoreboard.addPlayerTeam("gamemaster_$id")
 
                 team.displayName = this.displayName
-                team.playerPrefix = this.prefix
+                team.playerPrefix = Component.empty().append(this.prefix).append(" ")
                 team.collisionRule = VanillaTeam.CollisionRule.NEVER // Prevents teammates from causing collision with one another
                 team.setSeeFriendlyInvisibles(false) // Prevents teammates from being visible when in the custom spectator mode
                 team.isAllowFriendlyFire = false // Disables team friendly fire
