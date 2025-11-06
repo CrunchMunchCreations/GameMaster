@@ -2,7 +2,6 @@ package xyz.crunchmunch.mods.gamemaster.players
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.Event
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.player.*
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.server.level.ServerPlayer
@@ -12,13 +11,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
 import xyz.crunchmunch.mods.gamemaster.GameMaster
+import xyz.crunchmunch.mods.gamemaster.events.PlayerEvents
 import java.util.*
 
 object FreezeManager {
     private val HIGH_PRIORITY_EVENT = GameMaster.id("high_priority")
 
     private val FROZEN_ATTRIBUTE_ID = GameMaster.id("freeze_player")
-    private val FROZEN_ATTRIBUTE_MODIFIER = AttributeModifier(FROZEN_ATTRIBUTE_ID, -1.0, AttributeModifier.Operation.ADD_VALUE)
+    private val FROZEN_ATTRIBUTE_MODIFIER = AttributeModifier(FROZEN_ATTRIBUTE_ID, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
     
     private val frozenPlayers = mutableMapOf<UUID, Vec3>()
 
@@ -28,13 +28,11 @@ object FreezeManager {
                 freezePlayer(listener.player)
         }
 
-        ServerTickEvents.END_WORLD_TICK.register { level ->
-            for (player in level.players()) {
-                if (frozenPlayers.contains(player.uuid)) {
-                    val lastPos = frozenPlayers[player.uuid]!!
-                    player.teleportTo(lastPos.x, lastPos.y, lastPos.z)
-                    player.setDeltaMovement(0.0, 0.0, 0.0)
-                }
+        PlayerEvents.END_TICK.register { player ->
+            if (frozenPlayers.contains(player.uuid)) {
+                val lastPos = frozenPlayers[player.uuid]!!
+                player.teleportTo(lastPos.x, lastPos.y, lastPos.z)
+                player.setDeltaMovement(0.0, 0.0, 0.0)
             }
         }
 
@@ -112,6 +110,9 @@ object FreezeManager {
         if (player.getAttribute(Attributes.JUMP_STRENGTH)?.hasModifier(FROZEN_ATTRIBUTE_ID) != true)
             player.getAttribute(Attributes.JUMP_STRENGTH)?.addTransientModifier(FROZEN_ATTRIBUTE_MODIFIER)
 
+        if (player.getAttribute(Attributes.GRAVITY)?.hasModifier(FROZEN_ATTRIBUTE_ID) != true)
+            player.getAttribute(Attributes.GRAVITY)?.addTransientModifier(FROZEN_ATTRIBUTE_MODIFIER)
+
         frozenPlayers[player.uuid] = Vec3(player.x, player.y, player.z)
     }
 
@@ -121,6 +122,7 @@ object FreezeManager {
     fun unfreezePlayer(player: Player) {
         player.getAttribute(Attributes.MOVEMENT_SPEED)?.removeModifier(FROZEN_ATTRIBUTE_ID)
         player.getAttribute(Attributes.JUMP_STRENGTH)?.removeModifier(FROZEN_ATTRIBUTE_ID)
+        player.getAttribute(Attributes.GRAVITY)?.removeModifier(FROZEN_ATTRIBUTE_ID)
         frozenPlayers.remove(player.uuid)
     }
 }
