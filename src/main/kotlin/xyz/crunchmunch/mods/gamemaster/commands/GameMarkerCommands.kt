@@ -32,7 +32,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
                             sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded):"))
 
                             for (gameMarker in levelGameMarkers) {
-                                sendSystemMessage(Component.literal(" - ${gameMarker.marker.position()} (${gameMarker.javaClass.simpleName})")
+                                sendSystemMessage(Component.literal(" - ${gameMarker.marker.position()} (${gameMarker})")
                                     .withStyle {
                                         it.withHoverEvent(HoverEvent.ShowText(Component.literal(gameMarker.marker.uuid.toString())))
                                             .withClickEvent(ClickEvent.SuggestCommand("/tp @s ${gameMarker.marker.uuid}"))

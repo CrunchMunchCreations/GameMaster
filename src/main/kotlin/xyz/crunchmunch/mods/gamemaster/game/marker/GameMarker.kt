@@ -71,4 +71,8 @@ abstract class GameMarker<DATA : Any>(
      * Called when the backing marker entity gets unloaded.
      */
     protected open fun onEntityUnload() {}
+
+    override fun toString(): String {
+        return "${this.javaClass.name}"
+    }
 }
