@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import xyz.crunchmunch.mods.gamemaster.commands.freezeCommands
 import xyz.crunchmunch.mods.gamemaster.commands.gameMarkerCommands
 import xyz.crunchmunch.mods.gamemaster.commands.inventoryCommands
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
@@ -39,6 +40,7 @@ class GameMaster : ModInitializer {
 
                 gameMarkerCommands()
                 inventoryCommands()
+                freezeCommands()
             }
         }
     }
