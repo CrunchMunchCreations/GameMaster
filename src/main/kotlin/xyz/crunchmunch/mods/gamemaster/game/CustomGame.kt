@@ -15,6 +15,7 @@ import net.minecraft.world.level.storage.LevelData
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.ApiStatus
 import xyz.crunchmunch.mods.gamemaster.GameMaster
+import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.game.metadata.CustomGameMetadata
 import xyz.crunchmunch.mods.gamemaster.game.metadata.CustomGameProperties
 import xyz.crunchmunch.mods.gamemaster.players.FreezeManager
@@ -186,6 +187,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
 
     fun softReset() {
         this.queuedTicks.clear()
+        GameMarkerManager.refreshGameMarkers(this.level!!)
         GameEvents.SOFT_RESET.invoker().onGameEvent(this)
         this.softResetGame()
     }

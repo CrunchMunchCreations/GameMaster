@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Marker
+import net.minecraft.world.level.entity.EntityTypeTest
 import net.minecraft.world.phys.Vec3
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.utils.customData
@@ -90,7 +91,7 @@ object GameMarkerManager {
             ?: throw IllegalStateException("Failed to load marker at ${level.dimension()}/$pos!")
 
         marker.snapTo(pos)
-        marker.customData.update { tag ->
+        marker.customData = marker.customData.update { tag ->
             tag.store("type", TYPE_REGISTRY.byNameCodec(), type)
             tag.store(type.dataCodec, data)
         }
@@ -114,17 +115,81 @@ object GameMarkerManager {
     }
 
     /**
+     * Refreshes all game markers, first removing them from the backing list, then reloading any loaded marker entities as a game marker.
+     */
+    fun refreshGameMarkers(level: ServerLevel? = null) {
+        val markersToUnload = synchronized(this.gameMarkers) { this.gameMarkers.filter { (level != null && it.marker.level() == level) || level == null } }
+
+        for (marker in markersToUnload) {
+            marker.entityUnloaded()
+        }
+
+        this.trackedGameMarkers.removeAll(markersToUnload)
+
+        if (level != null) {
+            loadNewGameMarkers(level)
+        } else {
+            loadNewGameMarkers()
+        }
+    }
+
+    fun loadNewGameMarkers(): Pair<List<GameMarker<*>>, Int> {
+        val loadedMarkers = mutableListOf<GameMarker<*>>()
+        var totalUnloaded = 0
+
+        for (level in GameMaster.server.allLevels) {
+            val loaded = this.loadNewGameMarkers(level)
+            loadedMarkers += loaded.first
+            totalUnloaded += loaded.second
+        }
+
+        return loadedMarkers to totalUnloaded
+    }
+
+    fun loadNewGameMarkers(level: ServerLevel): Pair<List<GameMarker<*>>, Int> {
+        val loadedMarkers = mutableListOf<GameMarker<*>>()
+        var totalUnloaded = 0
+
+        level.getEntities(EntityTypeTest.forClass(Marker::class.java)) { !it.customData.isEmpty }
+            .forEach { marker ->
+                synchronized(gameMarkers) {
+                    if (gameMarkers.any { it.marker.uuid == marker.uuid })
+                        return@forEach
+                }
+
+                val loaded = tryLoadMarker<GameMarker<Any>, Any>(marker, level)
+
+                if (loaded != null) {
+                    loadedMarkers += loaded
+                } else {
+                    totalUnloaded++
+                }
+            }
+
+        return loadedMarkers to totalUnloaded
+    }
+
+    /**
      * Gets all game markers that match a specific type.
      */
     fun <M : GameMarker<D>, D : Any> getMarkersByType(type: GameMarkerType<M, D>): Collection<M> {
-        return this.gameMarkers.filter { it.type == type } as Collection<M>
+        synchronized(this.gameMarkers) {
+            return this.gameMarkers.filter { it.type == type } as Collection<M>
+        }
     }
 
     fun <M : GameMarker<D>, D : Any> getMarkersByClass(clazz: Class<out M>): Collection<M> {
-        return this.gameMarkers.filter { clazz.isAssignableFrom(it.javaClass) } as Collection<M>
+        synchronized(this.gameMarkers) {
+            return this.gameMarkers.filter { clazz.isAssignableFrom(it.javaClass) } as Collection<M>
+        }
     }
 
     private fun <M : GameMarker<D>, D : Any> tryLoadMarker(marker: Marker, level: ServerLevel): M? {
+        synchronized(gameMarkers) {
+            if (gameMarkers.any { it.marker.uuid == marker.uuid })
+                return gameMarkers.first { it.marker.uuid == marker.uuid } as M
+        }
+
         val data = marker.customData.copyTag()
 
         val type = (data.read("type", TYPE_REGISTRY.byNameCodec()).orElse(null)) as? GameMarkerType<M, D>

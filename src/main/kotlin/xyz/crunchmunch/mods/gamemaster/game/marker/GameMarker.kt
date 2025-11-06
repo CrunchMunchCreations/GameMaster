@@ -73,6 +73,6 @@ abstract class GameMarker<DATA : Any>(
     protected open fun onEntityUnload() {}
 
     override fun toString(): String {
-        return "${this.javaClass.name}"
+        return "${this.javaClass.simpleName}"
     }
 }

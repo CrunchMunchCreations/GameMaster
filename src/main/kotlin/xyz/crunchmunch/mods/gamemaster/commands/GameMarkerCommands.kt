@@ -1,8 +1,10 @@
 package xyz.crunchmunch.mods.gamemaster.commands
 
 import de.phyrone.brig.wrapper.DSLCommandNode
+import de.phyrone.brig.wrapper.executesNoResult
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.arguments.DimensionArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
@@ -11,6 +13,50 @@ import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 
 fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
     literal("markers") {
+        literal("refresh") {
+            argument("level", DimensionArgument.dimension()) {
+                executesNoResult { ctx ->
+                    val level = DimensionArgument.getDimension(ctx, "level")
+
+                    val currentMarkers = GameMarkerManager.gameMarkers.filter { it.marker.level() == level }
+                    GameMarkerManager.refreshGameMarkers(level)
+                    val newMarkers = GameMarkerManager.gameMarkers.filter { it.marker.level() == level }
+
+                    val unique = newMarkers.filter { currentMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
+                    val removed = currentMarkers.filter { newMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
+
+                    sendSystemMessage(Component.literal("Reloaded game markers in level ${level.dimension().location()}! (previous: ${currentMarkers.size}, current: ${newMarkers.size}, added: ${unique.size}, unloaded: ${removed.size})"))
+                }
+            }
+
+            executesNoResult { ctx ->
+                val currentMarkers = GameMarkerManager.gameMarkers.toList()
+                GameMarkerManager.refreshGameMarkers(level)
+                val newMarkers = GameMarkerManager.gameMarkers.toList()
+
+                val unique = newMarkers.filter { currentMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
+                val removed = currentMarkers.filter { newMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
+
+                sendSystemMessage(Component.literal("Reloaded all game markers! (previous: ${currentMarkers.size}, current: ${newMarkers.size}, added: ${unique.size}, unloaded: ${removed.size})"))
+            }
+        }
+
+        literal("loadnew") {
+            argument("level", DimensionArgument.dimension()) {
+                executesNoResult { ctx ->
+                    val level = DimensionArgument.getDimension(ctx, "level")
+
+                    val loaded = GameMarkerManager.loadNewGameMarkers(level)
+                    sendSystemMessage(Component.literal("Loaded ${loaded.first.size} new game markers, with ${loaded.second} failed."))
+                }
+            }
+
+            executesNoResult { ctx ->
+                val loaded = GameMarkerManager.loadNewGameMarkers()
+                sendSystemMessage(Component.literal("Loaded ${loaded.first.size} new game markers, with ${loaded.second} failed."))
+            }
+        }
+
         literal("list") {
             argument("type", ResourceLocationArgument.id()) {
                 suggest { SharedSuggestionProvider.suggestResource(GameMarkerManager.TYPE_REGISTRY.keySet(), this) }
