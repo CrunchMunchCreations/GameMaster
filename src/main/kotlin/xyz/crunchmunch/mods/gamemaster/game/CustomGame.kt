@@ -173,6 +173,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
     protected open fun prepareStartGame() {}
 
     internal fun start() {
+        this.state = GameState.STARTED
         this.remainingTicks = this.settings.maxSecondsPerRound.seconds.ticks
 
         GameEvents.START.invoker().onGameEvent(this)
@@ -326,6 +327,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
     }
 
     protected fun actuallyPause() {
+        this.state = GameState.PAUSED
         GameEvents.PAUSE.invoker().onGameEvent(this)
 
         for (player in players) {
