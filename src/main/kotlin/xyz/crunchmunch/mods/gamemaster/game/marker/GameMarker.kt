@@ -35,7 +35,7 @@ abstract class GameMarker<DATA : Any>(
             return
         }
 
-        this.entity.customData.update { tag ->
+        this.entity.customData = this.entity.customData.update { tag ->
             tag.store(this.type.dataCodec, this.data)
         }
 
