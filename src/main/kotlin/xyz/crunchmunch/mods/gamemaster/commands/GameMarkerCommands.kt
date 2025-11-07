@@ -18,12 +18,12 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
                 executesNoResult { ctx ->
                     val level = DimensionArgument.getDimension(ctx, "level")
 
-                    val currentMarkers = GameMarkerManager.gameMarkers.filter { it.marker.level() == level }
+                    val currentMarkers = GameMarkerManager.gameMarkers.filter { it.entity.level() == level }
                     GameMarkerManager.refreshGameMarkers(level)
-                    val newMarkers = GameMarkerManager.gameMarkers.filter { it.marker.level() == level }
+                    val newMarkers = GameMarkerManager.gameMarkers.filter { it.entity.level() == level }
 
-                    val unique = newMarkers.filter { currentMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
-                    val removed = currentMarkers.filter { newMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
+                    val unique = newMarkers.filter { currentMarkers.none { b -> b.entity.uuid == it.entity.uuid } }
+                    val removed = currentMarkers.filter { newMarkers.none { b -> b.entity.uuid == it.entity.uuid } }
 
                     sendSystemMessage(Component.literal("Reloaded game markers in level ${level.dimension().location()}! (previous: ${currentMarkers.size}, current: ${newMarkers.size}, added: ${unique.size}, unloaded: ${removed.size})"))
                 }
@@ -34,8 +34,8 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
                 GameMarkerManager.refreshGameMarkers(level)
                 val newMarkers = GameMarkerManager.gameMarkers.toList()
 
-                val unique = newMarkers.filter { currentMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
-                val removed = currentMarkers.filter { newMarkers.none { b -> b.marker.uuid == it.marker.uuid } }
+                val unique = newMarkers.filter { currentMarkers.none { b -> b.entity.uuid == it.entity.uuid } }
+                val removed = currentMarkers.filter { newMarkers.none { b -> b.entity.uuid == it.entity.uuid } }
 
                 sendSystemMessage(Component.literal("Reloaded all game markers! (previous: ${currentMarkers.size}, current: ${newMarkers.size}, added: ${unique.size}, unloaded: ${removed.size})"))
             }
@@ -73,15 +73,15 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
                     val markers = GameMarkerManager.getMarkersByType(type)
 
                     sendSystemMessage(Component.literal("Game Markers for $typeId (${markers.size}):"))
-                    markers.groupBy { it.marker.level().dimension().location() }
+                    markers.groupBy { it.entity.level().dimension().location() }
                         .forEach { (dimensionId, levelGameMarkers) ->
                             sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded):"))
 
                             for (gameMarker in levelGameMarkers) {
-                                sendSystemMessage(Component.literal(" - ${gameMarker.marker.position()} (${gameMarker})")
+                                sendSystemMessage(Component.literal(" - ${gameMarker.entity.position()} (${gameMarker})")
                                     .withStyle {
-                                        it.withHoverEvent(HoverEvent.ShowText(Component.literal(gameMarker.marker.uuid.toString())))
-                                            .withClickEvent(ClickEvent.SuggestCommand("/tp @s ${gameMarker.marker.uuid}"))
+                                        it.withHoverEvent(HoverEvent.ShowText(Component.literal(gameMarker.entity.uuid.toString())))
+                                            .withClickEvent(ClickEvent.SuggestCommand("/tp @s ${gameMarker.entity.uuid}"))
                                     })
                             }
                         }

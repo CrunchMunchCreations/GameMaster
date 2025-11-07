@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.utils.customData
 import java.util.*
+import java.util.function.Predicate
 
 object GameMarkerManager {
     @JvmField val TYPE_REGISTRY_KEY: ResourceKey<Registry<GameMarkerType<*, *>>> = ResourceKey.createRegistryKey(GameMaster.id("game_marker_types"))
@@ -23,6 +24,10 @@ object GameMarkerManager {
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()
 
+    /**
+     * Handles determining whether this is, in fact, a game marker.
+     */
+    var gameMarkerEntityPredicate: Predicate<Entity> = Predicate { it is Marker }
     private val trackedGameMarkers = Collections.synchronizedList<GameMarker<*>>(mutableListOf())
 
     /**
@@ -32,13 +37,13 @@ object GameMarkerManager {
 
     init {
         ServerEntityEvents.ENTITY_LOAD.register { entity, world ->
-            if (entity is Marker) {
+            if (gameMarkerEntityPredicate.test(entity)) {
                 // Make sure to reclaim the game marker entity, because if the entity
                 // was unloaded, our entity object would no longer synchronize correctly.
                 synchronized(gameMarkers) {
                     for (gameMarker in gameMarkers) {
-                        if (gameMarker.marker.uuid == entity.uuid) {
-                            gameMarker.marker = entity
+                        if (gameMarker.entity.uuid == entity.uuid) {
+                            gameMarker.entity = entity
                             gameMarker.entityLoaded()
 
                             return@register
@@ -57,7 +62,7 @@ object GameMarkerManager {
                 // Make sure to notify the game marker that the marker has unloaded.
                 synchronized(gameMarkers) {
                     for (gameMarker in gameMarkers) {
-                        if (gameMarker.marker.uuid == entity.uuid) {
+                        if (gameMarker.entity.uuid == entity.uuid) {
                             gameMarker.entityUnloaded()
 
                             // If the entity was actually deleted, we need to handle that.
@@ -75,7 +80,7 @@ object GameMarkerManager {
         ServerTickEvents.END_WORLD_TICK.register { level ->
             synchronized(gameMarkers) {
                 for (gameMarker in gameMarkers) {
-                    if (gameMarker.marker.level() == level) {
+                    if (gameMarker.entity.level() == level) {
                         gameMarker.tick()
                     }
                 }
@@ -118,7 +123,7 @@ object GameMarkerManager {
      * Refreshes all game markers, first removing them from the backing list, then reloading any loaded marker entities as a game marker.
      */
     fun refreshGameMarkers(level: ServerLevel? = null) {
-        val markersToUnload = synchronized(this.gameMarkers) { this.gameMarkers.filter { (level != null && it.marker.level() == level) || level == null } }
+        val markersToUnload = synchronized(this.gameMarkers) { this.gameMarkers.filter { (level != null && it.entity.level() == level) || level == null } }
 
         for (marker in markersToUnload) {
             marker.entityUnloaded()
@@ -153,7 +158,7 @@ object GameMarkerManager {
         level.getEntities(EntityTypeTest.forClass(Marker::class.java)) { !it.customData.isEmpty }
             .forEach { marker ->
                 synchronized(gameMarkers) {
-                    if (gameMarkers.any { it.marker.uuid == marker.uuid })
+                    if (gameMarkers.any { it.entity.uuid == marker.uuid })
                         return@forEach
                 }
 
@@ -184,10 +189,10 @@ object GameMarkerManager {
         }
     }
 
-    private fun <M : GameMarker<D>, D : Any> tryLoadMarker(marker: Marker, level: ServerLevel): M? {
+    private fun <M : GameMarker<D>, D : Any> tryLoadMarker(marker: Entity, level: ServerLevel): M? {
         synchronized(gameMarkers) {
-            if (gameMarkers.any { it.marker.uuid == marker.uuid })
-                return gameMarkers.first { it.marker.uuid == marker.uuid } as M
+            if (gameMarkers.any { it.entity.uuid == marker.uuid })
+                return gameMarkers.first { it.entity.uuid == marker.uuid } as M
         }
 
         val data = marker.customData.copyTag()

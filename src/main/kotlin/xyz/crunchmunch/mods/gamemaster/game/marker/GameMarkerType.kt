@@ -1,7 +1,7 @@
 package xyz.crunchmunch.mods.gamemaster.game.marker
 
 import com.mojang.serialization.MapCodec
-import net.minecraft.world.entity.Marker
+import net.minecraft.world.entity.Entity
 
 data class GameMarkerType<MARKER : GameMarker<DATA>, DATA : Any>(
     /**
@@ -12,5 +12,5 @@ data class GameMarkerType<MARKER : GameMarker<DATA>, DATA : Any>(
     /**
      * Initializer for creating the game marker.
      */
-    val initializer: (Marker, DATA) -> MARKER
+    val initializer: (Entity, DATA) -> MARKER
 )

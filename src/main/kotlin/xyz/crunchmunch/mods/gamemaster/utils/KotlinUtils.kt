@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.item.component.CustomModelData
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.phys.Vec3
@@ -215,3 +216,11 @@ fun ServerPlayer.sendTitle(title: VanillaComponent = VanillaComponent.empty(), s
     this.connection.send(ClientboundSetTitleTextPacket(title))
     this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
 }
+
+var Entity.customData: CustomData
+    get() {
+        return this.get(DataComponents.CUSTOM_DATA) ?: CustomData.EMPTY
+    }
+    set(value) {
+        this.setComponent(DataComponents.CUSTOM_DATA, value)
+    }

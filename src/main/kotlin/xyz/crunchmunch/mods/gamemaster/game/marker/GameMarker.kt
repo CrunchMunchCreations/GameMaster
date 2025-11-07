@@ -1,18 +1,18 @@
 package xyz.crunchmunch.mods.gamemaster.game.marker
 
-import net.minecraft.world.entity.Marker
+import net.minecraft.world.entity.Entity
 import xyz.crunchmunch.mods.gamemaster.utils.customData
 
 abstract class GameMarker<DATA : Any>(
     val type: GameMarkerType<out GameMarker<DATA>, DATA>,
-    entity: Marker,
+    entity: Entity,
     val data: DATA
 ) {
     init {
         onEntityLoad()
     }
 
-    var marker: Marker = entity
+    var entity: Entity = entity
         internal set
 
     protected var isUnloaded: Boolean = false
@@ -35,7 +35,7 @@ abstract class GameMarker<DATA : Any>(
             return
         }
 
-        this.marker.customData.update { tag ->
+        this.entity.customData.update { tag ->
             tag.store(this.type.dataCodec, this.data)
         }
 
