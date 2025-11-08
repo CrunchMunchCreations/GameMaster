@@ -13,6 +13,32 @@ import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 
 fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
     literal("markers") {
+        literal("count") {
+            argument("type", ResourceLocationArgument.id()) {
+                suggest { SharedSuggestionProvider.suggestResource(GameMarkerManager.TYPE_REGISTRY.keySet(), this) }
+
+                executes { ctx ->
+                    val typeId = ResourceLocationArgument.getId(ctx, "type")
+                    val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeId)
+
+                    if (type == null) {
+                        sendFailure(Component.literal("No game markers exist by the ID $typeId!"))
+                        return@executes 0
+                    }
+
+                    val markers = GameMarkerManager.getMarkersByType(type)
+
+                    sendSystemMessage(Component.literal("Game Markers for $typeId (${markers.size}):"))
+                    markers.groupBy { it.entity.level().dimension().location() }
+                        .forEach { (dimensionId, levelGameMarkers) ->
+                            sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded):"))
+                        }
+
+                    markers.size
+                }
+            }
+        }
+
         literal("refresh") {
             argument("level", DimensionArgument.dimension()) {
                 executesNoResult { ctx ->
