@@ -31,7 +31,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
                     sendSystemMessage(Component.literal("Game Markers for $typeId (${markers.size}):"))
                     markers.groupBy { it.entity.level().dimension().location() }
                         .forEach { (dimensionId, levelGameMarkers) ->
-                            sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded):"))
+                            sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded)"))
                         }
 
                     markers.size
