@@ -11,7 +11,6 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Marker
-import net.minecraft.world.level.entity.EntityTypeTest
 import net.minecraft.world.phys.Vec3
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.utils.customData
@@ -155,14 +154,14 @@ object GameMarkerManager {
         val loadedMarkers = mutableListOf<GameMarker<*>>()
         var totalUnloaded = 0
 
-        level.getEntities(EntityTypeTest.forClass(Entity::class.java)) { gameMarkerEntityPredicate.test(it) && !it.customData.isEmpty }
-            .forEach { marker ->
+        for (entity in level.allEntities) {
+            if (gameMarkerEntityPredicate.test(entity) && !entity.customData.isEmpty) {
                 synchronized(gameMarkers) {
-                    if (gameMarkers.any { it.entity.uuid == marker.uuid })
-                        return@forEach
+                    if (gameMarkers.any { it.entity.uuid == entity.uuid })
+                        continue
                 }
 
-                val loaded = tryLoadMarker<GameMarker<Any>, Any>(marker, level)
+                val loaded = tryLoadMarker<GameMarker<Any>, Any>(entity, level)
 
                 if (loaded != null) {
                     loadedMarkers += loaded
@@ -170,6 +169,7 @@ object GameMarkerManager {
                     totalUnloaded++
                 }
             }
+        }
 
         return loadedMarkers to totalUnloaded
     }
