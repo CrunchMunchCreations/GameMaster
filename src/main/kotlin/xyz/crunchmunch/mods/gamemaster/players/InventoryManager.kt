@@ -97,6 +97,7 @@ object InventoryManager {
         player.inventory.save(tag.list("Items", ItemStackWithSlot.CODEC))
         tag.store("equipment", EntityEquipment.CODEC, (player as LivingEntityAccessor).equipment)
         tag.store("carried", ItemStack.OPTIONAL_CODEC, player.inventoryMenu.carried)
+        tag.store("craft", ItemStack.OPTIONAL_CODEC.listOf(), player.inventoryMenu.craftSlots.toList())
 
         NbtIo.writeCompressed(tag.buildResult(), file)
 
@@ -105,6 +106,11 @@ object InventoryManager {
 
         // anti-Simon measures
         player.inventoryMenu.carried = ItemStack.EMPTY
+
+        // anti-U.N.Own measures
+        player.inventoryMenu.craftSlots.clearContent()
+        player.inventoryMenu.craftSlots.setChanged()
+
         player.inventoryMenu.sendAllDataToRemote()
 
         alreadyStored.computeIfAbsent(storageDir) { mutableListOf() }
@@ -132,6 +138,13 @@ object InventoryManager {
             .ifPresent { (player as LivingEntityAccessor).equipment.setAll(it) }
 
         player.inventoryMenu.carried = tag.read("carried", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY)
+        tag.read("craft", ItemStack.OPTIONAL_CODEC.listOf())
+            .ifPresent { items ->
+                for ((index, stack) in items.withIndex()) {
+                    player.inventoryMenu.craftSlots.setItem(index, stack)
+                }
+            }
+        player.inventoryMenu.craftSlots.setChanged()
         player.inventoryMenu.sendAllDataToRemote()
 
         alreadyStored.computeIfAbsent(storageDir) { mutableListOf() }
