@@ -211,6 +211,7 @@ object GameMarkerManager {
             val data = data.read(type.dataCodec).orElseThrow()
 
             val gameMarker = type.initializer.invoke(marker, data)
+            gameMarker.entityLoaded()
             trackedGameMarkers.add(gameMarker)
 
             return gameMarker

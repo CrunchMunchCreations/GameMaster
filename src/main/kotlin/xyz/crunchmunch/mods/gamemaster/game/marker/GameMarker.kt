@@ -8,10 +8,6 @@ abstract class GameMarker<DATA : Any>(
     entity: Entity,
     val data: DATA
 ) {
-    init {
-        onEntityLoad()
-    }
-
     var entity: Entity = entity
         internal set
 
