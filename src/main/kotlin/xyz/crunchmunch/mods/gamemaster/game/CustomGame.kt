@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.level.GameType
+import net.minecraft.world.level.portal.TeleportTransition
 import net.minecraft.world.level.storage.LevelData
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.ApiStatus
@@ -472,7 +473,10 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
             player.disableCustomSpectator()
             InventoryManager.loadPreviousPlayerInventory(player, "${this.id.namespace}/${this.id.path}")
 
-            player.teleportTo(hubWorld, spawnPos.x + 0.5, spawnPos.y.toDouble(), spawnPos.z + 0.5, spawnYaw, spawnPitch)
+            player.teleport(TeleportTransition(
+                hubWorld, Vec3(spawnPos.x + 0.5, spawnPos.y.toDouble(), spawnPos.z + 0.5), Vec3.ZERO, spawnYaw, spawnPitch,
+                TeleportTransition.DO_NOTHING
+            ))?.disableCustomSpectator() // pain.
         }
 
         // Mark the sidebar as changed.
