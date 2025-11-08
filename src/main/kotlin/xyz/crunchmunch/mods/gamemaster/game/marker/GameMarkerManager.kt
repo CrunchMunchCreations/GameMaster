@@ -155,7 +155,7 @@ object GameMarkerManager {
         val loadedMarkers = mutableListOf<GameMarker<*>>()
         var totalUnloaded = 0
 
-        level.getEntities(EntityTypeTest.forClass(Marker::class.java)) { !it.customData.isEmpty }
+        level.getEntities(EntityTypeTest.forClass(Entity::class.java)) { gameMarkerEntityPredicate.test(it) && !it.customData.isEmpty }
             .forEach { marker ->
                 synchronized(gameMarkers) {
                     if (gameMarkers.any { it.entity.uuid == marker.uuid })
