@@ -76,6 +76,13 @@ abstract class SidebarManager(
         }
 
     init {
+        ServerPlayConnectionEvents.JOIN.register { handler, sender, server ->
+            if (trackedPlayers.contains(handler.player.uuid)) {
+                // there was a weird case where the sidebar would stop tracking.
+                trackedPlayers.remove(handler.player.uuid)
+            }
+        }
+
         ServerPlayConnectionEvents.DISCONNECT.register { handler, server ->
             // Removing directly from the set, just in case.
             trackedPlayers.remove(handler.player.uuid)
