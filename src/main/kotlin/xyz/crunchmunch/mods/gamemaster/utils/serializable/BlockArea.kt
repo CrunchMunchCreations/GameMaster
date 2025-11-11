@@ -12,6 +12,10 @@ data class BlockArea(
         return AABB(from.center, to.center).inflate(1.05)
     }
 
+    override fun toString(): String {
+        return "${from.toShortString()}, ${to.toShortString()}"
+    }
+
     companion object {
         val CODEC = RecordCodecBuilder.create { instance ->
             instance.group(
