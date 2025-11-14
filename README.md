@@ -7,9 +7,9 @@ Contrary to most minigame events, our events are built on Fabric, typically usin
 This allows us a significant amount of control over our minigames without sacrificing on
 performance, but this also means we require to reimplement everything by ourselves, as most utility
 plugins used in Minecraft events, such as holograms, leaderboards, custom scoreboards, among other things,
-are typically not available (or updated) on Fabric. We do not have to worry about NPCs, as we maintain
-[a fork of Taterzens](https://github.com/CrunchMunchCreations/Taterzens) to ensure its availability for
-the latest version, while also contributing upstream to ensure others are also able to use it.
+are typically not available (or updated) on Fabric. We do not have to worry about NPCs, as we utilize
+Minecraft's built-in mannequin entities for NPCs. Previously, we had used and maintained the Taterzens mod
+to be updated to the latest versions, but now it's no longer necessary for us to do so.
 
 ## How do I use it?
 At the moment, GameMaster doesn't actually *have* a stable API, and still receives frequent changes
