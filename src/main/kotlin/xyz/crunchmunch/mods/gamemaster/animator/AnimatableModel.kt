@@ -147,6 +147,13 @@ class AnimatableModel(
                                     display.transformationInterpolationDelay = 0
                                     display.translation = this.initialPositions[id] ?: Vector3f()
                                     display.leftRotation = Quaternionf()
+
+                                    display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSLATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.PREV_LOCAL_ROTATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.LOCAL_TRANSLATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.LOCAL_ROTATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.START_TICK, 0)
+                                    display.setAttached(AnimatorAttachments.END_TICK, 0)
                                 }
                             }
 
@@ -191,10 +198,6 @@ class AnimatableModel(
             }
         }
 
-        if (this.currentState != AnimationState.STOPPED) {
-            this.currentTick++
-        }
-
         // If the rotation was updated externally, make sure to handle that.
         if (this.cachedYaw != this.rootDisplay.yRot || cachedPitch != this.rootDisplay.xRot) {
             hasChanged = true
@@ -225,7 +228,7 @@ class AnimatableModel(
                 (endTick - startTick) - (currentTick - startTick)
 
             recursiveAnimateHierarchy(
-                this.rootDisplay, currentTick, remainingDuration,
+                this.rootDisplay, currentTick, remainingDuration, startTick,
 //                    StackingVector3f(translation), StackingVector3f(rotation)
                 matrixStack
             )
@@ -237,6 +240,10 @@ class AnimatableModel(
             this.rootDisplay.translation = translation
             this.rootDisplay.yRot = cachedYaw + rotation.y
             this.rootDisplay.xRot = cachedPitch + rotation.x
+        }
+
+        if (this.currentState != AnimationState.STOPPED) {
+            this.currentTick++
         }
     }
 
@@ -253,7 +260,7 @@ class AnimatableModel(
     }
 
     private fun recursiveAnimateHierarchy(part: Display,
-                                          currentTick: Int, parentRemainingDuration: Int,
+                                          currentTick: Int, parentRemainingDuration: Int, parentStartTick: Int,
 //                                          addedTranslation: StackingVector3f, addedRotation: StackingVector3f
                                           matrixStack: Matrix4fStack
     ) {
@@ -266,8 +273,9 @@ class AnimatableModel(
 
             val partId = entity.getAttachedOrThrow(AnimatorAttachments.MODEL_PART_ID)
 
-            val startTick = entity.getAttachedOrCreate(AnimatorAttachments.START_TICK)
+            var startTick = entity.getAttachedOrCreate(AnimatorAttachments.START_TICK)
             val endTick = entity.getAttachedOrCreate(AnimatorAttachments.END_TICK)
+            val animationLength = endTick - startTick
             var remainingDuration = if (currentTick > endTick)
                 0
             else
@@ -276,21 +284,18 @@ class AnimatableModel(
             var localTranslation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
             var localRotation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
 
-            if (parentRemainingDuration in 1..<remainingDuration) {
+            if (parentRemainingDuration in 1..<remainingDuration && parentStartTick == currentTick) {
                 // Handle getting in-between first
                 entity.setAttached(AnimatorAttachments.START_TICK, currentTick)
                 entity.setAttached(AnimatorAttachments.END_TICK, currentTick + parentRemainingDuration)
+                startTick = currentTick
 
                 val previousTranslation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_TRANSLATION)
                 val previousRotation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_ROTATION)
-                val nextTranslation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
-                val nextRotation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
-
-                val animationLength = endTick - startTick
 
                 val delta = ((animationLength - remainingDuration).toFloat() / animationLength.toFloat())
-                localTranslation = TransformUtil.lerp(delta, previousTranslation, nextTranslation)
-                localRotation = TransformUtil.lerp(delta, previousRotation, nextRotation)
+                localTranslation = TransformUtil.lerp(delta, previousTranslation, localTranslation)
+                localRotation = TransformUtil.lerp(delta, previousRotation, localRotation)
 
                 remainingDuration = parentRemainingDuration
             }
@@ -316,18 +321,26 @@ class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
 
-            val transformation = Transformation(matrixStack.get(Matrix4f()))
+            if (startTick == currentTick) {
+                val transformation = Transformation(matrixStack.get(Matrix4f()))
 
-            if (
-                transformation.translation != entity.translation || transformation.leftRotation != entity.leftRotation
-                || transformation.rightRotation != entity.rightRotation || transformation.scale != entity.scale
-            ) {
-                entity.transformationInterpolationDelay = 0
-                entity.transformationInterpolationDuration = remainingDuration
-                entity.setTransformation(transformation)
+                if (
+                    transformation.translation != entity.translation || transformation.leftRotation != entity.leftRotation
+                    || transformation.rightRotation != entity.rightRotation || transformation.scale != entity.scale
+                ) {
+                    entity.transformationInterpolationDelay = 0
+                    entity.transformationInterpolationDuration = remainingDuration
+                    entity.setTransformation(transformation)
+                }
             }
 
-            this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, matrixStack)
+            matrixStack.popMatrix()
+
+            matrixStack.pushMatrix()
+            matrixStack.translate(localTranslation)
+            matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
+
+            this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 
             matrixStack.popMatrix()
 //            addedTranslation.pop()
