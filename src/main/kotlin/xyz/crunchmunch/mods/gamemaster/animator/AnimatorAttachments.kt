@@ -22,7 +22,7 @@ object AnimatorAttachments {
         persistent(ResourceKey.codec(AnimatableManager.ANIMATION_REGISTRY_KEY))
     }
 
-    @JvmField val ASSOCIATED_MARKER = register("associated_game_marker") {
+    @JvmField val ASSOCIATED_ENTITY = register("associated_entity") {
         persistent(UUIDUtil.CODEC)
     }
 

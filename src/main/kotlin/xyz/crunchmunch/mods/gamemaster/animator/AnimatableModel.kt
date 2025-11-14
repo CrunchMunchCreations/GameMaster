@@ -21,7 +21,7 @@ import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefiniti
 import xyz.crunchmunch.mods.gamemaster.animator.util.TransformUtil
 import xyz.crunchmunch.mods.gamemaster.utils.*
 
-class AnimatableModel(
+open class AnimatableModel(
     val model: ModelDefinition, val animations: MultiAnimationDefinition,
     val level: ServerLevel
 ) {
@@ -51,19 +51,20 @@ class AnimatableModel(
     private var cachedYaw = 0f
     private var cachedPitch = 0f
 
-    fun isEntityLoaded(): Boolean {
+    open fun isEntityLoaded(): Boolean {
         return ::rootDisplay.isInitialized && !this.rootDisplay.isRemoved
     }
 
-    fun createNew(pos: Vec3) {
-        this.rootDisplay = EntityType.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
-            ?: throw IllegalStateException("Failed to load root display!")
+    open fun createNew(pos: Vec3, rootDisplay: Display = EntityType.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
+        ?: throw IllegalStateException("Failed to load root display!")
+    ) {
+        this.rootDisplay = rootDisplay
 
         this.cachedX = pos.x
         this.cachedY = pos.y
         this.cachedZ = pos.z
-        this.cachedYaw = 0f
-        this.cachedPitch = 0f
+        this.cachedYaw = rootDisplay.yRot
+        this.cachedPitch = rootDisplay.xRot
 
         this.rootDisplay.snapTo(pos)
         this.rootDisplay.setAttached(AnimatorAttachments.MODEL_KEY, this.modelKey)
@@ -77,7 +78,7 @@ class AnimatableModel(
         this.level.addFreshEntity(this.rootDisplay)
     }
 
-    fun loadFromExisting(root: Display) {
+    open fun loadFromExisting(root: Display) {
         this.rootDisplay = root
         this.cachedX = root.x
         this.cachedY = root.y
@@ -103,7 +104,7 @@ class AnimatableModel(
         this.currentState = AnimationState.STOPPED
     }
 
-    fun tick() {
+    open fun tick() {
         val animation = this.currentAnimation
         var hasChanged = false
 
@@ -162,15 +163,22 @@ class AnimatableModel(
 
                         this.currentState = AnimationState.TRANSITIONING
                         this.currentTick = 0
+
+                        this.tick()
+                        return
                     }
                 }
 
                 AnimationState.TRANSITIONING -> {
-                    if (this.currentTick++ >= animation.loopDelay) {
+                    if (this.currentTick >= animation.loopDelay) {
                         if (this.nextAnimation != null) {
                             this.currentAnimation = this.nextAnimation
                             this.nextAnimation = null
                             this.currentState = AnimationState.PLAYING
+
+                            this.currentTick = 0
+                            this.tick()
+                            return
                         } else {
                             this.currentAnimation = null
                             this.currentState = AnimationState.STOPPED
@@ -247,19 +255,20 @@ class AnimatableModel(
         }
     }
 
-    fun remove() {
-        recursiveRemove(this.rootDisplay)
+    open fun remove(includeRoot: Boolean = true) {
+        recursiveRemove(this.rootDisplay, includeRoot)
     }
 
-    private fun recursiveRemove(entity: Entity) {
+    protected open fun recursiveRemove(entity: Entity, includeRoot: Boolean) {
         for (e in entity.passengers) {
-            recursiveRemove(e)
+            recursiveRemove(e, false)
         }
 
-        entity.remove(Entity.RemovalReason.DISCARDED)
+        if (includeRoot || this.rootDisplay != entity)
+            entity.remove(Entity.RemovalReason.DISCARDED)
     }
 
-    private fun recursiveAnimateHierarchy(part: Display,
+    protected open fun recursiveAnimateHierarchy(part: Display,
                                           currentTick: Int, parentRemainingDuration: Int, parentStartTick: Int,
 //                                          addedTranslation: StackingVector3f, addedRotation: StackingVector3f
                                           matrixStack: Matrix4fStack
@@ -348,7 +357,7 @@ class AnimatableModel(
         }
     }
 
-    private fun recursiveLoadParts(parts: List<ModelDefinition.ModelPart>, parent: Display): MutableMap<String, Display> {
+    protected open fun recursiveLoadParts(parts: List<ModelDefinition.ModelPart>, parent: Display): MutableMap<String, Display> {
         val displays = mutableMapOf<String, Display>()
 
         for (part in parts) {
@@ -376,7 +385,7 @@ class AnimatableModel(
         return displays
     }
 
-    private fun recursiveLoadExistingParts(parent: Display): MutableMap<String, Display> {
+    protected open fun recursiveLoadExistingParts(parent: Display): MutableMap<String, Display> {
         val displays = mutableMapOf<String, Display>()
 
         for (entity in parent.passengers) {

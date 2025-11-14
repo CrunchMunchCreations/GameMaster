@@ -43,6 +43,12 @@ object AnimatableManager {
         this.animatablesMutable.remove(animatable.rootDisplay.uuid)
     }
 
+    fun respawn(animatable: AnimatableModel) {
+        val root = animatable.rootDisplay
+        animatable.remove(false)
+        animatable.createNew(root.position(), root)
+    }
+
     init {
         DynamicRegistries.register(ANIMATION_REGISTRY_KEY, MultiAnimationDefinition.CODEC)
         DynamicRegistries.register(MODEL_REGISTRY_KEY, ModelDefinition.CODEC)
@@ -68,26 +74,37 @@ object AnimatableManager {
         }
 
         ServerTickEvents.END_WORLD_TICK.register { level ->
+            val queuedForRemoval = mutableListOf<UUID>()
+
             synchronized(this.animatables) {
                 for ((uuid, animatable) in this.animatables) {
-                    val existing = level.getEntity(uuid) ?: continue
+                    try {
+                        val existing = level.getEntity(uuid) ?: continue
 
-                    if (existing !is Display)
-                        continue
-
-                    // check if our stored entity is actually still around
-                    if (!animatable.isEntityLoaded()) {
-                        if (!recursiveCheckIsFullyLoaded(existing)) {
-                            // Defer, we need all the passengers.
+                        if (existing !is Display)
                             continue
+
+                        // check if our stored entity is actually still around
+                        if (!animatable.isEntityLoaded()) {
+                            if (!recursiveCheckIsFullyLoaded(existing)) {
+                                // Defer, we need all the passengers.
+                                continue
+                            }
+
+                            // We need to reload the entity.
+                            animatable.loadFromExisting(existing)
                         }
 
-                        // We need to reload the entity.
-                        animatable.loadFromExisting(existing)
+                        animatable.tick()
+                    } catch (e: Throwable) {
+                        GameMaster.logger.error("An error occurred whilst ticking game marker $uuid, unloading game marker.", e)
+                        queuedForRemoval.add(uuid)
                     }
-
-                    animatable.tick()
                 }
+            }
+
+            for (uuid in queuedForRemoval) {
+                this.animatablesMutable.remove(uuid)
             }
         }
     }

@@ -5,7 +5,6 @@ import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefiniti
 
 abstract class AnimatableMarkerData(
     val model: ResourceKey<ModelDefinition>,
-    val animations: ResourceKey<MultiAnimationDefinition>,
-    val yaw: Float
+    val animations: ResourceKey<MultiAnimationDefinition>
 ) {
 }
