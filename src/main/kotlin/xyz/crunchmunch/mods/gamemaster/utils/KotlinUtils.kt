@@ -24,7 +24,9 @@ import net.minecraft.world.item.component.CustomModelData
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
+import org.joml.Quaternionfc
 import org.joml.Vector3f
+import org.joml.Vector3fc
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.mixin.accessors.DisplayAccessor
 import kotlin.time.Duration
@@ -50,6 +52,14 @@ fun Int.toThString(): String {
 
 public inline val Duration.ticks: Int get() = (this.inWholeMilliseconds / 50).toInt()
 public inline val Int.ticks: Duration get() = ((this * 50).milliseconds)
+
+fun Vector3fc.copy(): Vector3f {
+    return Vector3f(this)
+}
+
+fun Quaternionfc.copy(): Quaternionf {
+    return Quaternionf(this)
+}
 
 fun Duration.getTimeString(): String {
     return "${(this.inWholeMinutes - (this.inWholeHours * 60)).zeroPad()}:${(this.inWholeSeconds - (this.inWholeMinutes * 60)).zeroPad()}"

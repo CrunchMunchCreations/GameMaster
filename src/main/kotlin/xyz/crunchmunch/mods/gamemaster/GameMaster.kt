@@ -11,6 +11,9 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
+import xyz.crunchmunch.mods.gamemaster.animator.AnimatorAttachments
+import xyz.crunchmunch.mods.gamemaster.commands.animatorCommands
 import xyz.crunchmunch.mods.gamemaster.commands.freezeCommands
 import xyz.crunchmunch.mods.gamemaster.commands.gameMarkerCommands
 import xyz.crunchmunch.mods.gamemaster.commands.inventoryCommands
@@ -31,16 +34,20 @@ class GameMaster : ModInitializer {
             server.notificationManager().registerService(GameMasterNotificationService())
         }
 
+        AnimatableManager.init()
+        AnimatorAttachments.init()
+        GameMasterAttachments.init()
         CustomGameManager.init()
         GameMarkerManager.init()
 
-        CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess, environment ->
+        CommandRegistrationCallback.EVENT.register { dispatcher, buildContext, environment ->
             dispatcher.literal("gamemaster") {
                 require { hasPermission(Commands.LEVEL_GAMEMASTERS) }
 
                 gameMarkerCommands()
                 inventoryCommands()
                 freezeCommands()
+                animatorCommands(buildContext)
             }
         }
     }
