@@ -1,10 +1,14 @@
 package xyz.crunchmunch.mods.gamemaster.animator
 
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.Mth
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
+import org.joml.Vector3f
+import xyz.crunchmunch.mods.gamemaster.GameMasterAttachments
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarker
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerType
+import xyz.crunchmunch.mods.gamemaster.utils.leftRotation
 
 abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMarkerType<out AnimatableEntityGameMarker<D>, D>, entity: Entity, data: D) : GameMarker<D>(type, entity, data) {
     private val registry = entity.level().registryAccess()
@@ -41,6 +45,27 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
 //                animatable.createNew(entity.position())
 //
 //            }
+        }
+    }
+
+    override fun tick() {
+        super.tick()
+
+        if (!this.isUnloaded && !this.animatable.isEntityLoaded() && this.entity.hasAttached(AnimatorAttachments.MODEL_KEY) && this.entity.hasAttached(GameMasterAttachments.HAS_PASSENGERS) && this.entity.passengers.isNotEmpty()) {
+            this.tryLocateEntity()
+        }
+
+        val entity = this.entity
+
+        if (entity is Display) {
+            val yRot = entity.leftRotation.getEulerAnglesXYZ(Vector3f()).y * Mth.RAD_TO_DEG
+            if (yRot != 0f) {
+                this.entity.yRot = yRot
+            }
+        }
+
+        if (!this.isUnloaded && this.animatable.isEntityLoaded()) {
+            this.animatable.tick()
         }
     }
 }
