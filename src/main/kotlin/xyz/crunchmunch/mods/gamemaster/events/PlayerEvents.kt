@@ -15,6 +15,10 @@ interface PlayerEvents {
         fun onDropItem(player: ServerPlayer, item: ItemEntity): Boolean
     }
 
+    fun interface AllowPickupItemEvent {
+        fun canPickupItem(player: ServerPlayer, item: ItemEntity): Boolean
+    }
+
     fun interface CanCraftItemEvent {
         fun checkCanCraftItem(player: ServerPlayer, recipe: RecipeHolder<CraftingRecipe>, craftingSlots: CraftingContainer): Boolean
     }
@@ -28,6 +32,21 @@ interface PlayerEvents {
     }
 
     companion object {
+        /**
+         * Return false if you're cancelling the event.
+         */
+        @JvmField
+        val CAN_PICKUP_ITEM: Event<AllowPickupItemEvent> = EventFactory.createArrayBacked(AllowPickupItemEvent::class.java) { callbacks ->
+            AllowPickupItemEvent { player, item ->
+                for (callback in callbacks) {
+                    if (!callback.canPickupItem(player, item))
+                        return@AllowPickupItemEvent false
+                }
+
+                true
+            }
+        }
+
         /**
          * Return true if you're cancelling the event.
          */

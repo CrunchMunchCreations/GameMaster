@@ -13,6 +13,7 @@
         "devtools.debug.CommandsMixin",
         "devtools.debug.ConnectionMixin",
         "events.CraftingMenuMixin",
+        "events.ItemEntityMixin",
         "events.ResultSlotMixin",
         "events.ServerPlayerMixin"
     ],
