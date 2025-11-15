@@ -32,8 +32,8 @@ open class AnimatableModel(
         private set
     lateinit var idToDisplayMapping: Map<String, Display>
         private set
-    lateinit var initialPositions: Map<String, Vector3f>
-        private set
+    val initialPositions: Map<String, Vector3f> = this.model.collectAllParts()
+        .associate { it.id to it.origin.copy() }
 
     var currentState = AnimationState.STOPPED
         private set
@@ -73,7 +73,6 @@ open class AnimatableModel(
         this.idToDisplayMapping = this.recursiveLoadParts(model.parts, this.rootDisplay).apply {
             this["root"] = this@AnimatableModel.rootDisplay
         }
-        this.initialPositions = this.idToDisplayMapping.mapValues { it.value.translation.copy() }
 
         this.level.addFreshEntity(this.rootDisplay)
     }
@@ -89,7 +88,6 @@ open class AnimatableModel(
         this.idToDisplayMapping = this.recursiveLoadExistingParts(root).apply {
             this["root"] = root
         }
-        this.initialPositions = this.idToDisplayMapping.mapValues { it.value.translation.copy() }
     }
 
     fun queueAnimation(id: String) {

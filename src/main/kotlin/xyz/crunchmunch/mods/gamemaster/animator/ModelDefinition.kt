@@ -13,6 +13,17 @@ data class ModelDefinition(
     val definitions: Map<String, ItemDefinition>,
     val parts: List<ModelPart>
 ) {
+    fun collectAllParts(parts: List<ModelPart> = this.parts): List<ModelPart> {
+        val list = mutableListOf<ModelPart>()
+
+        for (part in parts) {
+            list.addAll(collectAllParts(part.children))
+            list.add(part)
+        }
+
+        return list
+    }
+
     data class ItemDefinition(
         val item: Holder<Item>,
         val model: Optional<ResourceLocation>
