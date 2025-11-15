@@ -259,6 +259,7 @@ open class AnimatableModel(
         val list = collectEntitiesForRemoval(this.rootDisplay)
         for (entity in list) {
             if (includeRoot || entity != this.rootDisplay) {
+                entity.stopRiding()
                 entity.remove(Entity.RemovalReason.DISCARDED)
             }
         }
