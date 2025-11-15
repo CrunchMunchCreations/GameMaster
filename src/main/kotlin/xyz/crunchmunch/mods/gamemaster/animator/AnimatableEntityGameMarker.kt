@@ -29,6 +29,7 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
                 animatable.createNew(entity.position(), entity)
             } else {
                 animatable.loadFromExisting(entity)
+                AnimatableManager.respawn(animatable)
             }
         } else {
             throw IllegalStateException("Game marker entity ${entity.level().dimension().location()}/${entity.uuid} is not using a display entity!")
