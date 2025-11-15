@@ -28,6 +28,7 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
                 animatable.remove(false)
                 animatable.createNew(entity.position(), entity)
             } else {
+                animatable.loadFromExisting(entity)
                 AnimatableManager.respawn(animatable)
             }
         } else {
