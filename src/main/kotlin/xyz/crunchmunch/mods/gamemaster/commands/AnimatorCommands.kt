@@ -7,6 +7,7 @@ import de.phyrone.brig.wrapper.DSLCommandNode
 import de.phyrone.brig.wrapper.executesNoResult
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.UuidArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
@@ -41,6 +42,42 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
                             val animatable = AnimatableManager.create(modelHolder.value(), animationsHolder.value(), this.level, pos)
                             this.sendSuccess(Component.literal("Spawned in animatable entity with UUID ${animatable.rootDisplay.uuid}"), true)
                         }
+                    }
+                }
+            }
+        }
+
+        literal("animateentity") {
+            argument("entity", EntityArgument.entity()) {
+                suggest { suggestAnimatables() }
+
+                argument("animation", StringArgumentType.string()) {
+                    suggest { ctx ->
+                        val uuid = UuidArgument.getUuid(ctx, "uuid")
+                        val animatable = AnimatableManager.animatables[uuid] ?: return@suggest
+
+                        for ((key, _) in animatable.animations.animations) {
+                            suggest(key)
+                        }
+                    }
+
+                    executesNoResult { ctx ->
+                        val entity = EntityArgument.getEntity(ctx, "entity")
+                        val animatable = AnimatableManager.animatables[entity.uuid]
+                        val animationId = StringArgumentType.getString(ctx, "animation")
+
+                        if (animatable == null) {
+                            sendFailure(Component.literal("No entity exists by UUID ${entity.uuid}!"))
+                            return@executesNoResult
+                        }
+
+                        if (!animatable.animations.animations.contains(animationId)) {
+                            sendFailure(Component.literal("No animation exists by ID $animationId in ${animatable.animationsKey.location()}!"))
+                            return@executesNoResult
+                        }
+
+                        animatable.queueAnimation(animationId)
+                        sendSuccess(Component.literal("Queued animation $animationId for animatable ${entity.uuid}."), true)
                     }
                 }
             }
