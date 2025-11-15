@@ -256,16 +256,21 @@ open class AnimatableModel(
     }
 
     open fun remove(includeRoot: Boolean = true) {
-        recursiveRemove(this.rootDisplay, includeRoot)
+        val list = collectEntitiesForRemoval(this.rootDisplay)
+        for (entity in list) {
+            if (includeRoot || entity != this.rootDisplay) {
+                entity.remove(Entity.RemovalReason.DISCARDED)
+            }
+        }
     }
 
-    protected open fun recursiveRemove(entity: Entity, includeRoot: Boolean) {
+    protected open fun collectEntitiesForRemoval(entity: Entity): MutableList<Entity> {
+        val list = mutableListOf<Entity>()
         for (e in entity.passengers) {
-            recursiveRemove(e, false)
+            list.addAll(collectEntitiesForRemoval(e))
         }
 
-        if (includeRoot || this.rootDisplay != entity)
-            entity.remove(Entity.RemovalReason.DISCARDED)
+        return list
     }
 
     protected open fun recursiveAnimateHierarchy(part: Display,
