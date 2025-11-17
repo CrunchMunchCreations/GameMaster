@@ -269,6 +269,7 @@ open class AnimatableModel(
             list.addAll(collectEntitiesForRemoval(e))
         }
 
+        list.add(entity)
         return list
     }
 
