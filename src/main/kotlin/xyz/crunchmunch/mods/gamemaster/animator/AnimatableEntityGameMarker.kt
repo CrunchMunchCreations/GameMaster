@@ -52,7 +52,10 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
     override fun tick() {
         super.tick()
 
-        if (!this.isUnloaded && !this.animatable.isEntityLoaded() && this.entity.hasAttached(AnimatorAttachments.MODEL_KEY) && this.entity.hasAttached(GameMasterAttachments.HAS_PASSENGERS) && this.entity.passengers.isNotEmpty()) {
+        if (!this.isUnloaded && !this.animatable.isEntityLoaded() && this.entity.hasAttached(AnimatorAttachments.MODEL_KEY)) {
+            if (this.entity.hasAttached(GameMasterAttachments.HAS_PASSENGERS) && this.entity.passengers.isEmpty())
+                return
+
             this.tryLocateEntity()
         }
 
