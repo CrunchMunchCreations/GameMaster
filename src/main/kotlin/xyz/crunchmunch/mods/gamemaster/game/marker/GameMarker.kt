@@ -12,6 +12,9 @@ abstract class GameMarker<DATA : Any>(
         internal set
 
     protected var isUnloaded: Boolean = false
+        get() {
+            return field || this.entity.isRemoved
+        }
         private set
 
     private var dataUpdateQueuedForNextLoad = false
