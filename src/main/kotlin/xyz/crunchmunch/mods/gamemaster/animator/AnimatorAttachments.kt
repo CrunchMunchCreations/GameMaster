@@ -46,6 +46,11 @@ object AnimatorAttachments {
         initializer { Vector3f() }
     }
 
+    @JvmField val LOCAL_SCALE = register("transform/local_scale") {
+        persistent(ExtraCodecs.VECTOR3F)
+        initializer { Vector3f(1f, 1f, 1f) }
+    }
+
     @JvmField val PREV_LOCAL_TRANSLATION = register("transform/previous_local_translation") {
         persistent(ExtraCodecs.VECTOR3F)
         initializer { Vector3f() }
@@ -54,6 +59,11 @@ object AnimatorAttachments {
     @JvmField val PREV_LOCAL_ROTATION = register("transform/previous_local_rotation") {
         persistent(ExtraCodecs.VECTOR3F)
         initializer { Vector3f() }
+    }
+
+    @JvmField val PREV_LOCAL_SCALE = register("transform/previous_local_scale") {
+        persistent(ExtraCodecs.VECTOR3F)
+        initializer { Vector3f(1f, 1f, 1f) }
     }
 
     private fun <A> register(name: String, builder: AttachmentRegistry.Builder<A>.() -> Unit): AttachmentType<A> {

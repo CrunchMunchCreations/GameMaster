@@ -5,7 +5,7 @@ import com.mojang.serialization.DataResult
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.util.ExtraCodecs
 import org.joml.Vector3f
-import xyz.crunchmunch.mods.gamemaster.animator.util.PositionAndRotation
+import xyz.crunchmunch.mods.gamemaster.animator.util.PosRotScale
 import xyz.crunchmunch.mods.gamemaster.utils.copy
 
 // Bedrock's animation format, adapted for use within GameMaster.
@@ -17,7 +17,7 @@ data class BedrockMultiAnimationDefinition(
         get() = AnimationDefinitionTypes.BEDROCK
 
     companion object {
-        private data class BoneAnimationMapping(val position: Map<Int, Vector3f>, val rotation: Map<Int, Vector3f>)
+        private data class BoneAnimationMapping(val position: Map<Int, Vector3f>, val rotation: Map<Int, Vector3f>, val scale: Map<Int, Vector3f>)
         private val POS_ROT_CODEC = RecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.withAlternative(
@@ -40,7 +40,18 @@ data class BedrockMultiAnimationDefinition(
                         .flatComapMap({ mapOf(0 to it) }, { DataResult.success(it.values.firstOrNull() ?: return@flatComapMap DataResult.error { "Expected at least one value, but got empty!" }) })
                 )
                     .optionalFieldOf("rotation", mapOf())
-                    .forGetter(BoneAnimationMapping::rotation)
+                    .forGetter(BoneAnimationMapping::rotation),
+
+                Codec.withAlternative(
+                    Codec.unboundedMap(
+                        TICKS_AS_SECONDS_STRING_CODEC,
+                        ExtraCodecs.VECTOR3F
+                    ),
+                    ExtraCodecs.VECTOR3F
+                        .flatComapMap({ mapOf(0 to it) }, { DataResult.success(it.values.firstOrNull() ?: return@flatComapMap DataResult.error { "Expected at least one value, but got empty!" }) })
+                )
+                    .optionalFieldOf("scale", mapOf())
+                    .forGetter(BoneAnimationMapping::scale)
             )
                 .apply(instance, ::BoneAnimationMapping)
         }
@@ -49,21 +60,26 @@ data class BedrockMultiAnimationDefinition(
             instance.group(
                 Codec.unboundedMap(Codec.STRING, POS_ROT_CODEC)
                     .xmap({ mappings ->
-                        val parts = mutableMapOf<String, Map<Int, PositionAndRotation>>()
+                        val parts = mutableMapOf<String, Map<Int, PosRotScale>>()
                         for ((partName, mapping) in mappings) {
-                            val positionsAndRotations = mutableMapOf<Int, PositionAndRotation>()
+                            val posRotScale = mutableMapOf<Int, PosRotScale>()
 
                             for ((tick, position) in mapping.position) {
-                                positionsAndRotations.computeIfAbsent(tick) { PositionAndRotation() }
+                                posRotScale.computeIfAbsent(tick) { PosRotScale() }
                                     .position.set(position)
                             }
 
                             for ((tick, rotation) in mapping.rotation) {
-                                positionsAndRotations.computeIfAbsent(tick) { PositionAndRotation() }
+                                posRotScale.computeIfAbsent(tick) { PosRotScale() }
                                     .rotation.set(rotation)
                             }
 
-                            parts[partName] = positionsAndRotations
+                            for ((tick, scale) in mapping.scale) {
+                                posRotScale.computeIfAbsent(tick) { PosRotScale() }
+                                    .scale.set(scale)
+                            }
+
+                            parts[partName] = posRotScale
                         }
 
                         parts.toMap()
@@ -72,7 +88,8 @@ data class BedrockMultiAnimationDefinition(
                         for ((partName, partInfo) in parts) {
                             mappings[partName] = BoneAnimationMapping(
                                 partInfo.mapValues { it.value.position },
-                                partInfo.mapValues { it.value.rotation }
+                                partInfo.mapValues { it.value.rotation },
+                                partInfo.mapValues { it.value.scale }
                             )
                         }
 

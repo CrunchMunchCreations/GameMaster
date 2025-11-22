@@ -120,18 +120,21 @@ open class AnimatableModel(
 
                         // First pass, calculate the initial animation transforms
                         for ((id, pair) in parts) {
-                            val (endTick, posRot) = pair
+                            val (endTick, posRotScale) = pair
                             val display = this.idToDisplayMapping[id] ?: continue
 
-                            if (posRot.position != display.getAttached(AnimatorAttachments.LOCAL_TRANSLATION)
-                                || posRot.rotation != display.getAttached(AnimatorAttachments.LOCAL_ROTATION)
+                            if (posRotScale.position != display.getAttached(AnimatorAttachments.LOCAL_TRANSLATION)
+                                || posRotScale.rotation != display.getAttached(AnimatorAttachments.LOCAL_ROTATION)
+                                || posRotScale.scale != display.getAttached(AnimatorAttachments.LOCAL_SCALE)
                                 || endTick != display.getAttached(AnimatorAttachments.END_TICK)
                             ) {
                                 hasChanged = true
                                 display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSLATION, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION))
                                 display.setAttached(AnimatorAttachments.PREV_LOCAL_ROTATION, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION))
-                                display.setAttached(AnimatorAttachments.LOCAL_TRANSLATION, posRot.position)
-                                display.setAttached(AnimatorAttachments.LOCAL_ROTATION, posRot.rotation)
+                                display.setAttached(AnimatorAttachments.PREV_LOCAL_SCALE, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE))
+                                display.setAttached(AnimatorAttachments.LOCAL_TRANSLATION, posRotScale.position)
+                                display.setAttached(AnimatorAttachments.LOCAL_ROTATION, posRotScale.rotation)
+                                display.setAttached(AnimatorAttachments.LOCAL_SCALE, posRotScale.scale)
                                 display.setAttached(AnimatorAttachments.START_TICK, currentTick)
                                 display.setAttached(AnimatorAttachments.END_TICK, endTick)
                             }
@@ -151,11 +154,14 @@ open class AnimatableModel(
                                     display.transformationInterpolationDelay = 0
                                     display.translation = this.initialPositions[id] ?: Vector3f()
                                     display.leftRotation = Quaternionf()
+                                    display.scale = Vector3f(1f, 1f, 1f)
 
                                     display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSLATION, Vector3f())
                                     display.setAttached(AnimatorAttachments.PREV_LOCAL_ROTATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.PREV_LOCAL_SCALE, Vector3f(1f, 1f, 1f))
                                     display.setAttached(AnimatorAttachments.LOCAL_TRANSLATION, Vector3f())
                                     display.setAttached(AnimatorAttachments.LOCAL_ROTATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.LOCAL_SCALE, Vector3f(1f, 1f, 1f))
                                     display.setAttached(AnimatorAttachments.START_TICK, 0)
                                     display.setAttached(AnimatorAttachments.END_TICK, 0)
                                 }
@@ -221,6 +227,7 @@ open class AnimatableModel(
         if (hasChanged) {
             val translation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
             val rotation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
+            val scale = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
             val startTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.START_TICK)
             val endTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.END_TICK)
 
@@ -231,6 +238,7 @@ open class AnimatableModel(
                         rootDisplay.xRot, rootDisplay.yRot, 0f
                     )
                     .mul(Mth.DEG_TO_RAD))
+                scale(scale)
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
@@ -302,6 +310,7 @@ open class AnimatableModel(
 
             var localTranslation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
             var localRotation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
+            var localScale = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
 
             if (parentRemainingDuration in 1..<remainingDuration && parentStartTick == currentTick) {
                 // Handle getting in-between first
@@ -311,10 +320,12 @@ open class AnimatableModel(
 
                 val previousTranslation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_TRANSLATION)
                 val previousRotation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_ROTATION)
+                val previousScale = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_SCALE)
 
                 val delta = ((animationLength - remainingDuration).toFloat() / animationLength.toFloat())
                 localTranslation = TransformUtil.lerp(delta, previousTranslation, localTranslation)
                 localRotation = TransformUtil.lerp(delta, previousRotation, localRotation)
+                localScale = TransformUtil.lerp(delta, previousScale, localScale)
 
                 remainingDuration = parentRemainingDuration
             }
@@ -338,6 +349,7 @@ open class AnimatableModel(
 
             matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
             matrixStack.translate(localTranslation)
+            matrixStack.scale(localScale)
             matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
 
             if (startTick == currentTick) {
@@ -357,6 +369,7 @@ open class AnimatableModel(
 
             matrixStack.pushMatrix()
             matrixStack.translate(localTranslation)
+            matrixStack.scale(localScale)
             matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
