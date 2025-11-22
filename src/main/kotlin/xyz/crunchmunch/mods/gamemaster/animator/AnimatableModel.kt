@@ -57,6 +57,8 @@ open class AnimatableModel(
     open fun createNew(pos: Vec3, rootDisplay: Display = EntityType.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
         ?: throw IllegalStateException("Failed to load root display!")
     ) {
+        rootDisplay.width = 1f
+        rootDisplay.height = 1f
         this.rootDisplay = rootDisplay
 
         this.cachedX = pos.x
@@ -77,6 +79,9 @@ open class AnimatableModel(
     }
 
     open fun loadFromExisting(root: Display) {
+        root.width = 1f
+        root.height = 1f
+
         this.rootDisplay = root
         this.cachedX = root.x
         this.cachedY = root.y
@@ -365,6 +370,8 @@ open class AnimatableModel(
 
             displays[part.id] = display
             displays.putAll(this.recursiveLoadParts(part.children, display))
+            display.width = 1f
+            display.height = 1f
 
             this.level.addFreshEntity(display)
         }
@@ -383,6 +390,9 @@ open class AnimatableModel(
                 val partId = entity.getAttachedOrThrow(AnimatorAttachments.MODEL_PART_ID)
                 displays[partId] = entity
                 displays.putAll(this.recursiveLoadExistingParts(entity))
+
+                entity.width = 1f
+                entity.height = 1f
             }
         }
 
