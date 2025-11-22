@@ -10,5 +10,8 @@ abstract class MultiAnimationDefinition {
     companion object {
         val CODEC: Codec<MultiAnimationDefinition> = AnimatableManager.ANIMATION_TYPE_REGISTRY.byNameCodec()
             .dispatch("type", MultiAnimationDefinition::type, AnimationDefinitionType<*>::codec)
+
+        val TICKS_AS_SECONDS_STRING_CODEC: Codec<Int> = Codec.STRING.xmap({ (it.toFloat() * 20).toInt() }, { (it.toFloat() / 20f).toString() })
+        val TICKS_AS_SECONDS_FLOAT_CODEC: Codec<Int> = Codec.FLOAT.xmap({ (it.toFloat() * 20).toInt() }, { (it.toFloat() / 20f) })
     }
 }
