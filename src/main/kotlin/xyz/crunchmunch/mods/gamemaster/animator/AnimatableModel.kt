@@ -218,8 +218,7 @@ open class AnimatableModel(
             val endTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.END_TICK)
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
-                this.rotateXYZ(Vector3f(rootDisplay.xRot, rootDisplay.yRot, 0f).mul(Mth.DEG_TO_RAD))
-                this.add(transforms)
+                this.set(transforms)
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
@@ -233,9 +232,16 @@ open class AnimatableModel(
                 matrixStack
             )
 
+            // We have to handle translation and rotation here slightly differently, because we're the root.
+            this.rootDisplay.posRotInterpolationDuration = remainingDuration
             this.rootDisplay.transformationInterpolationDelay = 0
             this.rootDisplay.transformationInterpolationDuration = remainingDuration
-            this.rootDisplay.setTransformation(Transformation(Matrix4f(transforms)))
+            this.rootDisplay.translation = transforms.getTranslation(Vector3f())
+
+            val rotation = transforms.getEulerAnglesXYZ(Vector3f()).mul(Mth.DEG_TO_RAD)
+
+            this.rootDisplay.yRot = cachedYaw + rotation.y
+            this.rootDisplay.xRot = cachedPitch + rotation.x
         }
 
         if (this.currentState != AnimationState.STOPPED) {
