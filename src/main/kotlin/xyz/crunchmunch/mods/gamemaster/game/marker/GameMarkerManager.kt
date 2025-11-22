@@ -189,6 +189,18 @@ object GameMarkerManager {
         }
     }
 
+    fun isGameMarker(entity: Entity): Boolean {
+        return synchronized(this.gameMarkers) {
+            this.gameMarkers.any { it.entity.uuid == entity.uuid }
+        }
+    }
+
+    fun getMarkerOfEntity(entity: Entity): GameMarker<*>? {
+        return synchronized(this.gameMarkers) {
+            this.gameMarkers.firstOrNull { it.entity.uuid == entity.uuid }
+        }
+    }
+
     private fun <M : GameMarker<D>, D : Any> tryLoadMarker(marker: Entity, level: ServerLevel): M? {
         synchronized(gameMarkers) {
             if (gameMarkers.any { it.entity.uuid == marker.uuid })
