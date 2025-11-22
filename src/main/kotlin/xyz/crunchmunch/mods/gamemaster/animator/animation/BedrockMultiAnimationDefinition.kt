@@ -111,7 +111,7 @@ data class BedrockMultiAnimationDefinition(
                     .fieldOf("animation_length")
                     .forGetter(Animation::maxLength),
                 TICKS_AS_SECONDS_FLOAT_CODEC
-                    .fieldOf("loop_delay")
+                    .optionalFieldOf("loop_delay", 0)
                     .forGetter(Animation::loopDelay)
             )
                 .apply(instance, ::Animation)
