@@ -22,7 +22,7 @@ data class BedrockMultiAnimationDefinition(
             instance.group(
                 Codec.withAlternative(
                     Codec.unboundedMap(
-                        Codec.STRING.xmap({ (it.toFloat() * 20).toInt() }, { (it.toFloat() / 20f).toString() }),
+                        TICKS_AS_SECONDS_STRING_CODEC,
                         ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) }, { it.copy().mul(16f, 16f, 16f) })
                     ),
                     ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) }, { it.copy().mul(16f, 16f, 16f) })
@@ -33,7 +33,7 @@ data class BedrockMultiAnimationDefinition(
 
                 Codec.withAlternative(
                     Codec.unboundedMap(
-                        Codec.STRING.xmap({ (it.toFloat() * 20).toInt() }, { (it.toFloat() / 20f).toString() }),
+                        TICKS_AS_SECONDS_STRING_CODEC,
                         ExtraCodecs.VECTOR3F
                     ),
                     ExtraCodecs.VECTOR3F
@@ -87,8 +87,7 @@ data class BedrockMultiAnimationDefinition(
                 )
                     .optionalFieldOf("loop", LoopType.PLAY_ONCE)
                     .forGetter(Animation::loop),
-                Codec.FLOAT
-                    .xmap({ (it * 20).toInt() }, { (it.toFloat() / 20f) })
+                TICKS_AS_SECONDS_FLOAT_CODEC
                     .fieldOf("animation_length")
                     .forGetter(Animation::maxLength),
                 TICKS_AS_SECONDS_FLOAT_CODEC
