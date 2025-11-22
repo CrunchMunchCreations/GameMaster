@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.ExtraCodecs
-import org.joml.Matrix4f
+import org.joml.Vector3f
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 
 object AnimatorAttachments {
@@ -36,14 +36,24 @@ object AnimatorAttachments {
         initializer { 0 }
     }
 
-    @JvmField val LOCAL_TRANSFORMS = register("transform/local_transforms") {
-        persistent(ExtraCodecs.MATRIX4F)
-        initializer { Matrix4f() }
+    @JvmField val LOCAL_TRANSLATION = register("transform/local_translation") {
+        persistent(ExtraCodecs.VECTOR3F)
+        initializer { Vector3f() }
     }
 
-    @JvmField val PREV_LOCAL_TRANSFORMS = register("transform/previous_local_transforms") {
-        persistent(ExtraCodecs.MATRIX4F)
-        initializer { Matrix4f() }
+    @JvmField val LOCAL_ROTATION = register("transform/local_rotation") {
+        persistent(ExtraCodecs.VECTOR3F)
+        initializer { Vector3f() }
+    }
+
+    @JvmField val PREV_LOCAL_TRANSLATION = register("transform/previous_local_translation") {
+        persistent(ExtraCodecs.VECTOR3F)
+        initializer { Vector3f() }
+    }
+
+    @JvmField val PREV_LOCAL_ROTATION = register("transform/previous_local_rotation") {
+        persistent(ExtraCodecs.VECTOR3F)
+        initializer { Vector3f() }
     }
 
     private fun <A> register(name: String, builder: AttachmentRegistry.Builder<A>.() -> Unit): AttachmentType<A> {

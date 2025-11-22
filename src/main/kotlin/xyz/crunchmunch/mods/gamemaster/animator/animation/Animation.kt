@@ -1,15 +1,15 @@
 package xyz.crunchmunch.mods.gamemaster.animator.animation
 
-import org.joml.Matrix4f
+import xyz.crunchmunch.mods.gamemaster.animator.util.PositionAndRotation
 
 data class Animation(
-    val parts: Map<String, Map<Int, Matrix4f>>,
+    val parts: Map<String, Map<Int, PositionAndRotation>>,
     val loop: LoopType,
     val maxLength: Int,
     val loopDelay: Int
 ) {
-    fun getPartsAtTick(tick: Int): Map<String, Matrix4f> {
-        val map = mutableMapOf<String, Matrix4f>()
+    fun getPartsAtTick(tick: Int): Map<String, PositionAndRotation> {
+        val map = mutableMapOf<String, PositionAndRotation>()
 
         for ((partName, frameMap) in parts) {
             if (!frameMap.contains(tick))
@@ -31,8 +31,8 @@ data class Animation(
         return ((part.keys.sorted().firstOrNull { it > tick }) ?: return 0)
     }
 
-    fun getPartsAfterTick(tick: Int): Map<String, Pair<Int, Matrix4f>> {
-        val map = mutableMapOf<String, Pair<Int, Matrix4f>>()
+    fun getPartsAfterTick(tick: Int): Map<String, Pair<Int, PositionAndRotation>> {
+        val map = mutableMapOf<String, Pair<Int, PositionAndRotation>>()
 
         for ((partName, frameMap) in parts) {
             val nextFrame = (frameMap.keys.sorted().firstOrNull { it > tick }) ?: continue
@@ -48,7 +48,7 @@ data class Animation(
         return ((part.keys.sorted().lastOrNull { it <= tick })) ?: 0
     }
 
-    fun getPartPriorOrAtTick(tick: Int, partName: String): Matrix4f? {
+    fun getPartPriorOrAtTick(tick: Int, partName: String): PositionAndRotation? {
         val keyframe = getKeyframePriorOrAtTick(tick, partName)
         return parts[partName]?.get(keyframe)
     }

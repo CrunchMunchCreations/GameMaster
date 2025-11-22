@@ -18,6 +18,7 @@ import xyz.crunchmunch.mods.gamemaster.animator.animation.Animation
 import xyz.crunchmunch.mods.gamemaster.animator.animation.AnimationState
 import xyz.crunchmunch.mods.gamemaster.animator.animation.LoopType
 import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefinition
+import xyz.crunchmunch.mods.gamemaster.animator.util.TransformUtil
 import xyz.crunchmunch.mods.gamemaster.utils.*
 
 open class AnimatableModel(
@@ -119,15 +120,18 @@ open class AnimatableModel(
 
                         // First pass, calculate the initial animation transforms
                         for ((id, pair) in parts) {
-                            val (endTick, transforms) = pair
+                            val (endTick, posRot) = pair
                             val display = this.idToDisplayMapping[id] ?: continue
 
-                            if (transforms != display.getAttached(AnimatorAttachments.LOCAL_TRANSFORMS)
+                            if (posRot.position != display.getAttached(AnimatorAttachments.LOCAL_TRANSLATION)
+                                || posRot.rotation != display.getAttached(AnimatorAttachments.LOCAL_ROTATION)
                                 || endTick != display.getAttached(AnimatorAttachments.END_TICK)
                             ) {
                                 hasChanged = true
-                                display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSFORMS, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS))
-                                display.setAttached(AnimatorAttachments.LOCAL_TRANSFORMS, transforms)
+                                display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSLATION, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION))
+                                display.setAttached(AnimatorAttachments.PREV_LOCAL_ROTATION, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION))
+                                display.setAttached(AnimatorAttachments.LOCAL_TRANSLATION, posRot.position)
+                                display.setAttached(AnimatorAttachments.LOCAL_ROTATION, posRot.rotation)
                                 display.setAttached(AnimatorAttachments.START_TICK, currentTick)
                                 display.setAttached(AnimatorAttachments.END_TICK, endTick)
                             }
@@ -148,8 +152,10 @@ open class AnimatableModel(
                                     display.translation = this.initialPositions[id] ?: Vector3f()
                                     display.leftRotation = Quaternionf()
 
-                                    display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSFORMS, Matrix4f())
-                                    display.setAttached(AnimatorAttachments.LOCAL_TRANSFORMS, Matrix4f())
+                                    display.setAttached(AnimatorAttachments.PREV_LOCAL_TRANSLATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.PREV_LOCAL_ROTATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.LOCAL_TRANSLATION, Vector3f())
+                                    display.setAttached(AnimatorAttachments.LOCAL_ROTATION, Vector3f())
                                     display.setAttached(AnimatorAttachments.START_TICK, 0)
                                     display.setAttached(AnimatorAttachments.END_TICK, 0)
                                 }
@@ -213,12 +219,18 @@ open class AnimatableModel(
         // Second pass, apply to all things down the chain
         // Only actually handle this if anything did animate.
         if (hasChanged) {
-            val transforms = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS)
+            val translation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
+            val rotation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
             val startTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.START_TICK)
             val endTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.END_TICK)
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
-                this.set(transforms)
+                translate(translation)
+                rotateXYZ(rotation.copy()
+                    .add(
+                        rootDisplay.xRot, rootDisplay.yRot, 0f
+                    )
+                    .mul(Mth.DEG_TO_RAD))
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
@@ -236,10 +248,7 @@ open class AnimatableModel(
             this.rootDisplay.posRotInterpolationDuration = remainingDuration
             this.rootDisplay.transformationInterpolationDelay = 0
             this.rootDisplay.transformationInterpolationDuration = remainingDuration
-            this.rootDisplay.translation = transforms.getTranslation(Vector3f())
-
-            val rotation = transforms.getEulerAnglesXYZ(Vector3f()).mul(Mth.DEG_TO_RAD)
-
+            this.rootDisplay.translation = translation
             this.rootDisplay.yRot = cachedYaw + rotation.y
             this.rootDisplay.xRot = cachedPitch + rotation.x
         }
@@ -291,7 +300,8 @@ open class AnimatableModel(
             else
                 (endTick - startTick) - (currentTick - startTick)
 
-            var localTransforms = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS)
+            var localTranslation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
+            var localRotation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
 
             if (parentRemainingDuration in 1..<remainingDuration && parentStartTick == currentTick) {
                 // Handle getting in-between first
@@ -299,10 +309,12 @@ open class AnimatableModel(
                 entity.setAttached(AnimatorAttachments.END_TICK, currentTick + parentRemainingDuration)
                 startTick = currentTick
 
-                val previousTransforms = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_TRANSFORMS)
+                val previousTranslation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_TRANSLATION)
+                val previousRotation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_ROTATION)
 
                 val delta = ((animationLength - remainingDuration).toFloat() / animationLength.toFloat())
-                localTransforms = previousTransforms.lerp(localTransforms, delta, Matrix4f())
+                localTranslation = TransformUtil.lerp(delta, previousTranslation, localTranslation)
+                localRotation = TransformUtil.lerp(delta, previousRotation, localRotation)
 
                 remainingDuration = parentRemainingDuration
             }
@@ -325,8 +337,8 @@ open class AnimatableModel(
             addedRotation.push(rotation)*/
 
             matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
-            matrixStack.pushMatrix()
-            matrixStack.mul(localTransforms)
+            matrixStack.translate(localTranslation)
+            matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
 
             if (startTick == currentTick) {
                 val transformation = Transformation(matrixStack.get(Matrix4f()))
@@ -342,10 +354,10 @@ open class AnimatableModel(
             }
 
             matrixStack.popMatrix()
-            matrixStack.popMatrix()
 
             matrixStack.pushMatrix()
-            matrixStack.mul(localTransforms)
+            matrixStack.translate(localTranslation)
+            matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 
