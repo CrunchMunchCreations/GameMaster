@@ -219,7 +219,7 @@ open class AnimatableModel(
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
                 this.rotateXYZ(Vector3f(rootDisplay.xRot, rootDisplay.yRot, 0f).mul(Mth.DEG_TO_RAD))
-                this.set(transforms)
+                this.add(transforms)
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
@@ -320,7 +320,7 @@ open class AnimatableModel(
 
             matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
             matrixStack.pushMatrix()
-            matrixStack.set(localTransforms)
+            matrixStack.mul(localTransforms)
 
             if (startTick == currentTick) {
                 val transformation = Transformation(matrixStack.get(Matrix4f()))
@@ -339,7 +339,7 @@ open class AnimatableModel(
             matrixStack.popMatrix()
 
             matrixStack.pushMatrix()
-            matrixStack.set(localTransforms)
+            matrixStack.mul(localTransforms)
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 
