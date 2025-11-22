@@ -80,6 +80,12 @@ object GameMarkerManager {
             synchronized(gameMarkers) {
                 for (gameMarker in gameMarkers) {
                     if (gameMarker.entity.level() == level) {
+                        // Forcefully mark the game marker as unloaded if the entity is removed
+                        if (!gameMarker.isUnloaded && gameMarker.entity.isRemoved) {
+                            gameMarker.entityUnloaded()
+                            continue
+                        }
+
                         gameMarker.tick()
                     }
                 }

@@ -11,7 +11,7 @@ abstract class GameMarker<DATA : Any>(
     var entity: Entity = entity
         internal set
 
-    protected var isUnloaded: Boolean = false
+    var isUnloaded: Boolean = false
         get() {
             return field || this.entity.isRemoved
         }
