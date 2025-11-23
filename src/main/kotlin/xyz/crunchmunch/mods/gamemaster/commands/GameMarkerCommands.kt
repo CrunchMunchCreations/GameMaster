@@ -2,7 +2,6 @@ package xyz.crunchmunch.mods.gamemaster.commands
 
 import de.phyrone.brig.wrapper.DSLCommandNode
 import de.phyrone.brig.wrapper.executesNoResult
-import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.*
@@ -18,7 +17,7 @@ import net.minecraft.world.level.storage.TagValueOutput
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.utils.sendSuccess
 
-fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuildContext) {
+fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
     literal("markers") {
         literal("count") {
             argument("type", ResourceLocationArgument.id()) {
