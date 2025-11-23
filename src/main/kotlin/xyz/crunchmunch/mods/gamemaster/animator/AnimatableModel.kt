@@ -237,12 +237,14 @@ open class AnimatableModel(
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
                 translate(translation)
+                scale(scale)
+                // FIXME: this rotates incorrectly, needs fixing later
                 rotateXYZ(rotation.copy()
                     .add(
                         rootDisplay.xRot, rootDisplay.yRot, 0f
                     )
+                    .mul(1f, 1f, -1f)
                     .mul(Mth.DEG_TO_RAD))
-                scale(scale)
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
