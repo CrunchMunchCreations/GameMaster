@@ -2,9 +2,13 @@ package xyz.crunchmunch.mods.gamemaster.commands
 
 import de.phyrone.brig.wrapper.DSLCommandNode
 import de.phyrone.brig.wrapper.executesNoResult
+import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.*
+import net.minecraft.commands.arguments.DimensionArgument
+import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.ResourceArgument
+import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
@@ -17,7 +21,7 @@ import net.minecraft.world.level.storage.TagValueOutput
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.utils.sendSuccess
 
-fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
+fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuildContext) {
     literal("markers") {
         literal("count") {
             argument("type", ResourceLocationArgument.id()) {
@@ -125,7 +129,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands() {
 
         literal("swapentity") {
             argument("entities", EntityArgument.entities()) {
-                argument("entity_type", ResourceKeyArgument.key(Registries.ENTITY_TYPE)) {
+                argument("entity_type", ResourceArgument.resource(buildCtx, Registries.ENTITY_TYPE)) {
                     executesNoResult { ctx ->
                         val entities = EntityArgument.getEntities(ctx, "entities")
                         val entityType = ResourceArgument.getEntityType(ctx, "entity_type")

@@ -44,7 +44,7 @@ class GameMaster : ModInitializer {
             dispatcher.literal("gamemaster") {
                 require { hasPermission(Commands.LEVEL_GAMEMASTERS) }
 
-                gameMarkerCommands()
+                gameMarkerCommands(buildContext)
                 inventoryCommands()
                 freezeCommands()
                 animatorCommands(buildContext)
