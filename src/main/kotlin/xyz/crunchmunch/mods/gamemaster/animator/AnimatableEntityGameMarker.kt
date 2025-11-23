@@ -25,7 +25,9 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
 
         if (entity is Display) {
             if (entity.getAttached(AnimatorAttachments.MODEL_KEY) != this.data.model || entity.getAttached(AnimatorAttachments.ANIMATIONS_KEY) != this.data.animations) {
-                animatable.remove(false)
+                if (this.animatable.isEntityInitialized())
+                    animatable.remove(false)
+
                 animatable.createNew(entity.position(), entity)
             } else {
                 animatable.loadFromExisting(entity)

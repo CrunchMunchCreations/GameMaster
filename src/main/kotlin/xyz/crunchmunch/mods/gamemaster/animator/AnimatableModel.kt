@@ -55,6 +55,10 @@ open class AnimatableModel(
         return ::rootDisplay.isInitialized && !this.rootDisplay.isRemoved
     }
 
+    open fun isEntityInitialized(): Boolean {
+        return ::rootDisplay.isInitialized
+    }
+
     open fun createNew(pos: Vec3, rootDisplay: Display = EntityType.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
         ?: throw IllegalStateException("Failed to load root display!")
     ) {
