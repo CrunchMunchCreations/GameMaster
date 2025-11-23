@@ -29,6 +29,8 @@ object GameMarkerManager {
     var gameMarkerEntityPredicate: Predicate<Entity> = Predicate { it is Marker }
     private val trackedGameMarkers = Collections.synchronizedList<GameMarker<*>>(mutableListOf())
 
+    private val queuedForRemoval = Collections.synchronizedList(mutableListOf<GameMarker<*>>())
+
     /**
      * A list of all the game markers that are currently loaded and tracked.
      */
@@ -77,6 +79,15 @@ object GameMarkerManager {
         }
 
         ServerTickEvents.END_WORLD_TICK.register { level ->
+            synchronized(queuedForRemoval) {
+                for (gameMarker in queuedForRemoval) {
+                    gameMarker.remove()
+                    this.trackedGameMarkers.remove(gameMarker)
+                }
+
+                queuedForRemoval.clear()
+            }
+
             synchronized(gameMarkers) {
                 for (gameMarker in gameMarkers) {
                     if (gameMarker.entity.level() == level) {
@@ -118,10 +129,7 @@ object GameMarkerManager {
      * Used for when we want to remove a game marker.
      */
     fun remove(gameMarker: GameMarker<*>) {
-        GameMaster.server.submit {
-            gameMarker.remove()
-            this.trackedGameMarkers.remove(gameMarker)
-        }
+        this.queuedForRemoval.add(gameMarker)
     }
 
     /**
