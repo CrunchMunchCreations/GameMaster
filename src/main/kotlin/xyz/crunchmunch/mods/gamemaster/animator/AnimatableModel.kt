@@ -64,7 +64,7 @@ open class AnimatableModel(
     ) {
         rootDisplay.width = 1f
         rootDisplay.height = 1f
-        rootDisplay.shadowRadius = 0.75f
+        rootDisplay.shadowRadius = 0.5f
         this.rootDisplay = rootDisplay
 
         this.cachedX = pos.x
@@ -87,7 +87,7 @@ open class AnimatableModel(
     open fun loadFromExisting(root: Display) {
         root.width = 1f
         root.height = 1f
-        root.shadowRadius = 0.75f
+        root.shadowRadius = 0.5f
         this.rootDisplay = root
 
         this.cachedX = root.x
