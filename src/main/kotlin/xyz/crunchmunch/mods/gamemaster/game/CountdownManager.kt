@@ -5,7 +5,7 @@ import net.minecraft.server.MinecraftServer
 
 open class CountdownManager {
     init {
-        ServerLifecycleEvents.SERVER_STARTING.register { server ->
+        ServerLifecycleEvents.SERVER_STARTED.register { server ->
             init(server, null)
         }
     }
