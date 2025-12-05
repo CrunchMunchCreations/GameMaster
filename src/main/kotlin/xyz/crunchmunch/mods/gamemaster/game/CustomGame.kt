@@ -384,6 +384,9 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
             // Modify player points, typically applies modifiers onto the points or even resets it to zero.
             this.modifyPlayerPoints(player)
 
+            // Commit the points directly to the player.
+            this.commitPoints(player)
+
             player.setTitleAnimationTimes(0, 20, 5)
             player.sendTitle(Component.literal("GAME OVER!").withStyle(ChatFormatting.RED))
 
@@ -467,9 +470,6 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
         GameEvents.STOP.invoker().onGameEvent(this)
 
         for (player in players) {
-            // Commit the points directly to the player.
-            this.commitPoints(player)
-
             // Revert the player state back to how they were previously.
             player.disableCustomSpectator()
             InventoryManager.loadPreviousPlayerInventory(player, "${this.id.namespace}/${this.id.path}")
