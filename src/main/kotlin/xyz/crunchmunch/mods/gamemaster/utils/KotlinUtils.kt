@@ -52,6 +52,7 @@ fun Int.toThString(): String {
 
 public inline val Duration.ticks: Int get() = (this.inWholeMilliseconds / 50).toInt()
 public inline val Int.ticks: Duration get() = ((this * 50).milliseconds)
+public inline val Long.ticks: Duration get() = ((this * 50).milliseconds)
 
 fun Vector3fc.copy(): Vector3f {
     return Vector3f(this)
@@ -62,7 +63,29 @@ fun Quaternionfc.copy(): Quaternionf {
 }
 
 fun Duration.getTimeString(): String {
-    return "${(this.inWholeMinutes - (this.inWholeHours * 60)).zeroPad()}:${(this.inWholeSeconds - (this.inWholeMinutes * 60)).zeroPad()}"
+    val hours = this.inWholeHours
+    val minutes = this.inWholeMinutes - (this.inWholeHours * 60)
+    val seconds = this.inWholeSeconds - (this.inWholeMinutes * 60)
+    val milliseconds = this.inWholeMilliseconds - (this.inWholeSeconds * 1000)
+
+    var string = ""
+
+    if (hours > 0) {
+        string += hours.zeroPad()
+    }
+
+    if (minutes > 0 || hours > 0) {
+        if (string.isNotBlank())
+            string += ":"
+
+        string += minutes.zeroPad()
+    }
+
+    if (string.isNotBlank())
+        string += ":"
+
+    string += "${minutes.zeroPad()}:${seconds.zeroPad()}.${milliseconds.toString().padStart(3, '0')}"
+    return string
 }
 
 fun ChatFormatting.toTextColor(): TextColor {

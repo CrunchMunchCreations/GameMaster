@@ -39,6 +39,8 @@ class GameMaster : ModInitializer {
         GameMasterAttachments.init()
         CustomGameManager.init()
         GameMarkerManager.init()
+        GameMasterRegistryKeys.init()
+        GameMasterRegistries.init()
 
         CommandRegistrationCallback.EVENT.register { dispatcher, buildContext, environment ->
             dispatcher.literal("gamemaster") {
