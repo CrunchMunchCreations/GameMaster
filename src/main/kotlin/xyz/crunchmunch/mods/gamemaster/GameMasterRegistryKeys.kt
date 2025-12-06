@@ -2,6 +2,7 @@ package xyz.crunchmunch.mods.gamemaster
 
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.PrerequisiteManager
 
@@ -16,6 +17,7 @@ object GameMasterRegistryKeys {
     val MODEL = AnimatableManager.MODEL_REGISTRY_KEY
 
     // Timeline
+    val TIMELINE = TimelineManager.REGISTRY_KEY
     val KEYPOINT_TYPE = KeypointManager.REGISTRY_KEY
     val PREREQUISITE_TYPE = PrerequisiteManager.REGISTRY_KEY
 

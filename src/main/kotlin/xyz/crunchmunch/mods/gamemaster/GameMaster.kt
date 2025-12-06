@@ -19,6 +19,7 @@ import xyz.crunchmunch.mods.gamemaster.commands.gameMarkerCommands
 import xyz.crunchmunch.mods.gamemaster.commands.inventoryCommands
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
 import xyz.crunchmunch.mods.gamemaster.server.GameMasterNotificationService
 import java.nio.file.Path
 
@@ -41,6 +42,7 @@ class GameMaster : ModInitializer {
         GameMarkerManager.init()
         GameMasterRegistryKeys.init()
         GameMasterRegistries.init()
+        TimelineManager.init()
 
         CommandRegistrationCallback.EVENT.register { dispatcher, buildContext, environment ->
             dispatcher.literal("gamemaster") {

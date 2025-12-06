@@ -43,14 +43,9 @@ data class Timeline(
         CONTINUOUS("continuous"),
 
         /**
-         * Represents a semi-automatic timeline, requesting for confirmation from a game master before proceeding towards the next keypoint.
+         * Represents a timeline that requests for confirmation from a game master before proceeding towards the next keypoint each time.
          */
-        CONFIRMATIONAL("confirmational"),
-
-        /**
-         * Represents a manually controlled timeline, requiring manual input from a game master in order to proceed through each keypoint.
-         */
-        MANUAL("manual");
+        CONFIRMATIONAL("confirmational");
 
         override fun getSerializedName(): String {
             return serialized

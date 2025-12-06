@@ -2,17 +2,17 @@ package xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints
 
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import kotlinx.coroutines.runBlocking
-import net.minecraft.server.MinecraftServer
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 
 /**
  * A timeline keypoint that is designed to run multiple keypoints in the exact same tick.
  */
 class MultipleKeypoint(val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<MultipleKeypoint>(KeypointManager.MULTIPLE) {
-    override suspend fun execute(server: MinecraftServer) {
-        server.execute {
-            for (keypoint in keypoints) {
+    override suspend fun execute(context: TimelineContext) {
+        for (keypoint in keypoints) {
+            context.server.execute {
                 runBlocking {
-                    keypoint.execute(server)
+                    keypoint.execute(context)
                 }
             }
         }

@@ -2,12 +2,12 @@ package xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.minecraft.server.MinecraftServer
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 
 abstract class TimelineKeypoint<T : TimelineKeypoint<T>>(val type: Type<T>) {
     class Type<T : TimelineKeypoint<T>>(val codec: MapCodec<T>)
 
-    abstract suspend fun execute(server: MinecraftServer)
+    abstract suspend fun execute(context: TimelineContext)
 
     companion object {
         val CODEC: Codec<TimelineKeypoint<*>> = KeypointManager.REGISTRY.byNameCodec()
