@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttribute
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import xyz.crunchmunch.mods.gamemaster.GameMaster
-import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.game.StartGameKeypoint
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline.BranchTimelineKeypoint
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline.CategorizeTimelineKeypoint
 
@@ -21,7 +20,6 @@ object KeypointManager {
     val CATEGORIZE_TIMELINE = register("timeline/category", CategorizeTimelineKeypoint.CODEC)
     val BRANCH_TIMELINE = register("timeline/branch", BranchTimelineKeypoint.CODEC)
     val WAIT_TIME = register("wait_time", WaitTimeKeypoint.CODEC)
-    val START_GAME = register("game/start", StartGameKeypoint.CODEC)
     val AWAIT_GAMEMASTER = register("await_gamemaster", AwaitGameMasterKeypoint.CODEC)
 
     private fun <T : TimelineKeypoint<T>> register(path: String, codec: MapCodec<T>): TimelineKeypoint.Type<T> {
