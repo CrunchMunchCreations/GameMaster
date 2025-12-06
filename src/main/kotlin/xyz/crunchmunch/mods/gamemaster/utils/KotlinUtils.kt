@@ -62,7 +62,7 @@ fun Quaternionfc.copy(): Quaternionf {
     return Quaternionf(this)
 }
 
-fun Duration.getTimeString(): String {
+fun Duration.getTimeString(withMilliseconds: Boolean = true): String {
     val hours = this.inWholeHours
     val minutes = this.inWholeMinutes - (this.inWholeHours * 60)
     val seconds = this.inWholeSeconds - (this.inWholeMinutes * 60)
@@ -74,17 +74,15 @@ fun Duration.getTimeString(): String {
         string += hours.zeroPad()
     }
 
-    if (minutes > 0 || hours > 0) {
-        if (string.isNotBlank())
-            string += ":"
-
-        string += minutes.zeroPad()
-    }
-
     if (string.isNotBlank())
         string += ":"
 
-    string += "${minutes.zeroPad()}:${seconds.zeroPad()}.${milliseconds.toString().padStart(3, '0')}"
+    string += "${minutes.zeroPad()}:${seconds.zeroPad()}"
+
+    if (withMilliseconds) {
+        string += ".${milliseconds.toString().padStart(3, '0')}"
+    }
+
     return string
 }
 
