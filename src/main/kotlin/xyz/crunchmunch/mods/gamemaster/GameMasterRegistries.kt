@@ -2,7 +2,6 @@ package xyz.crunchmunch.mods.gamemaster
 
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
-import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.PrerequisiteManager
 
 object GameMasterRegistries {
@@ -13,7 +12,7 @@ object GameMasterRegistries {
     val ANIMATION_TYPE = AnimatableManager.ANIMATION_TYPE_REGISTRY
 
     // Timeline
-    val KEYPOINT = KeypointManager.REGISTRY
+//    val KEYPOINT = KeypointManager.REGISTRY
     val PREREQUISITE = PrerequisiteManager.REGISTRY
 
     fun init() {}
