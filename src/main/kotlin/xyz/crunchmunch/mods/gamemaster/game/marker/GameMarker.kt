@@ -1,5 +1,7 @@
 package xyz.crunchmunch.mods.gamemaster.game.marker
 
+import net.minecraft.nbt.NbtOps
+import net.minecraft.nbt.StringTag
 import net.minecraft.world.entity.Entity
 import xyz.crunchmunch.mods.gamemaster.utils.customData
 
@@ -35,6 +37,17 @@ abstract class GameMarker<DATA : Any>(
         }
 
         this.entity.customData = this.entity.customData.update { tag ->
+            // So this is an incredibly dumb bug.
+            // Basically, if the value of a codec matches the default value of the optional codec,
+            // it will just not be added. We're working around it by just removing all the possible keys ahead of time.
+            val keys = this.type.dataCodec.keys(NbtOps.INSTANCE)
+
+            for (key in keys) {
+                if (key is StringTag) {
+                    tag.remove(key.value())
+                }
+            }
+
             tag.store(this.type.dataCodec, this.data)
         }
 
