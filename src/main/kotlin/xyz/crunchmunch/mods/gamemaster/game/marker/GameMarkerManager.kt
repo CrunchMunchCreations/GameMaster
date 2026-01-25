@@ -209,6 +209,12 @@ object GameMarkerManager {
         }
     }
 
+    fun getMarkerByUUID(uuid: UUID): GameMarker<*>? {
+        return synchronized(this.gameMarkers) {
+            this.gameMarkers.firstOrNull { it.entity.uuid == uuid }
+        }
+    }
+
     fun getMarkerOfEntity(entity: Entity): GameMarker<*>? {
         return synchronized(this.gameMarkers) {
             this.gameMarkers.firstOrNull { it.entity.uuid == entity.uuid }
