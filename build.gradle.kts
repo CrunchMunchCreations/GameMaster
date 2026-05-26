@@ -1,15 +1,15 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.3.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
-    id("fabric-loom") version "1.15-SNAPSHOT"
-    id("maven-publish")
+//    id("org.jetbrains.kotlin.jvm") version "2.3.10"
+//    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
+//    id("fabric-loom") version "1.15-SNAPSHOT"
+//    id("maven-publish")
 }
 
 group = "xyz.crunchmunch"
 version = "1.0.0"
 
 base {
-    archivesName.set("GameMaster")
+    archivesName.set("gamemaster")
 }
 
 loom {
@@ -28,26 +28,26 @@ repositories {
 dependencies {
     if (rootProject == project) {
         minecraft("com.mojang:minecraft:${property("minecraft_version")}")
-        mappings(loom.layered {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${property("parchment_version")}:${property("parchment_release")}@zip")
-        })
+//        mappings(loom.layered {
+//            officialMojangMappings()
+//            parchment("org.parchmentmc.data:parchment-${property("parchment_version")}:${property("parchment_release")}@zip")
+//        })
 
-        modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
+        implementation("net.fabricmc:fabric-loader:${property("loader_version")}")
 
         // Fabric API. This is technically optional, but you probably want it anyway.
-        modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+        implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
 
         // Just because I like Kotlin more than Java
-        modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
+        implementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
 
         api(include("com.github.Phyrone:brigardier-kotlin:${property("brigadier_kotlin_version")}")!!)
     }
 
     if (rootProject.findProject(":spectatorapi") != null) {
-        api(project(":spectatorapi", configuration = "namedElements")) // If we have a subproject, use that instead.
+        api(project(":spectatorapi")) // If we have a subproject, use that instead.
     } else {
-        modApi(include("xyz.crunchmunch:SpectatorAPI:${property("spectatorapi_version")}")!!)
+        api(include("xyz.crunchmunch:SpectatorAPI:${property("spectatorapi_version")}")!!)
     }
 }
 

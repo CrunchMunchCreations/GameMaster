@@ -4,8 +4,8 @@ import net.fabricmc.fabric.api.event.registry.DynamicRegistries
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute
 import net.minecraft.core.Registry
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.metadata.CustomGameMetadata
 
@@ -27,6 +27,6 @@ object CustomGameManager {
     fun init() {}
 
     fun interface CustomGameInitializer {
-        fun create(manager: GameManager<*, *, *>, gameId: ResourceLocation, metadata: CustomGameMetadata): CustomGame<*, *, *>
+        fun create(manager: GameManager<*, *, *>, gameId: Identifier, metadata: CustomGameMetadata): CustomGame<*, *, *>
     }
 }

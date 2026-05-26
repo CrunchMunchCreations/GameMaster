@@ -11,8 +11,8 @@ import net.minecraft.network.protocol.common.ClientboundClearDialogPacket
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.dialog.Dialog
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -203,7 +203,7 @@ var ItemStack.customModelData: Int
         this.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData(listOf(value.toFloat()), emptyList(), emptyList(), emptyList()))
     }
 
-var ItemStack.itemModel: ResourceLocation?
+var ItemStack.itemModel: Identifier?
     get() {
         if (!this.has(DataComponents.ITEM_MODEL))
             return null

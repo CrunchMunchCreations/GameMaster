@@ -6,8 +6,8 @@ import kotlinx.coroutines.runBlocking
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries
 import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
@@ -16,7 +16,7 @@ import java.util.*
 object TimelineManager {
     val REGISTRY_KEY: ResourceKey<Registry<Timeline>> = ResourceKey.createRegistryKey(GameMaster.id("timeline"))
 
-    val contexts: MutableMap<ResourceLocation, TimelineContext> = Collections.synchronizedMap(mutableMapOf())
+    val contexts: MutableMap<Identifier, TimelineContext> = Collections.synchronizedMap(mutableMapOf())
 
     fun init() {
         DynamicRegistries.register(REGISTRY_KEY, Timeline.CODEC)

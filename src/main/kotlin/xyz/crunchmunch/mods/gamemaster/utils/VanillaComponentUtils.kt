@@ -2,7 +2,7 @@ package xyz.crunchmunch.mods.gamemaster.utils
 
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.*
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 fun mergeComponents(vararg components: Component): Component {
     return ComponentUtils.formatList(components.toList(), Component.empty())
@@ -12,7 +12,7 @@ fun String.toVanilla(): MutableComponent {
     return Component.literal(this)
 }
 
-fun textComponent(text: String, color: ChatFormatting = ChatFormatting.RESET, bold: Boolean = false, italic: Boolean = false, font: ResourceLocation? = null, shadow: Int? = null): MutableComponent {
+fun textComponent(text: String, color: ChatFormatting = ChatFormatting.RESET, bold: Boolean = false, italic: Boolean = false, font: Identifier? = null, shadow: Int? = null): MutableComponent {
     return Component.literal(text)
         .withStyle {
             it.withColor(color)
@@ -27,7 +27,7 @@ fun textComponent(text: String, color: ChatFormatting = ChatFormatting.RESET, bo
         }
 }
 
-fun textComponent(text: String, color: Int, bold: Boolean = false, italic: Boolean = false, font: ResourceLocation? = null): MutableComponent {
+fun textComponent(text: String, color: Int, bold: Boolean = false, italic: Boolean = false, font: Identifier? = null): MutableComponent {
     return Component.literal(text)
         .withStyle {
             it.withColor(color)
@@ -37,7 +37,7 @@ fun textComponent(text: String, color: Int, bold: Boolean = false, italic: Boole
         }
 }
 
-fun textComponent(text: String, color: String, bold: Boolean = false, italic: Boolean = false, font: ResourceLocation? = null): MutableComponent {
+fun textComponent(text: String, color: String, bold: Boolean = false, italic: Boolean = false, font: Identifier? = null): MutableComponent {
     return Component.literal(text)
         .withStyle {
             it
@@ -50,7 +50,7 @@ fun textComponent(text: String, color: String, bold: Boolean = false, italic: Bo
         }
 }
 
-fun charComponent(char: Char, font: ResourceLocation? = null): MutableComponent {
+fun charComponent(char: Char, font: Identifier? = null): MutableComponent {
     return textComponent(
         text = "$char",
         font = font

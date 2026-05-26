@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences
 import net.minecraft.commands.Commands
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -70,8 +70,8 @@ class GameMaster : ModInitializer {
         }
 
         @JvmStatic
-        fun id(path: String): ResourceLocation {
-            return ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
+        fun id(path: String): Identifier {
+            return Identifier.fromNamespaceAndPath(MOD_ID, path)
         }
     }
 }

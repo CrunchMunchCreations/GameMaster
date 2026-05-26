@@ -4,7 +4,7 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownManager>(
     val gameManager: GameManager<S, T, C>,
-    val id: ResourceLocation,
+    val id: Identifier,
     val settings: CustomGameMetadata,
     val properties: CustomGameProperties = CustomGameProperties()
 ) {

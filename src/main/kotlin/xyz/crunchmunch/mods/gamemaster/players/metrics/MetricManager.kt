@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.player.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,7 +32,7 @@ import kotlin.io.path.*
 class MetricManager<T>(
     dataCodec: Codec<T>,
     val defaultData: () -> T,
-    val id: ResourceLocation,
+    val id: Identifier,
 
     private val saveInterval: Int = 100
 ) : Iterable<MetricData<T>> {

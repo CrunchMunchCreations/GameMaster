@@ -7,8 +7,8 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.DimensionArgument
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.ResourceArgument
-import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
@@ -24,11 +24,11 @@ import xyz.crunchmunch.mods.gamemaster.utils.sendSuccess
 fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuildContext) {
     literal("markers") {
         literal("count") {
-            argument("type", ResourceLocationArgument.id()) {
+            argument("type", IdentifierArgument.id()) {
                 suggest { SharedSuggestionProvider.suggestResource(GameMarkerManager.TYPE_REGISTRY.keySet(), this) }
 
                 executes { ctx ->
-                    val typeId = ResourceLocationArgument.getId(ctx, "type")
+                    val typeId = IdentifierArgument.getId(ctx, "type")
                     val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeId)
 
                     if (type == null) {
@@ -94,11 +94,11 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuild
         }
 
         literal("list") {
-            argument("type", ResourceLocationArgument.id()) {
+            argument("type", IdentifierArgument.id()) {
                 suggest { SharedSuggestionProvider.suggestResource(GameMarkerManager.TYPE_REGISTRY.keySet(), this) }
 
                 executes { ctx ->
-                    val typeId = ResourceLocationArgument.getId(ctx, "type")
+                    val typeId = IdentifierArgument.getId(ctx, "type")
                     val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeId)
 
                     if (type == null) {

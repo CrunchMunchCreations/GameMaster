@@ -8,7 +8,7 @@ import de.phyrone.brig.wrapper.executesNoResult
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.UuidArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import net.minecraft.network.chat.Component
@@ -19,14 +19,14 @@ import xyz.crunchmunch.mods.gamemaster.utils.sendSuccess
 fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildContext) {
     literal("animator") {
         literal("create") {
-            argument("model", ResourceLocationArgument.id()) {
+            argument("model", IdentifierArgument.id()) {
                 suggest {
                     for (key in context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).listElementIds()) {
                         suggest(key.location().toString())
                     }
                 }
 
-                argument("animations", ResourceLocationArgument.id()) {
+                argument("animations", IdentifierArgument.id()) {
                     suggest {
                         for (key in context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).listElementIds()) {
                             suggest(key.location().toString())
@@ -35,8 +35,8 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
 
                     argument("pos", Vec3Argument.vec3(true)) {
                         executesNoResult { ctx ->
-                            val modelHolder = context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getOrThrow(ResourceKey.create(AnimatableManager.MODEL_REGISTRY_KEY, ResourceLocationArgument.getId(ctx, "model")))
-                            val animationsHolder = context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).getOrThrow(ResourceKey.create(AnimatableManager.ANIMATION_REGISTRY_KEY, ResourceLocationArgument.getId(ctx, "animations")))
+                            val modelHolder = context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getOrThrow(ResourceKey.create(AnimatableManager.MODEL_REGISTRY_KEY, IdentifierArgument.getId(ctx, "model")))
+                            val animationsHolder = context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).getOrThrow(ResourceKey.create(AnimatableManager.ANIMATION_REGISTRY_KEY, IdentifierArgument.getId(ctx, "animations")))
                             val pos = Vec3Argument.getVec3(ctx, "pos")
 
                             val animatable = AnimatableManager.create(modelHolder.value(), animationsHolder.value(), this.level, pos)

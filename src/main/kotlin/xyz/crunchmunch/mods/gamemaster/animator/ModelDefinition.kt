@@ -3,7 +3,7 @@ package xyz.crunchmunch.mods.gamemaster.animator
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.Holder
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.item.Item
 import org.joml.Vector3f
@@ -26,14 +26,14 @@ data class ModelDefinition(
 
     data class ItemDefinition(
         val item: Holder<Item>,
-        val model: Optional<ResourceLocation>
+        val model: Optional<Identifier>
     ) {
         companion object {
             val CODEC = RecordCodecBuilder.create { instance ->
                 instance.group(
                     Item.CODEC.fieldOf("item")
                         .forGetter(ItemDefinition::item),
-                    ResourceLocation.CODEC.optionalFieldOf("model")
+                    Identifier.CODEC.optionalFieldOf("model")
                         .forGetter(ItemDefinition::model)
                 )
                     .apply(instance, ::ItemDefinition)

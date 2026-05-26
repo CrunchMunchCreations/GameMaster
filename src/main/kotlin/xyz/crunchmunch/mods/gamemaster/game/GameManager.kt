@@ -2,8 +2,8 @@ package xyz.crunchmunch.mods.gamemaster.game
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.minecraft.core.HolderLookup
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.scoreboard.SidebarManager
 import xyz.crunchmunch.mods.gamemaster.team.TeamManager
@@ -39,19 +39,19 @@ open class GameManager<S : SidebarManager, T : TeamManager, C : CountdownManager
     /**
      * Gets a game by its respective game ID.
      */
-    fun <T : CustomGame<*, *, *>> getGameById(id: ResourceLocation): T? {
+    fun <T : CustomGame<*, *, *>> getGameById(id: Identifier): T? {
         return this.games.firstOrNull { it.id == id } as? T?
     }
 
     @Deprecated("This method is not recommended for public usage.")
-    fun <T : CustomGame<*, *, *>> getOrCreateGameById(id: ResourceLocation): T {
+    fun <T : CustomGame<*, *, *>> getOrCreateGameById(id: Identifier): T {
         return this.getGameById(id) ?: this.createGame(GameMaster.server.registryAccess(), id)
     }
 
     /**
      * Creates a game by a game ID, assuming a metadata entry exists for it.
      */
-    fun <T : CustomGame<*, *, *>> createGame(registry: HolderLookup.Provider, id: ResourceLocation): T {
+    fun <T : CustomGame<*, *, *>> createGame(registry: HolderLookup.Provider, id: Identifier): T {
         if (this.getGameById<CustomGame<*, *, *>>(id) != null) {
             throw IllegalArgumentException("A game by the ID $id already exists!")
         }

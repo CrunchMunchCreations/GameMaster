@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentSerialization
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.Vec3
 
@@ -20,7 +20,7 @@ data class CustomGameMetadata(
 
     val maxSecondsPerRound: Long,
 
-    val worldId: ResourceLocation,
+    val worldId: Identifier,
 
     val spawnSettings: SpawnSettings
 ) {
@@ -53,7 +53,7 @@ data class CustomGameMetadata(
                     .forGetter(CustomGameMetadata::rounds),
                 Codec.LONG.fieldOf("max_seconds_per_round")
                     .forGetter(CustomGameMetadata::maxSecondsPerRound),
-                ResourceLocation.CODEC.fieldOf("world_id")
+                Identifier.CODEC.fieldOf("world_id")
                     .forGetter(CustomGameMetadata::worldId),
                 SpawnSettings.CODEC.fieldOf("spawn")
                     .forGetter(CustomGameMetadata::spawnSettings)
