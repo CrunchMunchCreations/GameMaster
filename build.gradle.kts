@@ -1,8 +1,7 @@
 plugins {
-//    id("org.jetbrains.kotlin.jvm") version "2.3.10"
-//    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
-//    id("fabric-loom") version "1.15-SNAPSHOT"
-//    id("maven-publish")
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.fabric.loom)
+    `maven-publish`
 }
 
 group = "xyz.crunchmunch"
@@ -20,50 +19,30 @@ repositories {
     mavenCentral()
     mavenLocal()
 
-    maven("https://maven.parchmentmc.org") {
-        name = "ParchmentMC"
-    }
+    maven("https://maven.nucleoid.xyz/releases")
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    if (rootProject == project) {
-        minecraft("com.mojang:minecraft:${property("minecraft_version")}")
-//        mappings(loom.layered {
-//            officialMojangMappings()
-//            parchment("org.parchmentmc.data:parchment-${property("parchment_version")}:${property("parchment_release")}@zip")
-//        })
+    minecraft(libs.minecraft)
 
-        implementation("net.fabricmc:fabric-loader:${property("loader_version")}")
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
 
-        // Fabric API. This is technically optional, but you probably want it anyway.
-        implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+    implementation(libs.fabric.kotlin)
+    api(libs.brigadier.kotlin)
 
-        // Just because I like Kotlin more than Java
-        implementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
-
-        api(include("com.github.Phyrone:brigardier-kotlin:${property("brigadier_kotlin_version")}")!!)
-    }
-
-    if (rootProject.findProject(":spectatorapi") != null) {
-        api(project(":spectatorapi")) // If we have a subproject, use that instead.
-    } else {
-        api(include("xyz.crunchmunch:SpectatorAPI:${property("spectatorapi_version")}")!!)
-    }
+    api(libs.spectatorapi)
 }
 
 tasks {
-    // Configure remapJar to run when invoking the build task
-    named("assemble", DefaultTask::class.java) {
-        dependsOn(named("remapJar").get())
-    }
-
     processResources {
         filteringCharset = "UTF-8" // We want UTF-8 for everything
         var props = mapOf(
             "version" to project.version,
-            "loader_version" to rootProject.property("loader_version") as String,
-            "fabric_version" to rootProject.property("fabric_version") as String,
-            "minecraft_version" to rootProject.property("minecraft_version") as String
+            "loader_version" to libs.versions.fabric.loader.get(),
+            "fabric_version" to libs.versions.fabric.api.get(),
+            "minecraft_version" to libs.versions.minecraft.get(),
         )
         inputs.properties(props)
         filesMatching("fabric.mod.json") {
