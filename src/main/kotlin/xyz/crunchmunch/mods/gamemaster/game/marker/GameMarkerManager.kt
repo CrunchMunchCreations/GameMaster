@@ -19,7 +19,7 @@ import java.util.function.Predicate
 
 object GameMarkerManager {
     @JvmField val TYPE_REGISTRY_KEY: ResourceKey<Registry<GameMarkerType<*, *>>> = ResourceKey.createRegistryKey(GameMaster.id("game_marker_types"))
-    @JvmField val TYPE_REGISTRY: Registry<GameMarkerType<*, *>> = FabricRegistryBuilder.createSimple(TYPE_REGISTRY_KEY)
+    @JvmField val TYPE_REGISTRY: Registry<GameMarkerType<*, *>> = FabricRegistryBuilder.create(TYPE_REGISTRY_KEY)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()
 
@@ -78,7 +78,7 @@ object GameMarkerManager {
             }
         }
 
-        ServerTickEvents.END_WORLD_TICK.register { level ->
+        ServerTickEvents.END_LEVEL_TICK.register { level ->
             synchronized(queuedForRemoval) {
                 for (gameMarker in queuedForRemoval) {
                     gameMarker.remove()
@@ -231,7 +231,7 @@ object GameMarkerManager {
 
         val type = (data.read("type", TYPE_REGISTRY.byNameCodec()).orElse(null)) as? GameMarkerType<M, D>
         if (type == null) {
-            GameMaster.logger.error("Failed to load game marker located at ${level.dimension().location()}/${marker.position()}!")
+            GameMaster.logger.error("Failed to load game marker located at ${level.dimension().identifier()}/${marker.position()}!")
 
             return null
         }
@@ -248,7 +248,7 @@ object GameMarkerManager {
 
             return gameMarker
         } catch (e: Throwable) {
-            GameMaster.logger.error("Failed to initialize game marker with type $typeId, located at ${level.dimension().location()}/${marker.position()}!")
+            GameMaster.logger.error("Failed to initialize game marker with type $typeId, located at ${level.dimension().identifier()}/${marker.position()}!")
             e.printStackTrace()
         }
 

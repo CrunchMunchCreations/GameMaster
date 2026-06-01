@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.util.ExtraCodecs
-import org.joml.Vector3f
+import org.joml.Vector3fc
 import xyz.crunchmunch.mods.gamemaster.animator.util.PosRotScale
 import xyz.crunchmunch.mods.gamemaster.utils.copy
 
@@ -17,13 +17,13 @@ data class BedrockMultiAnimationDefinition(
         get() = AnimationDefinitionTypes.BEDROCK
 
     companion object {
-        private data class BoneAnimationMapping(val position: Map<Int, Vector3f>, val rotation: Map<Int, Vector3f>, val scale: Map<Int, Vector3f>)
+        private data class BoneAnimationMapping(val position: Map<Int, Vector3fc>, val rotation: Map<Int, Vector3fc>, val scale: Map<Int, Vector3fc>)
         private val POS_ROT_CODEC = RecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.withAlternative(
                     Codec.unboundedMap(
                         TICKS_AS_SECONDS_STRING_CODEC,
-                        ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) }, { it.copy().mul(16f, 16f, 16f) })
+                        ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) as Vector3fc }, { it.copy().mul(16f, 16f, 16f) })
                     ),
                     ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) }, { it.copy().mul(16f, 16f, 16f) })
                         .flatComapMap({ mapOf(0 to it) }, { DataResult.success(it.values.firstOrNull() ?: return@flatComapMap DataResult.error { "Expected at least one value, but got empty!" }) })

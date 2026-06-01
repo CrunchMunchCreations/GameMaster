@@ -23,7 +23,7 @@ object TimelineManager {
     }
 
     fun start(server: MinecraftServer, key: ResourceKey<Timeline>) {
-        if (this.contexts.contains(key.location())) {
+        if (this.contexts.contains(key.identifier())) {
             throw IllegalArgumentException("This timeline is currently already running!")
         }
 
@@ -36,7 +36,7 @@ object TimelineManager {
         }
 
         val context = TimelineContext(server, timeline)
-        this.contexts[key.location()] = context
+        this.contexts[key.identifier()] = context
 
         // Load all the timeline's keypoints into the queue
         context.pushNewKeypoints()
@@ -63,7 +63,7 @@ object TimelineManager {
                         context.remainingKeypoints.pop()
                     }
 
-                    contexts.remove(key.location())
+                    contexts.remove(key.identifier())
                 }
             }
         }

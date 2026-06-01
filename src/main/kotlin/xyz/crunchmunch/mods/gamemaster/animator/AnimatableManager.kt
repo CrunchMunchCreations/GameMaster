@@ -73,7 +73,7 @@ object AnimatableManager {
             }
         }
 
-        ServerTickEvents.END_WORLD_TICK.register { level ->
+        ServerTickEvents.END_LEVEL_TICK.register { level ->
             val queuedForRemoval = mutableListOf<UUID>()
 
             synchronized(this.animatables) {

@@ -66,8 +66,8 @@ object AnimatorAttachments {
         initializer { Vector3f(1f, 1f, 1f) }
     }
 
-    private fun <A> register(name: String, builder: AttachmentRegistry.Builder<A>.() -> Unit): AttachmentType<A> {
-        return AttachmentRegistry.create<A>(GameMaster.id("animator/$name")) {
+    private fun <A : Any> register(name: String, builder: AttachmentRegistry.Builder<A>.() -> Unit): AttachmentType<A> {
+        return AttachmentRegistry.create(GameMaster.id("animator/$name")) {
             builder.invoke(it)
         }
     }

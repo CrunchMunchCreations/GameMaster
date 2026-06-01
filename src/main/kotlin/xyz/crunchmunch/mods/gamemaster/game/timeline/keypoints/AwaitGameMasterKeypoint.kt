@@ -11,13 +11,14 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
+import xyz.crunchmunch.mods.gamemaster.utils.playNotifySound
 
 class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGameMasterKeypoint>(KeypointManager.AWAIT_GAMEMASTER) {
     override suspend fun execute(context: TimelineContext) {
         context.broadcastToGameMasters { player ->
             player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.UI, 0.75f, 1f)
             player.playNotifySound(SoundEvents.GENERIC_BURN, SoundSource.UI, 0.75f, 1f)
-            player.displayClientMessage(Component.empty()
+            player.sendSystemMessage(Component.empty()
                 .append("[GameMaster] ")
                 .append(
                     Component.literal("GameMaster is awaiting confirmation before proceeding with the timeline!")
@@ -26,7 +27,7 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
                 .append(
                     this.message
                 ), false)
-            player.displayClientMessage(Component.literal("[GameMaster] To proceed, run \"/gamemaster timeline proceed\".")
+            player.sendSystemMessage(Component.literal("[GameMaster] To proceed, run \"/gamemaster timeline proceed\".")
                 .withStyle { style -> style.withClickEvent(ClickEvent.SuggestCommand("/gamemaster timeline proceed")) }, false)
         }
 
@@ -34,7 +35,7 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
 
         context.broadcastToGameMasters { player ->
             player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.UI, 0.75f, 1f)
-            player.displayClientMessage(Component.literal("[GameMaster] Timeline proceeding, approved by ")
+            player.sendSystemMessage(Component.literal("[GameMaster] Timeline proceeding, approved by ")
                 .append(approver.displayName ?: approver.name)
                 .append("."), false)
         }

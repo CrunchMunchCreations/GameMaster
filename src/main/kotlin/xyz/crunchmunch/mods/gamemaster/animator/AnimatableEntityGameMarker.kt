@@ -34,7 +34,7 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
                 AnimatableManager.respawn(animatable)
             }
         } else {
-            throw IllegalStateException("Game marker entity ${entity.level().dimension().location()}/${entity.uuid} is not using a display entity!")
+            throw IllegalStateException("Game marker entity ${entity.level().dimension().identifier()}/${entity.uuid} is not using a display entity!")
 //            if (!hasLogged) {
 //                GameMaster.logger.warn("[GameMaster] Game marker entity ${entity.level().dimension().location()}/${entity.uuid} is not using a display, this may cause weird problems with chunk unloading.")
 //                hasLogged = true

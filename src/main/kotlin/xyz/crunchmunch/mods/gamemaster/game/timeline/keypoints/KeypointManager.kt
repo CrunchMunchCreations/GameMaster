@@ -11,7 +11,7 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline.Categori
 
 object KeypointManager {
     val REGISTRY_KEY: ResourceKey<Registry<TimelineKeypoint.Type<*>>> = ResourceKey.createRegistryKey(GameMaster.id("timeline/keypoint"))
-    val REGISTRY: Registry<TimelineKeypoint.Type<*>> = FabricRegistryBuilder.createSimple(REGISTRY_KEY)
+    val REGISTRY: Registry<TimelineKeypoint.Type<*>> = FabricRegistryBuilder.create(REGISTRY_KEY)
         .attribute(RegistryAttribute.MODDED)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()

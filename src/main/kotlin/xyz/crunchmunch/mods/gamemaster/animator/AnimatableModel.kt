@@ -265,8 +265,8 @@ open class AnimatableModel(
             this.rootDisplay.transformationInterpolationDelay = 0
             this.rootDisplay.transformationInterpolationDuration = remainingDuration
             this.rootDisplay.translation = translation
-            this.rootDisplay.yRot = cachedYaw + rotation.y
-            this.rootDisplay.xRot = cachedPitch + rotation.x
+            this.rootDisplay.yRot = cachedYaw + rotation.y()
+            this.rootDisplay.xRot = cachedPitch + rotation.x()
         }
 
         if (this.currentState != AnimationState.STOPPED) {
@@ -364,8 +364,8 @@ open class AnimatableModel(
                 val transformation = Transformation(matrixStack.get(Matrix4f()))
 
                 if (
-                    transformation.translation != entity.translation || transformation.leftRotation != entity.leftRotation
-                    || transformation.rightRotation != entity.rightRotation || transformation.scale != entity.scale
+                    transformation.translation() != entity.translation || transformation.leftRotation() != entity.leftRotation
+                    || transformation.rightRotation() != entity.rightRotation || transformation.scale() != entity.scale
                 ) {
                     entity.transformationInterpolationDelay = 0
                     entity.transformationInterpolationDuration = remainingDuration

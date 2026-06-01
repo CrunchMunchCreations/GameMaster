@@ -25,10 +25,7 @@ import xyz.crunchmunch.mods.gamemaster.players.InventoryManager
 import xyz.crunchmunch.mods.gamemaster.scoreboard.SidebarManager
 import xyz.crunchmunch.mods.gamemaster.team.Team
 import xyz.crunchmunch.mods.gamemaster.team.TeamManager
-import xyz.crunchmunch.mods.gamemaster.utils.sendTitle
-import xyz.crunchmunch.mods.gamemaster.utils.setTitleAnimationTimes
-import xyz.crunchmunch.mods.gamemaster.utils.teleportTo
-import xyz.crunchmunch.mods.gamemaster.utils.ticks
+import xyz.crunchmunch.mods.gamemaster.utils.*
 import xyz.crunchmunch.spectatorapi.SpectatorAPI.Companion.disableCustomSpectator
 import xyz.crunchmunch.spectatorapi.SpectatorAPI.Companion.enableCustomSpectator
 import xyz.crunchmunch.spectatorapi.SpectatorAPI.Companion.isCustomSpectator
@@ -49,7 +46,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
             if (FabricLoader.getInstance().isDevelopmentEnvironment)
                 return GameMaster.server.overworld()
 
-            val key = GameMaster.server.levelKeys().firstOrNull { it.location() == this.settings.worldId } ?: return null
+            val key = GameMaster.server.levelKeys().firstOrNull { it.identifier() == this.settings.worldId } ?: return null
             return GameMaster.server.getLevel(key)
         }
 

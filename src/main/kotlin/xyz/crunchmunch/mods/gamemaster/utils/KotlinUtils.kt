@@ -5,17 +5,21 @@ import de.phyrone.brig.wrapper.DSLCommandNode
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.TextColor
 import net.minecraft.network.protocol.common.ClientboundClearDialogPacket
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket
+import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.dialog.Dialog
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
@@ -27,11 +31,9 @@ import org.joml.Quaternionf
 import org.joml.Quaternionfc
 import org.joml.Vector3f
 import org.joml.Vector3fc
-import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.mixin.accessors.DisplayAccessor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import net.kyori.adventure.text.Component as AdventureComponent
 import net.minecraft.network.chat.Component as VanillaComponent
 
 fun Long.zeroPad(): String {
@@ -102,7 +104,7 @@ fun range(first: Int, second: Int): IntRange {
 }
 
 // Display entity helpers
-var Display.translation: Vector3f
+var Display.translation: Vector3fc
     get() {
         return this.entityData.get(DisplayAccessor.getDataTranslationId())
     }
@@ -110,7 +112,7 @@ var Display.translation: Vector3f
         this.entityData.set(DisplayAccessor.getDataTranslationId(), value)
     }
 
-var Display.leftRotation: Quaternionf
+var Display.leftRotation: Quaternionfc
     get() {
         return this.entityData.get(DisplayAccessor.getDataLeftRotationId())
     }
@@ -118,7 +120,7 @@ var Display.leftRotation: Quaternionf
         this.entityData.set(DisplayAccessor.getDataLeftRotationId(), value)
     }
 
-var Display.rightRotation: Quaternionf
+var Display.rightRotation: Quaternionfc
     get() {
         return this.entityData.get(DisplayAccessor.getDataRightRotationId())
     }
@@ -126,7 +128,7 @@ var Display.rightRotation: Quaternionf
         this.entityData.set(DisplayAccessor.getDataRightRotationId(), value)
     }
 
-var Display.scale: Vector3f
+var Display.scale: Vector3fc
     get() {
         return this.entityData.get(DisplayAccessor.getDataScaleId())
     }
@@ -175,14 +177,6 @@ fun <T : CommandSourceStack> DSLCommandNode<T>.execute(function: CommandContext<
 // This was annoying me, so I simplified it
 fun CommandSourceStack.sendSuccess(text: VanillaComponent, allowLogging: Boolean = true) {
     this.sendSuccess({ text }, allowLogging)
-}
-
-fun VanillaComponent.toAdventure(): AdventureComponent {
-    return GameMaster.adventure.asAdventure(this)
-}
-
-fun AdventureComponent.toVanilla(): VanillaComponent {
-    return GameMaster.adventure.asNative(this)
 }
 
 fun createItemLore(lines: List<VanillaComponent>): ItemLore {
@@ -255,3 +249,7 @@ var Entity.customData: CustomData
     set(value) {
         this.setComponent(DataComponents.CUSTOM_DATA, value)
     }
+
+fun ServerPlayer.playNotifySound(sound: SoundEvent, source: SoundSource, volume: Float = 1f, pitch: Float = 1f) {
+    this.connection.send(ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, this.x, this.y, this.z, volume, pitch, this.random.nextLong()))
+}

@@ -9,7 +9,7 @@ import xyz.crunchmunch.mods.gamemaster.GameMaster
 
 object PrerequisiteManager {
     val REGISTRY_KEY: ResourceKey<Registry<TimelinePrerequisite.Type>> = ResourceKey.createRegistryKey(GameMaster.id("timeline/prerequisite"))
-    val REGISTRY: Registry<TimelinePrerequisite.Type> = FabricRegistryBuilder.createSimple(REGISTRY_KEY)
+    val REGISTRY: Registry<TimelinePrerequisite.Type> = FabricRegistryBuilder.create(REGISTRY_KEY)
         .attribute(RegistryAttribute.MODDED)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()

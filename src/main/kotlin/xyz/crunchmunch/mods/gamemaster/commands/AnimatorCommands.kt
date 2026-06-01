@@ -22,14 +22,14 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
             argument("model", IdentifierArgument.id()) {
                 suggest {
                     for (key in context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).listElementIds()) {
-                        suggest(key.location().toString())
+                        suggest(key.identifier().toString())
                     }
                 }
 
                 argument("animations", IdentifierArgument.id()) {
                     suggest {
                         for (key in context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).listElementIds()) {
-                            suggest(key.location().toString())
+                            suggest(key.identifier().toString())
                         }
                     }
 
@@ -72,7 +72,7 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
                         }
 
                         if (!animatable.animations.animations.contains(animationId)) {
-                            sendFailure(Component.literal("No animation exists by ID $animationId in ${animatable.animationsKey.location()}!"))
+                            sendFailure(Component.literal("No animation exists by ID $animationId in ${animatable.animationsKey.identifier()}!"))
                             return@executesNoResult
                         }
 
@@ -108,7 +108,7 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
                         }
 
                         if (!animatable.animations.animations.contains(animationId)) {
-                            sendFailure(Component.literal("No animation exists by ID $animationId in ${animatable.animationsKey.location()}!"))
+                            sendFailure(Component.literal("No animation exists by ID $animationId in ${animatable.animationsKey.identifier()}!"))
                             return@executesNoResult
                         }
 
@@ -142,6 +142,6 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
 
 private fun SuggestionsBuilder.suggestAnimatables() {
     for ((uuid, animatable) in AnimatableManager.animatables) {
-        suggest(uuid.toString(), LiteralMessage(animatable.modelKey.location().toString()))
+        suggest(uuid.toString(), LiteralMessage(animatable.modelKey.identifier().toString()))
     }
 }

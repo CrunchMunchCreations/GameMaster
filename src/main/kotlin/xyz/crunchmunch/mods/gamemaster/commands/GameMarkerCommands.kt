@@ -39,7 +39,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuild
                     val markers = GameMarkerManager.getMarkersByType(type)
 
                     sendSystemMessage(Component.literal("Game Markers for $typeId (${markers.size}):"))
-                    markers.groupBy { it.entity.level().dimension().location() }
+                    markers.groupBy { it.entity.level().dimension().identifier() }
                         .forEach { (dimensionId, levelGameMarkers) ->
                             sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded)"))
                         }
@@ -61,7 +61,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuild
                     val unique = newMarkers.filter { currentMarkers.none { b -> b.entity.uuid == it.entity.uuid } }
                     val removed = currentMarkers.filter { newMarkers.none { b -> b.entity.uuid == it.entity.uuid } }
 
-                    sendSystemMessage(Component.literal("Reloaded game markers in level ${level.dimension().location()}! (previous: ${currentMarkers.size}, current: ${newMarkers.size}, added: ${unique.size}, unloaded: ${removed.size})"))
+                    sendSystemMessage(Component.literal("Reloaded game markers in level ${level.dimension().identifier()}! (previous: ${currentMarkers.size}, current: ${newMarkers.size}, added: ${unique.size}, unloaded: ${removed.size})"))
                 }
             }
 
@@ -109,7 +109,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuild
                     val markers = GameMarkerManager.getMarkersByType(type)
 
                     sendSystemMessage(Component.literal("Game Markers for $typeId (${markers.size}):"))
-                    markers.groupBy { it.entity.level().dimension().location() }
+                    markers.groupBy { it.entity.level().dimension().identifier() }
                         .forEach { (dimensionId, levelGameMarkers) ->
                             sendSystemMessage(Component.literal("$dimensionId (${levelGameMarkers.size} loaded):"))
 

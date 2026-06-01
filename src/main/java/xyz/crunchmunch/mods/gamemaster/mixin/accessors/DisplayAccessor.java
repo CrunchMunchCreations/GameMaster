@@ -1,36 +1,37 @@
 package xyz.crunchmunch.mods.gamemaster.mixin.accessors;
 
 import com.mojang.math.Transformation;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.util.Brightness;
-import net.minecraft.world.entity.Display;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.joml.Quaternionfc;
+import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Brightness;
+import net.minecraft.world.entity.Display;
+
 @Mixin(Display.class)
 public interface DisplayAccessor {
     @Accessor("DATA_TRANSLATION_ID")
-    static EntityDataAccessor<Vector3f> getDataTranslationId() {
+    static EntityDataAccessor<Vector3fc> getDataTranslationId() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor("DATA_SCALE_ID")
-    static EntityDataAccessor<Vector3f> getDataScaleId() {
+    static EntityDataAccessor<Vector3fc> getDataScaleId() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor("DATA_LEFT_ROTATION_ID")
-    static EntityDataAccessor<Quaternionf> getDataLeftRotationId() {
+    static EntityDataAccessor<Quaternionfc> getDataLeftRotationId() {
         throw new UnsupportedOperationException();
     }
 
     @Accessor("DATA_RIGHT_ROTATION_ID")
-    static EntityDataAccessor<Quaternionf> getDataRightRotationId() {
+    static EntityDataAccessor<Quaternionfc> getDataRightRotationId() {
         throw new UnsupportedOperationException();
     }
 

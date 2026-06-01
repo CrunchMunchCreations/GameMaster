@@ -27,9 +27,9 @@ open class GameManager<S : SidebarManager, T : TeamManager, C : CountdownManager
         }
 
     init {
-        ServerTickEvents.END_WORLD_TICK.register { level ->
+        ServerTickEvents.END_LEVEL_TICK.register { level ->
             for (game in this.activeGames) {
-                if (game.settings.worldId == level.dimension().location() || game.level == level) {
+                if (game.settings.worldId == level.dimension().identifier() || game.level == level) {
                     game.tick()
                 }
             }

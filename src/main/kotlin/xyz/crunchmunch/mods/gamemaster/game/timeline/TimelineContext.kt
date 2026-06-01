@@ -6,10 +6,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.Permissions
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
 import java.util.*
 
@@ -36,14 +36,14 @@ data class TimelineContext(
 
     fun broadcastToGameMasters(executable: (ServerPlayer) -> Unit) {
         for (player in this.server.playerList.players) {
-            if (player.hasPermissions(Commands.LEVEL_GAMEMASTERS)) {
+            if (player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
                 executable.invoke(player)
             }
         }
     }
 
     fun broadcastToGameMasters(message: Component) {
-        broadcastToGameMasters { player -> player.displayClientMessage(message, false) }
+        broadcastToGameMasters { player -> player.sendSystemMessage(message, false) }
     }
 
     suspend fun checkPause() {

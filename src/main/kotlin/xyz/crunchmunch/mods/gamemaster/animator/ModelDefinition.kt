@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.item.Item
 import org.joml.Vector3f
+import org.joml.div
 import java.util.*
 
 data class ModelDefinition(
