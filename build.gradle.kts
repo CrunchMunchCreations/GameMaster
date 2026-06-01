@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-group = "xyz.crunchmunch"
+group = "xyz.crunchmunch.mods"
 version = "1.0.0"
 
 base {
