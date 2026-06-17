@@ -4,6 +4,7 @@ import com.mojang.brigadier.context.CommandContext
 import de.phyrone.brig.wrapper.DSLCommandNode
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.BlockPos
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -253,3 +254,9 @@ var Entity.customData: CustomData
 fun ServerPlayer.playNotifySound(sound: SoundEvent, source: SoundSource, volume: Float = 1f, pitch: Float = 1f) {
     this.connection.send(ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, this.x, this.y, this.z, volume, pitch, this.random.nextLong()))
 }
+
+val BlockPos.center: Vec3
+    get() = Vec3.atCenterOf(this)
+
+val BlockPos.bottomCenter: Vec3
+    get() = Vec3.atBottomCenterOf(this)

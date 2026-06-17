@@ -2,11 +2,11 @@ package xyz.crunchmunch.mods.gamemaster.team
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentSerialization
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.scores.PlayerTeam
+import net.minecraft.world.scores.TeamColor
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import net.minecraft.world.scores.Team as VanillaTeam
 
@@ -20,7 +20,7 @@ data class Team(
      * The prefix that will be appended to players' display names in the team.
      */
     var prefix: Component,
-    var teamColor: ChatFormatting,
+    var teamColor: TeamColor,
     var type: Type,
 
     val players: MutableList<TeamPlayer>,
@@ -83,7 +83,7 @@ data class Team(
                     .forGetter(Team::name),
                 ComponentSerialization.CODEC.fieldOf("prefix")
                     .forGetter(Team::prefix),
-                ChatFormatting.CODEC.fieldOf("team_color")
+                TeamColor.CODEC.fieldOf("team_color")
                     .forGetter(Team::teamColor),
                 Type.CODEC.fieldOf("type")
                     .forGetter(Team::type),
