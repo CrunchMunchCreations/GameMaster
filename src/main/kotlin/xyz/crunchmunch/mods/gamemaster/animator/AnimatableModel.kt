@@ -7,7 +7,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
@@ -59,7 +59,7 @@ open class AnimatableModel(
         return ::rootDisplay.isInitialized
     }
 
-    open fun createNew(pos: Vec3, rootDisplay: Display = EntityType.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
+    open fun createNew(pos: Vec3, rootDisplay: Display = EntityTypes.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
         ?: throw IllegalStateException("Failed to load root display!")
     ) {
         rootDisplay.width = 1f
@@ -392,7 +392,7 @@ open class AnimatableModel(
         val displays = mutableMapOf<String, Display>()
 
         for (part in parts) {
-            val display = EntityType.ITEM_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
+            val display = EntityTypes.ITEM_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
                 ?: throw IllegalStateException("Failed to load child display for ID ${part.id}!")
             display.snapTo(parent.position().add(part.origin.x.toDouble(), part.origin.y.toDouble(), part.origin.z.toDouble()))
             display.startRiding(parent, true, false)

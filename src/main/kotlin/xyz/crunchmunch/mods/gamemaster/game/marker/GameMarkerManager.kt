@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.Marker
 import net.minecraft.world.phys.Vec3
 import xyz.crunchmunch.mods.gamemaster.GameMaster
@@ -108,7 +108,7 @@ object GameMarkerManager {
      * Creates a game marker at the specified position with the data provided.
      */
     fun <M : GameMarker<D>, D : Any> create(type: GameMarkerType<M, D>, data: D, level: ServerLevel, pos: Vec3): M {
-        val marker = EntityType.MARKER.create(level, EntitySpawnReason.TRIGGERED)
+        val marker = EntityTypes.MARKER.create(level, EntitySpawnReason.TRIGGERED)
             ?: throw IllegalStateException("Failed to load marker at ${level.dimension()}/$pos!")
 
         marker.snapTo(pos)

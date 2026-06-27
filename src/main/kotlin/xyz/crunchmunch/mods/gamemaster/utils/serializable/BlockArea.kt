@@ -3,6 +3,7 @@ package xyz.crunchmunch.mods.gamemaster.utils.serializable
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.AABB
+import xyz.crunchmunch.mods.gamemaster.utils.center
 
 data class BlockArea(
     val from: BlockPos,
