@@ -19,10 +19,13 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
     )
 
     private var hasLogged = false
+    var isIntentionallyUnloaded = false
+        private set
 
-    open fun tryLocateEntity() {
+    open fun respawnEntity() {
+        this.isIntentionallyUnloaded = false
+
         val entity = this.entity
-
         if (entity is Display) {
             if (entity.getAttached(AnimatorAttachments.MODEL_KEY) != this.data.model || entity.getAttached(AnimatorAttachments.ANIMATIONS_KEY) != this.data.animations) {
                 if (this.animatable.isEntityInitialized())
@@ -32,6 +35,21 @@ abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMa
             } else {
                 animatable.loadFromExisting(entity)
                 AnimatableManager.respawn(animatable)
+            }
+        }
+    }
+
+    open fun unloadEntity() {
+        this.isIntentionallyUnloaded = true
+        this.animatable.remove(false)
+    }
+
+    open fun tryLocateEntity() {
+        val entity = this.entity
+
+        if (entity is Display) {
+            if (!this.isIntentionallyUnloaded) {
+                this.respawnEntity()
             }
         } else {
             throw IllegalStateException("Game marker entity ${entity.level().dimension().identifier()}/${entity.uuid} is not using a display entity!")
