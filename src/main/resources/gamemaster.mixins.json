@@ -6,6 +6,7 @@
     "mixins": [
         "accessors.DisplayAccessor",
         "accessors.LivingEntityAccessor",
+        "animatable.EntityMixin",
         "devtools.ClientboundResourcePackPushPacketMixin",
         "devtools.MobAccessor",
         "devtools.PathMixin",
@@ -22,7 +23,7 @@
     },
     "client": [
         "devtools.MinecraftMixin",
-      "devtools.debug.HudMixin"
+        "devtools.debug.HudMixin"
     ],
     "plugin": "xyz.crunchmunch.mods.gamemaster.GameMasterMixinPlugin"
 }

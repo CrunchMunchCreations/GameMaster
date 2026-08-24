@@ -48,6 +48,9 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
             this.tryLoadEntity()
         }
 
+        this.animatable.rootDisplay.yRot = -this.baseEntity.yRot
+        this.animatable.tick()
+
         if (this.baseEntity.removalReason != null) {
             this.onRemoved(this.baseEntity.removalReason!!)
             return
