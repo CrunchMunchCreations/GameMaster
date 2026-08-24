@@ -22,7 +22,7 @@
     },
     "client": [
         "devtools.MinecraftMixin",
-        "devtools.debug.GuiMixin"
+      "devtools.debug.HudMixin"
     ],
     "plugin": "xyz.crunchmunch.mods.gamemaster.GameMasterMixinPlugin"
 }

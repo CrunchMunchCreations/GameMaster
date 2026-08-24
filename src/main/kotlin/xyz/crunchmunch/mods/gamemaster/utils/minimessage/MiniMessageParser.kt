@@ -198,7 +198,7 @@ object MiniMessageParser {
                 }
 
                 else -> {
-                    val color = parseColor(tagReader.remaining)
+                    val color = parseColor(this.tag)
                     if (color != null) {
                         Style.EMPTY.withColor(color)
                     } else {
@@ -279,7 +279,7 @@ object MiniMessageParser {
         }
 
         fun pop(tag: String, args: String?): Boolean {
-            val index = this.stack.indexOfLast { it.tag == tag && it.args == args }
+            val index = this.stack.indexOfLast { it.tag == tag && (if (args != null) it.args == args else it.args.isNullOrBlank()) }
             if (index == -1)
                 return false
 
@@ -301,13 +301,21 @@ object MiniMessageParser {
         val gradientCursor = mutableListOf<Int>()
         var currentGradient = -1
 
-        fun phase(): Float = if (currentGradient >= 0)
-            gradientCursor[currentGradient] / currentString.length.toFloat()
+        fun phase(offset: Int = 0): Float = if (currentGradient >= 0 && currentString.isNotBlank())
+            (gradientCursor[currentGradient] - offset) / currentString.length.toFloat()
         else 0f
 
         fun appendCurrent() {
-            val style = elementStack.peek(phase())
-            current.append(Component.literal(currentString).withStyle(style))
+            if (currentGradient > -1) {
+                for ((i, ch) in currentString.toCharArray().withIndex()) {
+                    val style = elementStack.peek(phase(currentString.length - i))
+                    current.append(Component.literal("$ch").withStyle(style))
+                }
+            } else {
+                val style = elementStack.peek(phase())
+                current.append(Component.literal(currentString).withStyle(style))
+            }
+
             currentString = ""
         }
 
@@ -475,7 +483,7 @@ object MiniMessageParser {
                             try {
                                 if (type.lowercase() == "gradient" || type.lowercase() == "rainbow") {
                                     currentGradient++
-                                    gradientCursor[currentGradient] = 0
+                                    gradientCursor.add(0)
                                 }
 
                                 elementStack.push(TagElement(type, args, isInvert, lookup))
@@ -486,12 +494,13 @@ object MiniMessageParser {
                         }
                     }
                 }
+            } else {
+                if (currentGradient != -1) {
+                    gradientCursor[currentGradient]++
+                }
+
+                currentString += char
             }
-
-            if (currentGradient != -1)
-                gradientCursor[currentGradient]++
-
-            currentString += char
         }
 
         if (isStrict && elementStack.peekElement() != null) {

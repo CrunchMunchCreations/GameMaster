@@ -12,6 +12,7 @@ object GameMasterRegistryKeys {
     val ANIMATION_TYPE = AnimatableManager.ANIMATION_TYPE_REGISTRY_KEY
     val ANIMATION = AnimatableManager.ANIMATION_REGISTRY_KEY
     val MODEL = AnimatableManager.MODEL_REGISTRY_KEY
+    val ANIMATABLE_ENTITY = AnimatableManager.ANIMATABLE_ENTITY_REGISTRY_KEY
 
     // Timeline
 //    val TIMELINE = TimelineManager.REGISTRY_KEY

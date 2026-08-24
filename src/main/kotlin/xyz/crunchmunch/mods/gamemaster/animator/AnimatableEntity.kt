@@ -22,6 +22,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         this.baseEntity.isInvisible = true
         this.baseEntity.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 255, true, false, false))
         this.baseEntity.isInvulnerable = true
+        this.baseEntity.isSilent = true
     }
 
     protected open fun tryLoadEntity() {
