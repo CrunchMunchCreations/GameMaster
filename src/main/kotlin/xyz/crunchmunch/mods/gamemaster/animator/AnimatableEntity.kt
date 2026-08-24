@@ -58,7 +58,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
     }
 
     open fun onRemoved(reason: Entity.RemovalReason) {
-        this.animatable.remove(false)
+        this.animatable.remove(true)
         this.interaction.remove(Entity.RemovalReason.DISCARDED)
     }
 }
