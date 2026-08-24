@@ -22,8 +22,13 @@ object AnimatableManager {
     @JvmField val ANIMATION_REGISTRY_KEY: ResourceKey<Registry<MultiAnimationDefinition>> = ResourceKey.createRegistryKey(GameMaster.id("animations"))
     @JvmField val ANIMATION_TYPE_REGISTRY_KEY: ResourceKey<Registry<AnimationDefinitionType<*>>> = ResourceKey.createRegistryKey(GameMaster.id("animation_type"))
     @JvmField val MODEL_REGISTRY_KEY: ResourceKey<Registry<ModelDefinition>> = ResourceKey.createRegistryKey(GameMaster.id("models"))
+    @JvmField val ANIMATABLE_ENTITY_REGISTRY_KEY: ResourceKey<Registry<AnimatableEntityType<*>>> = ResourceKey.createRegistryKey(GameMaster.id("animatable_entity"))
 
     @JvmField val ANIMATION_TYPE_REGISTRY: Registry<AnimationDefinitionType<*>> = FabricRegistryBuilder.createDefaulted(ANIMATION_TYPE_REGISTRY_KEY, GameMaster.id("bedrock"))
+        .attribute(RegistryAttribute.OPTIONAL)
+        .buildAndRegister()
+
+    @JvmField val ANIMATABLE_ENTITY_REGISTRY: Registry<AnimatableEntityType<*>> = FabricRegistryBuilder.create(ANIMATABLE_ENTITY_REGISTRY_KEY)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()
 

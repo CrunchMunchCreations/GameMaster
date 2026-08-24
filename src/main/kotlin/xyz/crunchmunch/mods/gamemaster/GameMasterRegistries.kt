@@ -10,6 +10,7 @@ object GameMasterRegistries {
 
     // Animation
     val ANIMATION_TYPE = AnimatableManager.ANIMATION_TYPE_REGISTRY
+    val ANIMATABLE_ENTITY = AnimatableManager.ANIMATABLE_ENTITY_REGISTRY
 
     // Timeline
 //    val KEYPOINT = KeypointManager.REGISTRY

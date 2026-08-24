@@ -101,6 +101,11 @@ open class AnimatableModel(
         }
     }
 
+    fun queueAnimationIfNonePlaying(id: String) {
+        if (this.currentAnimation == null)
+            this.queueAnimation(id)
+    }
+
     fun queueAnimation(id: String) {
         this.nextAnimation = this.animations.animations[id]
     }
