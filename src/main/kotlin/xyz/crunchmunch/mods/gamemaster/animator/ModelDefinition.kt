@@ -25,6 +25,10 @@ data class ModelDefinition(
         return list
     }
 
+    fun hasPart(id: String): Boolean {
+        return this.definitions.contains(id)
+    }
+
     data class ItemDefinition(
         val item: Holder<Item>,
         val model: Optional<Identifier>

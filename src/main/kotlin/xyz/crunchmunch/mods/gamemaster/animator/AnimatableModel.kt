@@ -59,6 +59,10 @@ open class AnimatableModel(
         return ::rootDisplay.isInitialized
     }
 
+    fun getPartById(id: String): Display? {
+        return this.idToDisplayMapping[id]
+    }
+
     open fun createNew(pos: Vec3, rootDisplay: Display = EntityTypes.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
         ?: throw IllegalStateException("Failed to load root display!")
     ) {

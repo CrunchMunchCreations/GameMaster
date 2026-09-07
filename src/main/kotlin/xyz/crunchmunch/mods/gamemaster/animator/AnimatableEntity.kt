@@ -16,6 +16,19 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
     lateinit var interaction: Interaction
         private set
 
+    private val hasHeadRotation = this.animatable.model.hasPart("head")
+    protected var enableHeadRotation = this.hasHeadRotation
+
+    protected fun lockHeadRotation() {
+        if (this.hasHeadRotation)
+            this.enableHeadRotation = false
+    }
+
+    protected fun unlockHeadRotation() {
+        if (this.hasHeadRotation)
+            this.enableHeadRotation = true
+    }
+
     init {
         this.baseEntity.setAttached(GameMasterAttachments.ANIMATABLE_ENTITY_TYPE, this.type)
         this.baseEntity.setAttached(GameMasterAttachments.ANIMATABLE_ENTITY, this)
@@ -51,6 +64,14 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         this.animatable.rootDisplay.yRot = -this.baseEntity.yRot
         this.animatable.tick()
 
+        if (this.enableHeadRotation) {
+            val headDisplay = this.getHeadDisplay()
+            if (headDisplay != null) {
+                headDisplay.yRot = this.baseEntity.yHeadRot
+                headDisplay.xRot = this.baseEntity.xRot
+            }
+        }
+
         if (this.baseEntity.removalReason != null) {
             this.onRemoved(this.baseEntity.removalReason!!)
             return
@@ -60,5 +81,9 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
     open fun onRemoved(reason: Entity.RemovalReason) {
         this.animatable.remove(true)
         this.interaction.remove(Entity.RemovalReason.DISCARDED)
+    }
+
+    protected open fun getHeadDisplay(): Display? {
+        return this.animatable.getPartById("head")
     }
 }
