@@ -23,6 +23,8 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.ai.attributes.AttributeInstance
+import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.item.component.CustomModelData
@@ -253,6 +255,16 @@ var Entity.customData: CustomData
 
 fun ServerPlayer.playNotifySound(sound: SoundEvent, source: SoundSource, volume: Float = 1f, pitch: Float = 1f) {
     this.connection.send(ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, this.x, this.y, this.z, volume, pitch, this.random.nextLong()))
+}
+
+fun AttributeInstance.addTransientModifierSafe(modifier: AttributeModifier) {
+    if (!this.hasModifier(modifier.id))
+        this.addTransientModifier(modifier)
+}
+
+fun AttributeInstance.addPermanentModifierSafe(modifier: AttributeModifier) {
+    if (!this.hasModifier(modifier.id))
+        this.addPermanentModifier(modifier)
 }
 
 val BlockPos.center: Vec3

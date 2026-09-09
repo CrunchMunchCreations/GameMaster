@@ -29,8 +29,11 @@ open class TeamManager(dataPath: Path) : Collection<Team> {
                 forceSaveSynchronously()
         }
 
-        GameEvents.STOP.register {
+        GameEvents.STOP.register { game ->
             this.save()
+            for (team in teams) {
+                team.resetPropertiesForGame(game.id)
+            }
         }
 
         // Automatically adds the players to their designated teams

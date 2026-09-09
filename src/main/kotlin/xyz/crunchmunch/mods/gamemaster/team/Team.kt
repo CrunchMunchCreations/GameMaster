@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentSerialization
+import net.minecraft.resources.Identifier
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.TeamColor
@@ -25,6 +26,9 @@ data class Team(
 
     val players: MutableList<TeamPlayer>,
 ) {
+    // Similar to data attachments, per-team.
+    private val properties: MutableMap<TeamPropertyType<*>, Any?> = mutableMapOf()
+
     /**
      * Represents the total amount of points that the entire team has.
      * This does not include the points collected in the currently active game,
@@ -74,8 +78,59 @@ data class Team(
             return this.mcTeamInternal
         }
 
+    fun <T> hasProperty(property: TeamPropertyType<T>): Boolean {
+        return this.properties[property] != null
+    }
+
+    operator fun <T> get(property: TeamPropertyType<T>): T? {
+        return this.getProperty(property)
+    }
+
+    operator fun <T> set(property: TeamPropertyType<T>, value: T) {
+        this.setProperty(property, value)
+    }
+
+    @JvmOverloads
+    fun <T> getProperty(property: TeamPropertyType<T>, orElse: T? = property.defaultGetter?.invoke()): T? {
+        return this.properties[property] as? T ?: orElse
+    }
+
+    fun <T> getPropertyOrThrow(property: TeamPropertyType<T>): T {
+        return this.getProperty(property)
+            ?: throw IllegalStateException("Could not get property by type ${property.id}!")
+    }
+
+    fun <T> setProperty(property: TeamPropertyType<T>, value: T): T? {
+        val oldValue = this.getProperty(property)
+        this.properties[property] = value
+        return oldValue
+    }
+
+    fun setProperty(property: TeamPropertyType<Unit>) {
+        this.setProperty(property, Unit)
+    }
+
+    fun removeProperty(property: TeamPropertyType<*>) {
+        this.properties.remove(property)
+    }
+
+    fun resetAllProperties() {
+        this.properties.clear()
+    }
+
+    fun resetPropertiesForGame(gameId: Identifier) {
+        val keys = this.properties.keys.filter { it.gameId != null && it.gameId == gameId }
+        for (key in keys) {
+            this.properties.remove(key)
+        }
+    }
+
+    private fun getSerializableProperties(): Map<TeamPropertyType<*>, Any?> {
+        return this.properties.filterKeys { it.serializer != null }
+    }
+
     companion object {
-        val CODEC = RecordCodecBuilder.create { instance ->
+        val CODEC: Codec<Team> = RecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.STRING.fieldOf("id")
                     .forGetter(Team::id),
@@ -89,8 +144,16 @@ data class Team(
                     .forGetter(Team::type),
                 TeamPlayer.CODEC.listOf().fieldOf("players")
                     .forGetter(Team::players),
+                Codec.dispatchedMap(TeamPropertyType.CODEC) { propertyType -> propertyType.serializer!! }
+                    .lenientOptionalFieldOf("properties", mapOf())
+                    .forGetter(Team::getSerializableProperties),
             )
-                .apply(instance) { id, name, prefix, color, type, players -> Team(id, name, prefix, color, type, players.toMutableList()) }
+                .apply(instance) { id, name, prefix, color, type, players, properties ->
+                    val team = Team(id, name, prefix, color, type, players.toMutableList())
+                    team.properties.putAll(properties)
+
+                    team
+                }
         }
     }
 
