@@ -1,5 +1,6 @@
 package xyz.crunchmunch.mods.gamemaster.animator
 
+import com.google.common.collect.Queues
 import com.mojang.math.Transformation
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
@@ -20,6 +21,7 @@ import xyz.crunchmunch.mods.gamemaster.animator.animation.LoopType
 import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefinition
 import xyz.crunchmunch.mods.gamemaster.animator.util.TransformUtil
 import xyz.crunchmunch.mods.gamemaster.utils.*
+import java.util.*
 
 open class AnimatableModel(
     val model: ModelDefinition, val animations: MultiAnimationDefinition,
@@ -41,7 +43,7 @@ open class AnimatableModel(
     var currentAnimation: Animation? = null
         private set
 
-    var nextAnimation: Animation? = null
+    val queuedAnimations: Queue<Animation> = Queues.newArrayDeque()
 
     private var currentTick = 0
 
@@ -111,11 +113,11 @@ open class AnimatableModel(
     }
 
     fun queueAnimation(id: String) {
-        this.nextAnimation = this.animations.animations[id]
+        this.queuedAnimations.add(this.animations.animations[id]!!)
     }
 
     fun queueAnimation(animation: Animation) {
-        this.nextAnimation = animation
+        this.queuedAnimations.add(animation)
     }
 
     fun stopAnimation() {
@@ -158,8 +160,8 @@ open class AnimatableModel(
                         // Loop back the animation if we can.
                         when (animation.loop) {
                             LoopType.LOOP -> {
-                                if (this.nextAnimation == null) {
-                                    this.nextAnimation = animation
+                                if (this.queuedAnimations.isEmpty()) {
+                                    this.queueAnimation(animation)
                                 }
                             }
 
@@ -195,9 +197,8 @@ open class AnimatableModel(
 
                 AnimationState.TRANSITIONING -> {
                     if (this.currentTick >= animation.loopDelay) {
-                        if (this.nextAnimation != null) {
-                            this.currentAnimation = this.nextAnimation
-                            this.nextAnimation = null
+                        if (this.queuedAnimations.isNotEmpty()) {
+                            this.currentAnimation = this.queuedAnimations.poll()
                             this.currentState = AnimationState.PLAYING
 
                             this.currentTick = 0
@@ -223,8 +224,8 @@ open class AnimatableModel(
                 this.currentTick = 0
             }
 
-            if (this.nextAnimation != null) {
-                this.currentAnimation = this.nextAnimation
+            if (this.queuedAnimations.isNotEmpty()) {
+                this.currentAnimation = this.queuedAnimations.poll()
                 this.currentState = AnimationState.PLAYING
                 this.currentTick = 0
             }
