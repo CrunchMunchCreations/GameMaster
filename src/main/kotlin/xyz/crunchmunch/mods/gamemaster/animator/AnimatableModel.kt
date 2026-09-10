@@ -120,6 +120,16 @@ open class AnimatableModel(
         this.queuedAnimations.add(animation)
     }
 
+    fun overrideAnimation(id: String) {
+        this.stopAnimation()
+        this.queueAnimation(id)
+    }
+
+    fun overrideAnimation(animation: Animation) {
+        this.stopAnimation()
+        this.queueAnimation(animation)
+    }
+
     fun stopAnimation() {
         this.currentState = AnimationState.STOPPED
     }
