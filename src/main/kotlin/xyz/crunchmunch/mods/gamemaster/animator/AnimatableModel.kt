@@ -113,21 +113,31 @@ open class AnimatableModel(
     }
 
     fun queueAnimation(id: String) {
-        this.queuedAnimations.add(this.animations.animations[id]!!)
+        this.queueAnimation(this.animations.animations[id]!!)
     }
 
     fun queueAnimation(animation: Animation) {
         this.queuedAnimations.add(animation)
     }
 
+    fun queueAnimationOnce(id: String) {
+        this.queueAnimationOnce(this.animations.animations[id]!!)
+    }
+
+    fun queueAnimationOnce(animation: Animation) {
+        if (!this.queuedAnimations.contains(animation) && this.currentAnimation != animation)
+            this.queueAnimation(animation)
+    }
+
     fun overrideAnimation(id: String) {
-        this.stopAnimation()
-        this.queueAnimation(id)
+        this.overrideAnimation(this.animations.animations[id]!!)
     }
 
     fun overrideAnimation(animation: Animation) {
-        this.stopAnimation()
-        this.queueAnimation(animation)
+        if (this.currentAnimation != animation) {
+            this.stopAnimation()
+            this.queueAnimation(animation)
+        }
     }
 
     fun stopAnimation() {
