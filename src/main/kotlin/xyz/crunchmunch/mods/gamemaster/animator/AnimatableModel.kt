@@ -271,11 +271,10 @@ open class AnimatableModel(
                 translate(translation)
                 scale(scale)
                 // FIXME: this rotates incorrectly, needs fixing later
-                rotateXYZ(rotation.copy()
+                rotateZYX(rotation.copy()
                     .add(
                         rootDisplay.xRot, rootDisplay.yRot, 0f
                     )
-                    .mul(1f, 1f, -1f)
                     .mul(Mth.DEG_TO_RAD))
             }
 
@@ -374,7 +373,7 @@ open class AnimatableModel(
             val matrix = Matrix4f()
             matrix.scale(1f)
             matrix.translate(localTranslation)
-            matrix.rotateXYZ(
+            matrix.rotateZYX(
                 rotation.x * Mth.DEG_TO_RAD,
                 rotation.y * Mth.DEG_TO_RAD,
                 rotation.z * Mth.DEG_TO_RAD,
@@ -388,7 +387,7 @@ open class AnimatableModel(
             matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
-            matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
+            matrixStack.rotateZYX(localRotation.copy().mul(Mth.DEG_TO_RAD))
 
             if (startTick == currentTick) {
                 val transformation = Transformation(matrixStack.get(Matrix4f()))
@@ -408,7 +407,7 @@ open class AnimatableModel(
             matrixStack.pushMatrix()
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
-            matrixStack.rotateXYZ(localRotation.copy().mul(1f, 1f, -1f).mul(Mth.DEG_TO_RAD))
+            matrixStack.rotateZYX(localRotation.copy().mul(Mth.DEG_TO_RAD))
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 
