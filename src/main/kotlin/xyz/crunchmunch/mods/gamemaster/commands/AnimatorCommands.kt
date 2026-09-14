@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import xyz.crunchmunch.mods.gamemaster.GameMasterRegistryKeys
+import xyz.crunchmunch.mods.gamemaster.animator.AnimatableEntity
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableEntityType
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.utils.execute
@@ -179,7 +180,7 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
     }
 }
 
-private fun <E : LivingEntity> CommandSourceStack.spawnAnimatableEntity(entityType: AnimatableEntityType<E>, position: Vec3, rotation: Vec2): Component {
+private fun <E : LivingEntity, R : AnimatableEntity<E>> CommandSourceStack.spawnAnimatableEntity(entityType: AnimatableEntityType<E, R>, position: Vec3, rotation: Vec2): Component {
     val entity = entityType.baseEntityType.create(this.level, EntitySpawnRequest(EntitySpawnReason.COMMAND, true))
         ?: return Component.literal("Failed to create base entity ").withColor(TextColor.RED).append(entityType.baseEntityType.description)
     entity.snapTo(position, rotation.y, rotation.x)
