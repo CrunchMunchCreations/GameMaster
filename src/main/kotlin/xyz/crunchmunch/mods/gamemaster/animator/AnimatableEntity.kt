@@ -6,7 +6,7 @@ import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.*
 import xyz.crunchmunch.mods.gamemaster.GameMasterAttachments
 
-abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType<T>, val baseEntity: T) {
+abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType<T, out AnimatableEntity<T>>, val baseEntity: T) {
     protected val registry = this.baseEntity.registryAccess()
     val animatable = AnimatableModel(
         registry.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getValueOrThrow(type.model),
