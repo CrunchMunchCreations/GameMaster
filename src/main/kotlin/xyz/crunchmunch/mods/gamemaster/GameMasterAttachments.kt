@@ -13,7 +13,7 @@ object GameMasterAttachments {
         it.persistent(UUIDUtil.CODEC)
     }
 
-    @JvmField val ANIMATABLE_ENTITY_TYPE: AttachmentType<AnimatableEntityType<*>> = AttachmentRegistry.create(GameMaster.id("animatable_entity/type")) {
+    @JvmField val ANIMATABLE_ENTITY_TYPE: AttachmentType<AnimatableEntityType<*, *>> = AttachmentRegistry.create(GameMaster.id("animatable_entity/type")) {
         it.persistent(GameMasterRegistries.ANIMATABLE_ENTITY.byNameCodec())
     }
 

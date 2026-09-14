@@ -7,9 +7,9 @@ import net.minecraft.world.entity.LivingEntity
 import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefinition
 
 @JvmRecord
-data class AnimatableEntityType<E : LivingEntity>(
+data class AnimatableEntityType<E : LivingEntity, R : AnimatableEntity<E>>(
     val baseEntityType: EntityType<E>,
-    val builder: (E) -> AnimatableEntity<E>,
+    val builder: (E) -> R,
     val dimensions: EntityDimensions,
 
     val model: ResourceKey<ModelDefinition>,
