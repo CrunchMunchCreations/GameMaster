@@ -66,6 +66,11 @@ object AnimatorAttachments {
         initializer { Vector3f(1f, 1f, 1f) }
     }
 
+    @JvmField val RESCALE = register("transform/rescale") {
+        persistent(Codec.FLOAT)
+        initializer { 1f }
+    }
+
     private fun <A : Any> register(name: String, builder: AttachmentRegistry.Builder<A>.() -> Unit): AttachmentType<A> {
         return AttachmentRegistry.create(GameMaster.id("animator/$name")) {
             builder.invoke(it)

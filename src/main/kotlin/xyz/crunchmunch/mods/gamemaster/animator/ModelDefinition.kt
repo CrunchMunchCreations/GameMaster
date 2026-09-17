@@ -49,7 +49,8 @@ data class ModelDefinition(
     data class ModelPart(
         val id: String,
         val origin: Vector3f,
-        val children: List<ModelPart>
+        val children: List<ModelPart>,
+        val rescale: Float,
     ) {
         companion object {
             val CODEC = Codec.recursive("model_part") { codec ->
@@ -61,7 +62,9 @@ data class ModelDefinition(
                             .xmap({ it.div(16f) }, { it.mul(16f) })
                             .forGetter(ModelPart::origin),
                         codec.listOf().optionalFieldOf("children", listOf())
-                            .forGetter(ModelPart::children)
+                            .forGetter(ModelPart::children),
+                        ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf("rescale", 1f)
+                            .forGetter(ModelPart::rescale),
                     )
                         .apply(instance, ::ModelPart)
                 }

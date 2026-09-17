@@ -264,12 +264,14 @@ open class AnimatableModel(
             val translation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
             val rotation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
             val scale = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
+            val rescale = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.RESCALE)
             val startTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.START_TICK)
             val endTick = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.END_TICK)
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
                 translate(translation)
                 scale(scale)
+                scale(rescale)
                 // FIXME: this rotates incorrectly, needs fixing later
                 rotateZYX(rotation.copy()
                     .add(
@@ -387,6 +389,7 @@ open class AnimatableModel(
             matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
+            matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
             matrixStack.rotateZYX(localRotation.copy().mul(Mth.DEG_TO_RAD))
 
             if (startTick == currentTick) {
@@ -407,6 +410,7 @@ open class AnimatableModel(
             matrixStack.pushMatrix()
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
+            matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
             matrixStack.rotateZYX(localRotation.copy().mul(Mth.DEG_TO_RAD))
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
@@ -426,8 +430,10 @@ open class AnimatableModel(
             display.snapTo(parent.position().add(part.origin.x.toDouble(), part.origin.y.toDouble(), part.origin.z.toDouble()))
             display.startRiding(parent, true, false)
             display.translation = part.origin.copy()
+            display.scale = Vector3f(part.rescale)
             display.setAttached(AnimatorAttachments.MODEL_PART_ID, part.id)
             display.setAttached(AnimatorAttachments.MODEL_KEY, this.modelKey)
+            display.setAttached(AnimatorAttachments.RESCALE, part.rescale)
 
             val definition = model.definitions[part.id]
             if (definition != null) {
