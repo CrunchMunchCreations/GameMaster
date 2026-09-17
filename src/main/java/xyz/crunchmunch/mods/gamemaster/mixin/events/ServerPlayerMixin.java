@@ -12,7 +12,7 @@ import xyz.crunchmunch.mods.gamemaster.events.PlayerEvents;
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
     @ModifyReturnValue(
-        method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",
+        method = "drop(Lnet/minecraft/world/item/ItemStack;ZLnet/minecraft/util/Prediction;)Lnet/minecraft/world/entity/item/ItemEntity;",
         at = @At("RETURN")
     )
     private ItemEntity drop(ItemEntity original) {

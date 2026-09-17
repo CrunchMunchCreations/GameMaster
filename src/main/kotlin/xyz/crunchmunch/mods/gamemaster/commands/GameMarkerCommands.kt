@@ -132,7 +132,7 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuild
                 argument("entity_type", ResourceArgument.resource(buildCtx, Registries.ENTITY_TYPE)) {
                     executesNoResult { ctx ->
                         val entities = EntityArgument.getEntities(ctx, "entities")
-                        val entityType = ResourceArgument.getEntityType(ctx, "entity_type")
+                        val entityType = ResourceArgument.getResource(ctx, "entity_type", Registries.ENTITY_TYPE)
 
                         for (entity in entities) {
                             val newEntity = entityType.value().create(entity.level(), EntitySpawnReason.CONVERSION)

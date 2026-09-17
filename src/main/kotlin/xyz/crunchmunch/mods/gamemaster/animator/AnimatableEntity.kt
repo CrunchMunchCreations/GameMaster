@@ -34,7 +34,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         this.baseEntity.setAttached(GameMasterAttachments.ANIMATABLE_ENTITY, this)
         this.baseEntity.isInvisible = true
         this.baseEntity.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 255, true, false, false))
-        this.baseEntity.isInvulnerable = true
+        this.baseEntity.isPermanentlyInvulnerable = true
         this.baseEntity.isSilent = true
     }
 
