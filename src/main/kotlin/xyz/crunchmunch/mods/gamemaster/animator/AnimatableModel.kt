@@ -274,6 +274,7 @@ open class AnimatableModel(
                 scale(rescale)
                 // FIXME: this rotates incorrectly, needs fixing later
                 rotateZYX(rotation.copy()
+                    .mul(INVERTED_ROTATIONS)
                     .add(
                         rootDisplay.xRot, rootDisplay.yRot, 0f
                     )
@@ -390,7 +391,7 @@ open class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
             matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
-            matrixStack.rotateZYX(localRotation.copy().mul(Mth.DEG_TO_RAD))
+            matrixStack.rotateZYX(localRotation.copy().mul(INVERTED_ROTATIONS).mul(Mth.DEG_TO_RAD))
 
             if (startTick == currentTick) {
                 val transformation = Transformation(matrixStack.get(Matrix4f()))
@@ -411,7 +412,7 @@ open class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
             matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
-            matrixStack.rotateZYX(localRotation.copy().mul(Mth.DEG_TO_RAD))
+            matrixStack.rotateZYX(localRotation.copy().mul(INVERTED_ROTATIONS).mul(Mth.DEG_TO_RAD))
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 
@@ -471,5 +472,9 @@ open class AnimatableModel(
         }
 
         return displays
+    }
+
+    companion object {
+        private val INVERTED_ROTATIONS = Vector3f(-1f, -1f, -1f)
     }
 }
