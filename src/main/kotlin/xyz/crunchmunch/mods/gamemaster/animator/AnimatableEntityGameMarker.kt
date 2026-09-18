@@ -1,7 +1,5 @@
 package xyz.crunchmunch.mods.gamemaster.animator
 
-import net.minecraft.resources.Identifier
-import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Display
@@ -15,10 +13,8 @@ import xyz.crunchmunch.mods.gamemaster.utils.leftRotation
 abstract class AnimatableEntityGameMarker<D : AnimatableMarkerData>(type: GameMarkerType<out AnimatableEntityGameMarker<D>, D>, entity: Entity, data: D) : GameMarker<D>(type, entity, data) {
     private val registry = entity.level().registryAccess()
     var animatable = AnimatableModel(
-        registry.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getValueOrThrow(data.model),
-        registry.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).getValueOrThrow(ResourceKey.create(AnimatableManager.ANIMATION_REGISTRY_KEY, data.animations.identifier().let {
-            Identifier.fromNamespaceAndPath(it.namespace, it.path.removeSuffix(".animation"))
-        })),
+        registry.getOrThrow(data.model).value(),
+        registry.getOrThrow(data.animations).value(),
         entity.level() as ServerLevel
     )
 

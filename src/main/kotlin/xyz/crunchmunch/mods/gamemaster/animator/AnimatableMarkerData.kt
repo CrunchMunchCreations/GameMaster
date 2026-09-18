@@ -16,11 +16,16 @@ open class AnimatableMarkerData(
                     .fieldOf("model")
                     .forGetter(AnimatableMarkerData::model),
                 ResourceKey.codec(AnimatableManager.ANIMATION_REGISTRY_KEY)
+                    // Legacy conversion, because I was dumb
                     .xmap({
                         if (it.identifier().path.endsWith(".animation") || it.identifier().path.endsWith(".animations")) {
                             ResourceKey.create(it.registryKey(), Identifier.fromNamespaceAndPath(it.identifier().namespace, it.identifier().path.removeSuffix(".animation").removeSuffix(".animations")))
                         } else it
-                    }, { it })
+                    }, {
+                        if (it.identifier().path.endsWith(".animation") || it.identifier().path.endsWith(".animations")) {
+                            ResourceKey.create(it.registryKey(), Identifier.fromNamespaceAndPath(it.identifier().namespace, it.identifier().path.removeSuffix(".animation").removeSuffix(".animations")))
+                        } else it
+                    })
                     .fieldOf("animations")
                     .forGetter(AnimatableMarkerData::animations)
             )
