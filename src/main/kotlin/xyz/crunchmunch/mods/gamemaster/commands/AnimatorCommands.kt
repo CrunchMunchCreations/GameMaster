@@ -151,6 +151,35 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
             }
         }
 
+        literal("refresh") {
+            literal("all") {
+                executesNoResult { ctx ->
+                    for (animatable in AnimatableManager.animatables.values.toList()) {
+                        AnimatableManager.respawn(animatable)
+                    }
+
+                    this.sendSuccess(Component.literal("Respawned all animatable entities!"), true)
+                }
+            }
+
+            argument("uuid", UuidArgument.uuid()) {
+                suggest { suggestAnimatables() }
+
+                executesNoResult { ctx ->
+                    val uuid = UuidArgument.getUuid(ctx, "uuid")
+                    val animatable = AnimatableManager.animatables[uuid]
+
+                    if (animatable == null) {
+                        sendFailure(Component.literal("No entity exists by UUID $uuid!"))
+                        return@executesNoResult
+                    }
+
+                    AnimatableManager.respawn(animatable)
+                    this.sendSuccess(Component.literal("Respawned animatable entity ${uuid}!"), true)
+                }
+            }
+        }
+
         val fuck = DynamicCommandExceptionType { value ->
             Component.literal("unknown $value")
         }
