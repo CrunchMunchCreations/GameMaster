@@ -76,7 +76,7 @@ open class AnimatableModel(
         this.cachedX = pos.x
         this.cachedY = pos.y
         this.cachedZ = pos.z
-        this.cachedYaw = rootDisplay.yRot
+        this.cachedYaw = rootDisplay.yRot + ROTATION_FIX
         this.cachedPitch = rootDisplay.xRot
 
         this.rootDisplay.snapTo(pos)
@@ -99,7 +99,7 @@ open class AnimatableModel(
         this.cachedX = root.x
         this.cachedY = root.y
         this.cachedZ = root.z
-        this.cachedYaw = root.yRot
+        this.cachedYaw = root.yRot + ROTATION_FIX
         this.cachedPitch = root.xRot
 
         this.idToDisplayMapping = this.recursiveLoadExistingParts(root).apply {
@@ -252,9 +252,9 @@ open class AnimatableModel(
         }
 
         // If the rotation was updated externally, make sure to handle that.
-        if (this.cachedYaw != this.rootDisplay.yRot || cachedPitch != this.rootDisplay.xRot) {
+        if (this.cachedYaw != this.rootDisplay.yRot + ROTATION_FIX || cachedPitch != this.rootDisplay.xRot) {
             hasChanged = true
-            this.cachedYaw = this.rootDisplay.yRot
+            this.cachedYaw = this.rootDisplay.yRot + ROTATION_FIX
             this.cachedPitch = this.rootDisplay.xRot
         }
 
@@ -276,7 +276,7 @@ open class AnimatableModel(
                 rotateZYX(rotation.copy()
                     .mul(INVERTED_ROTATIONS)
                     .add(
-                        rootDisplay.xRot, rootDisplay.yRot, 0f
+                        rootDisplay.xRot, rootDisplay.yRot + ROTATION_FIX, 0f
                     )
                     .mul(Mth.DEG_TO_RAD))
             }
@@ -475,6 +475,7 @@ open class AnimatableModel(
     }
 
     companion object {
+        private const val ROTATION_FIX = -90f
         private val INVERTED_ROTATIONS = Vector3f(1f, -1f, -1f)
     }
 }
