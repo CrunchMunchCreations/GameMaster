@@ -475,6 +475,6 @@ open class AnimatableModel(
     }
 
     companion object {
-        private val INVERTED_ROTATIONS = Vector3f(-1f, -1f, -1f)
+        private val INVERTED_ROTATIONS = Vector3f(1f, -1f, -1f)
     }
 }
