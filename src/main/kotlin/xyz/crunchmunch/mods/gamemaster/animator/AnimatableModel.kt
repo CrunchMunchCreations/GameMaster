@@ -475,7 +475,7 @@ open class AnimatableModel(
     }
 
     companion object {
-        private const val ROTATION_FIX = -90f
+        private const val ROTATION_FIX = 90f
         private val INVERTED_ROTATIONS = Vector3f(1f, -1f, -1f)
     }
 }
