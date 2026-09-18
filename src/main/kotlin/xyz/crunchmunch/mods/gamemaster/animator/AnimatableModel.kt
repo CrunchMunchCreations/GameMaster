@@ -76,7 +76,7 @@ open class AnimatableModel(
         this.cachedX = pos.x
         this.cachedY = pos.y
         this.cachedZ = pos.z
-        this.cachedYaw = rootDisplay.yRot + ROTATION_FIX
+        this.cachedYaw = rootDisplay.yRot
         this.cachedPitch = rootDisplay.xRot
 
         this.rootDisplay.snapTo(pos)
@@ -99,7 +99,7 @@ open class AnimatableModel(
         this.cachedX = root.x
         this.cachedY = root.y
         this.cachedZ = root.z
-        this.cachedYaw = root.yRot + ROTATION_FIX
+        this.cachedYaw = root.yRot
         this.cachedPitch = root.xRot
 
         this.idToDisplayMapping = this.recursiveLoadExistingParts(root).apply {
@@ -252,9 +252,9 @@ open class AnimatableModel(
         }
 
         // If the rotation was updated externally, make sure to handle that.
-        if (this.cachedYaw != this.rootDisplay.yRot + ROTATION_FIX || cachedPitch != this.rootDisplay.xRot) {
+        if (this.cachedYaw != this.rootDisplay.yRot || cachedPitch != this.rootDisplay.xRot) {
             hasChanged = true
-            this.cachedYaw = this.rootDisplay.yRot + ROTATION_FIX
+            this.cachedYaw = this.rootDisplay.yRot
             this.cachedPitch = this.rootDisplay.xRot
         }
 
