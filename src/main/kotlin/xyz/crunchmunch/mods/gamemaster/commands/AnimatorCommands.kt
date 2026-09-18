@@ -2,6 +2,7 @@ package xyz.crunchmunch.mods.gamemaster.commands
 
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import de.phyrone.brig.wrapper.DSLCommandNode
 import de.phyrone.brig.wrapper.executesNoResult
@@ -9,7 +10,7 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.IdentifierArgument
-import net.minecraft.commands.arguments.ResourceArgument
+import net.minecraft.commands.arguments.ResourceKeyArgument
 import net.minecraft.commands.arguments.UuidArgument
 import net.minecraft.commands.arguments.coordinates.RotationArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
@@ -150,13 +151,17 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
             }
         }
 
+        val fuck = DynamicCommandExceptionType { value ->
+            Component.literal("unknown $value")
+        }
+
         literal("entity") {
             literal("create") {
-                argument("entity_type", ResourceArgument.resource(context, GameMasterRegistryKeys.ANIMATABLE_ENTITY)) {
+                argument("entity_type", ResourceKeyArgument.key(GameMasterRegistryKeys.ANIMATABLE_ENTITY)) {
                     argument("position", Vec3Argument.vec3(true)) {
                         argument("rotation", RotationArgument.rotation()) {
                             execute {
-                                val entityType = ResourceArgument.getResource(this, "entity_type", GameMasterRegistryKeys.ANIMATABLE_ENTITY)
+                                val entityType = this.source.registryAccess().getOrThrow(ResourceKeyArgument.getRegistryKey(this, "entity_type", GameMasterRegistryKeys.ANIMATABLE_ENTITY, fuck))
                                 val position = Vec3Argument.getVec3(this, "position")
                                 val rotation = RotationArgument.getRotation(this, "rotation").getRotation(this.source)
                                 this.source.spawnAnimatableEntity(entityType.value(), position, rotation)
@@ -164,14 +169,14 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
                         }
 
                         execute {
-                            val entityType = ResourceArgument.getResource(this, "entity_type", GameMasterRegistryKeys.ANIMATABLE_ENTITY)
+                            val entityType = this.source.registryAccess().getOrThrow(ResourceKeyArgument.getRegistryKey(this, "entity_type", GameMasterRegistryKeys.ANIMATABLE_ENTITY, fuck))
                             val position = Vec3Argument.getVec3(this, "position")
                             this.source.spawnAnimatableEntity(entityType.value(), position, Vec2.ZERO)
                         }
                     }
 
                     execute {
-                        val entityType = ResourceArgument.getResource(this, "entity_type", GameMasterRegistryKeys.ANIMATABLE_ENTITY)
+                        val entityType = this.source.registryAccess().getOrThrow(ResourceKeyArgument.getRegistryKey(this, "entity_type", GameMasterRegistryKeys.ANIMATABLE_ENTITY, fuck))
                         this.source.spawnAnimatableEntity(entityType.value(), this.source.position, Vec2.ZERO)
                     }
                 }

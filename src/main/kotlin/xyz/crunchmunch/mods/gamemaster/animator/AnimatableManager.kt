@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.registry.DynamicRegistries
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute
 import net.minecraft.core.Registry
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Display
@@ -69,7 +70,9 @@ object AnimatableManager {
                         world.registryAccess().lookupOrThrow(MODEL_REGISTRY_KEY)
                             .getValueOrThrow(entity.getAttachedOrThrow(AnimatorAttachments.MODEL_KEY)),
                         world.registryAccess().lookupOrThrow(ANIMATION_REGISTRY_KEY)
-                            .getValueOrThrow(entity.getAttachedOrThrow(AnimatorAttachments.ANIMATIONS_KEY)),
+                            .getValueOrThrow(ResourceKey.create(ANIMATION_REGISTRY_KEY, entity.getAttachedOrThrow(AnimatorAttachments.ANIMATIONS_KEY).identifier().let {
+                                Identifier.fromNamespaceAndPath(it.namespace, it.path.removeSuffix(".animation"))
+                            })),
                         world
                     )
 
