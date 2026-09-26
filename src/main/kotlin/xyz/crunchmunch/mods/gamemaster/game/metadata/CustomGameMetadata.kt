@@ -2,10 +2,12 @@ package xyz.crunchmunch.mods.gamemaster.game.metadata
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentSerialization
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceKey
 import net.minecraft.util.ExtraCodecs
+import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
 /**
@@ -20,7 +22,7 @@ data class CustomGameMetadata(
 
     val maxSecondsPerRound: Long,
 
-    val worldId: Identifier,
+    val worldKey: ResourceKey<Level>,
 
     val spawnSettings: SpawnSettings
 ) {
@@ -53,8 +55,8 @@ data class CustomGameMetadata(
                     .forGetter(CustomGameMetadata::rounds),
                 Codec.LONG.fieldOf("max_seconds_per_round")
                     .forGetter(CustomGameMetadata::maxSecondsPerRound),
-                Identifier.CODEC.fieldOf("world_id")
-                    .forGetter(CustomGameMetadata::worldId),
+                ResourceKey.codec(Registries.DIMENSION).fieldOf("world_id")
+                    .forGetter(CustomGameMetadata::worldKey),
                 SpawnSettings.CODEC.fieldOf("spawn")
                     .forGetter(CustomGameMetadata::spawnSettings)
             )
