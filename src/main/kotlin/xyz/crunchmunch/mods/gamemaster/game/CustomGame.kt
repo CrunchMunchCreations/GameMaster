@@ -46,8 +46,7 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
             if (FabricLoader.getInstance().isDevelopmentEnvironment)
                 return GameMaster.server.overworld()
 
-            val key = GameMaster.server.levelKeys().firstOrNull { it == this.settings.worldKey } ?: return null
-            return GameMaster.server.getLevel(key)
+            return GameMaster.server.getLevel(this.settings.worldKey)
         }
 
     /**
