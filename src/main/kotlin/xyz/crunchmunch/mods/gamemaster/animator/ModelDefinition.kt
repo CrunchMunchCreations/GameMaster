@@ -8,6 +8,7 @@ import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.item.Item
 import org.joml.Vector3f
 import org.joml.div
+import org.joml.times
 import java.util.*
 
 data class ModelDefinition(
@@ -59,7 +60,7 @@ data class ModelDefinition(
                         Codec.STRING.fieldOf("id")
                             .forGetter(ModelPart::id),
                         ExtraCodecs.VECTOR3F.fieldOf("origin")
-                            .xmap({ it.div(16f) }, { it.mul(16f) })
+                            .xmap({ it / 16f }, { it * 16f })
                             .forGetter(ModelPart::origin),
                         codec.listOf().optionalFieldOf("children", listOf())
                             .forGetter(ModelPart::children),

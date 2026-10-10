@@ -19,7 +19,6 @@ import xyz.crunchmunch.mods.gamemaster.animator.animation.Animation
 import xyz.crunchmunch.mods.gamemaster.animator.animation.AnimationState
 import xyz.crunchmunch.mods.gamemaster.animator.animation.LoopType
 import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefinition
-import xyz.crunchmunch.mods.gamemaster.animator.util.TransformUtil
 import xyz.crunchmunch.mods.gamemaster.utils.*
 import java.util.*
 
@@ -273,12 +272,7 @@ open class AnimatableModel(
                 scale(scale)
                 scale(rescale)
                 // FIXME: this rotates incorrectly, needs fixing later
-                rotateZYX(rotation.copy()
-                    .mul(INVERTED_ROTATIONS)
-                    .add(
-                        rootDisplay.xRot, rootDisplay.yRot + ROTATION_FIX, 0f
-                    )
-                    .mul(Mth.DEG_TO_RAD))
+                rotateZYX((rotation * INVERTED_ROTATIONS + Vector3f(rootDisplay.xRot, rootDisplay.yRot + ROTATION_FIX, 0f)) * Mth.DEG_TO_RAD)
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
@@ -363,9 +357,9 @@ open class AnimatableModel(
                 val previousScale = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_SCALE)
 
                 val delta = ((animationLength - remainingDuration).toFloat() / animationLength.toFloat())
-                localTranslation = TransformUtil.lerp(delta, previousTranslation, localTranslation)
-                localRotation = TransformUtil.lerp(delta, previousRotation, localRotation)
-                localScale = TransformUtil.lerp(delta, previousScale, localScale)
+                localTranslation = previousTranslation.lerpTo(localTranslation, delta)
+                localRotation = previousRotation.lerpTo(localRotation, delta)
+                localScale = previousScale.lerpTo(localScale, delta)
 
                 remainingDuration = parentRemainingDuration
             }
@@ -391,7 +385,7 @@ open class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
             matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
-            matrixStack.rotateZYX(localRotation.copy().mul(INVERTED_ROTATIONS).mul(Mth.DEG_TO_RAD))
+            matrixStack.rotateZYX(localRotation * INVERTED_ROTATIONS * Mth.DEG_TO_RAD)
 
             if (startTick == currentTick) {
                 val transformation = Transformation(matrixStack.get(Matrix4f()))
@@ -412,7 +406,7 @@ open class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
             matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
-            matrixStack.rotateZYX(localRotation.copy().mul(INVERTED_ROTATIONS).mul(Mth.DEG_TO_RAD))
+            matrixStack.rotateZYX(localRotation * INVERTED_ROTATIONS * Mth.DEG_TO_RAD)
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 

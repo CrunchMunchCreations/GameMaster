@@ -5,8 +5,9 @@ import com.mojang.serialization.DataResult
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.util.ExtraCodecs
 import org.joml.Vector3fc
+import org.joml.div
+import org.joml.times
 import xyz.crunchmunch.mods.gamemaster.animator.util.PosRotScale
-import xyz.crunchmunch.mods.gamemaster.utils.copy
 
 // Bedrock's animation format, adapted for use within GameMaster.
 data class BedrockMultiAnimationDefinition(
@@ -23,9 +24,9 @@ data class BedrockMultiAnimationDefinition(
                 Codec.withAlternative(
                     Codec.unboundedMap(
                         TICKS_AS_SECONDS_STRING_CODEC,
-                        ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) as Vector3fc }, { it.copy().mul(16f, 16f, 16f) })
+                        ExtraCodecs.VECTOR3F.xmap({ (it / 16f) as Vector3fc }, { it * 16f })
                     ),
-                    ExtraCodecs.VECTOR3F.xmap({ it.copy().div(16f, 16f, 16f) }, { it.copy().mul(16f, 16f, 16f) })
+                    ExtraCodecs.VECTOR3F.xmap({ it / 16f }, { it * 16f })
                         .flatComapMap({ mapOf(0 to it) }, { DataResult.success(it.values.firstOrNull() ?: return@flatComapMap DataResult.error { "Expected at least one value, but got empty!" }) })
                 )
                     .optionalFieldOf("position", mapOf())
