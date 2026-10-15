@@ -11,10 +11,7 @@ import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix4f
-import org.joml.Matrix4fStack
-import org.joml.Quaternionf
-import org.joml.Vector3f
+import org.joml.*
 import xyz.crunchmunch.mods.gamemaster.animator.animation.Animation
 import xyz.crunchmunch.mods.gamemaster.animator.animation.AnimationState
 import xyz.crunchmunch.mods.gamemaster.animator.animation.LoopType

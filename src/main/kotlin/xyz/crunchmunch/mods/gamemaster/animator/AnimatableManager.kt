@@ -66,17 +66,21 @@ object AnimatableManager {
                 // Register the animatable entity, but don't actually initialize it yet.
                 // The initialization will happen in the next tick.
                 if (!this.animatables.contains(entity.uuid)) {
-                    val animatable = AnimatableModel(
-                        world.registryAccess().lookupOrThrow(MODEL_REGISTRY_KEY)
-                            .getValueOrThrow(entity.getAttachedOrThrow(AnimatorAttachments.MODEL_KEY)),
-                        world.registryAccess().lookupOrThrow(ANIMATION_REGISTRY_KEY)
-                            .getValueOrThrow(ResourceKey.create(ANIMATION_REGISTRY_KEY, entity.getAttachedOrThrow(AnimatorAttachments.ANIMATIONS_KEY).identifier().let {
-                                Identifier.fromNamespaceAndPath(it.namespace, it.path.removeSuffix(".animation"))
-                            })),
-                        world
-                    )
+                    try {
+                        val animatable = AnimatableModel(
+                            world.registryAccess().lookupOrThrow(MODEL_REGISTRY_KEY)
+                                .getValueOrThrow(entity.getAttachedOrThrow(AnimatorAttachments.MODEL_KEY)),
+                            world.registryAccess().lookupOrThrow(ANIMATION_REGISTRY_KEY)
+                                .getValueOrThrow(ResourceKey.create(ANIMATION_REGISTRY_KEY, entity.getAttachedOrThrow(AnimatorAttachments.ANIMATIONS_KEY).identifier().let {
+                                    Identifier.fromNamespaceAndPath(it.namespace, it.path.removeSuffix(".animation"))
+                                })),
+                            world
+                        )
 
-                    this.animatablesMutable[entity.uuid] = animatable
+                        this.animatablesMutable[entity.uuid] = animatable
+                    } catch (e: Throwable) {
+                        GameMaster.logger.error("Failed to load animatable entity ${entity.uuid} at ${entity.position()}", e)
+                    }
                 }
             }
         }
