@@ -343,10 +343,10 @@ open class AnimatableModel(
             var localRotation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
             var localScale = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
 
-            if (parentRemainingDuration in 1..<remainingDuration && parentStartTick == currentTick) {
+            if (parentRemainingDuration != 0 && endTick < currentTick + parentRemainingDuration) {
                 // Handle getting in-between first
                 entity.setAttached(AnimatorAttachments.START_TICK, currentTick)
-                entity.setAttached(AnimatorAttachments.END_TICK, currentTick + parentRemainingDuration)
+                entity.setAttached(AnimatorAttachments.END_TICK, (currentTick + parentRemainingDuration).coerceAtLeast(endTick))
                 startTick = currentTick
 
                 val previousTranslation = entity.getAttachedOrCreate(AnimatorAttachments.PREV_LOCAL_TRANSLATION)
