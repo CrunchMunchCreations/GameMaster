@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public abstract class ServerCommonPacketListenerImplMixin {
+    // We don't inject in MinecraftServer#handleCustomClickAction, we don't have access to the player there.
     @Inject(method = "handleCustomClickAction", at = @At("TAIL"), cancellable = true)
     private void chrunchy$handleRegisteredCustomClicks(ServerboundCustomClickActionPacket packet, CallbackInfo ci) {
         Codec<? extends CustomClickHandler> handlerCodec = CustomClickHandler.REGISTRY.getValue(packet.id());

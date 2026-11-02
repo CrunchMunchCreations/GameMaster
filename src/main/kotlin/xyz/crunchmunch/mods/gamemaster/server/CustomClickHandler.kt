@@ -14,7 +14,8 @@ import xyz.crunchmunch.mods.gamemaster.GameMaster
 import java.util.*
 
 /**
- *
+ * Used by [ClickEvent.Custom] as a way to have custom clicks be data-driven and properly handled on the server accordingly
+ * without having to worry about manual data handling.
  */
 interface CustomClickHandler {
     fun handle(player: ServerPlayer)
