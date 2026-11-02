@@ -5,9 +5,11 @@ import de.phyrone.brig.wrapper.DSLCommandNode
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
+import net.minecraft.core.PositionAndRotation
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.TextColor
 import net.minecraft.network.protocol.common.ClientboundClearDialogPacket
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
@@ -37,7 +39,6 @@ import org.joml.Vector3fc
 import xyz.crunchmunch.mods.gamemaster.mixin.accessors.DisplayAccessor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import net.minecraft.network.chat.Component as VanillaComponent
 
 fun Long.zeroPad(): String {
     return if (this <= 9)
@@ -145,7 +146,7 @@ fun Entity.teleportTo(level: ServerLevel, x: Double, y: Double, z: Double, yaw: 
 }
 
 // Easier command DSL structures
-fun <T : CommandSourceStack> CommandContext<T>.handle(function: CommandContext<T>.() -> VanillaComponent): Int {
+fun <T : CommandSourceStack> CommandContext<T>.handle(function: CommandContext<T>.() -> Component): Int {
     try {
         val component = function.invoke(this)
         this.source.sendSuccess({ component }, false)
@@ -160,7 +161,7 @@ fun <T : CommandSourceStack> CommandContext<T>.handle(function: CommandContext<T
     }
 }
 
-fun <T : CommandSourceStack> DSLCommandNode<T>.execute(function: CommandContext<T>.() -> VanillaComponent) {
+fun <T : CommandSourceStack> DSLCommandNode<T>.execute(function: CommandContext<T>.() -> Component) {
     executes e@{ ctx ->
         try {
             val component = function.invoke(ctx)
@@ -178,13 +179,13 @@ fun <T : CommandSourceStack> DSLCommandNode<T>.execute(function: CommandContext<
 }
 
 // This was annoying me, so I simplified it
-fun CommandSourceStack.sendSuccess(text: VanillaComponent, allowLogging: Boolean = true) {
+fun CommandSourceStack.sendSuccess(text: Component, allowLogging: Boolean = true) {
     this.sendSuccess({ text }, allowLogging)
 }
 
-fun createItemLore(lines: List<VanillaComponent>): ItemLore {
+fun createItemLore(lines: List<Component>): ItemLore {
     return ItemLore(lines.map {
-        VanillaComponent.empty()
+        Component.empty()
             .append(it.copy().withStyle { s -> s.withColor(ChatFormatting.GRAY).withItalic(false) })
     })
 }
@@ -214,25 +215,11 @@ var ItemStack.itemModel: Identifier?
             this.set(DataComponents.ITEM_MODEL, value)
     }
 
-var ItemStack.customModel: String?
-    get() {
-        if (!this.has(DataComponents.CUSTOM_MODEL_DATA))
-            return null
-
-        return this.get(DataComponents.CUSTOM_MODEL_DATA)!!.getString(0)
-    }
-    set(value) {
-        if (value == null)
-            this.remove(DataComponents.CUSTOM_MODEL_DATA)
-        else
-            this.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData(emptyList(), emptyList(), listOf(value), emptyList()))
-    }
-
 fun ServerPlayer.openDialog(dialog: ResourceKey<Dialog>) {
     this.openDialog(this.registryAccess().lookupOrThrow(Registries.DIALOG).getOrThrow(dialog))
 }
 
-fun ServerPlayer.closeDialogVanilla() {
+fun ServerPlayer.closeDialog() {
     this.connection.send(ClientboundClearDialogPacket.INSTANCE)
 }
 
@@ -240,7 +227,7 @@ fun ServerPlayer.setTitleAnimationTimes(fadeIn: Int = 10, stay: Int = 70, fadeOu
     this.connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
 }
 
-fun ServerPlayer.sendTitle(title: VanillaComponent = VanillaComponent.empty(), subtitle: VanillaComponent = VanillaComponent.empty()) {
+fun ServerPlayer.sendTitle(title: Component = Component.empty(), subtitle: Component = Component.empty()) {
     this.connection.send(ClientboundSetTitleTextPacket(title))
     this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
 }
@@ -265,6 +252,14 @@ fun AttributeInstance.addTransientModifierSafe(modifier: AttributeModifier) {
 fun AttributeInstance.addPermanentModifierSafe(modifier: AttributeModifier) {
     if (!this.hasModifier(modifier.id))
         this.addPermanentModifier(modifier)
+}
+
+fun Entity.absSnapTo(position: Vec3, yRot: Float = 0f, xRot: Float = 0f) {
+    this.absSnapTo(position.x, position.y, position.z, yRot, xRot)
+}
+
+fun Entity.absSnapTo(posRot: PositionAndRotation) {
+    this.absSnapTo(posRot.position(), posRot.yRot(), posRot.xRot())
 }
 
 val BlockPos.center: Vec3

@@ -19,6 +19,8 @@ import xyz.crunchmunch.mods.gamemaster.commands.inventoryCommands
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.server.GameMasterNotificationService
+import xyz.crunchmunch.mods.gamemaster.server.camera.CameraManager
+import xyz.crunchmunch.mods.gamemaster.server.camera.cameraCommands
 import java.nio.file.Path
 
 // A more common variant of the minigame system used in Chrunchy Christmas for being used
@@ -39,6 +41,7 @@ class GameMaster : ModInitializer {
         GameMarkerManager.init()
         GameMasterRegistryKeys.init()
         GameMasterRegistries.init()
+        CameraManager.init()
 //        TimelineManager.init()
 
         CommandRegistrationCallback.EVENT.register { dispatcher, buildContext, environment ->
@@ -49,6 +52,7 @@ class GameMaster : ModInitializer {
                 inventoryCommands()
                 freezeCommands()
                 animatorCommands(buildContext)
+                cameraCommands()
             }
         }
     }

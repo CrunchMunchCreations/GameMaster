@@ -1,5 +1,7 @@
 package xyz.crunchmunch.mods.gamemaster
 
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.PrerequisiteManager
@@ -18,6 +20,11 @@ object GameMasterRegistries {
     val PREREQUISITE = PrerequisiteManager.REGISTRY
 
     val CUSTOM_CLICK_HANDLER = CustomClickHandler.REGISTRY
+
+    // Camera
+    @JvmField val CAMERA_KEYFRAME_TYPE = FabricRegistryBuilder.create(GameMasterRegistryKeys.CAMERA_KEYFRAME_TYPE)
+        .attribute(RegistryAttribute.OPTIONAL)
+        .buildAndRegister()
 
     fun init() {}
 }

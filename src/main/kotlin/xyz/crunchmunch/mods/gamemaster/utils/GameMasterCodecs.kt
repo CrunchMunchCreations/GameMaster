@@ -1,8 +1,12 @@
 package xyz.crunchmunch.mods.gamemaster.utils
 
+import com.google.common.collect.HashMultimap
+import com.google.common.collect.Multimap
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.minecraft.core.PositionAndRotation
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.function.Function
@@ -111,7 +115,44 @@ object GameMasterCodecs {
         )
     )
 
+    @JvmField
+    val POSITION_AND_ROTATION: Codec<PositionAndRotation> = RecordCodecBuilder.create { instance ->
+        instance.group(
+            Vec3.CODEC.fieldOf("position")
+                .forGetter(PositionAndRotation::position),
+            Codec.FLOAT.optionalFieldOf("y_rot", 0f)
+                .forGetter(PositionAndRotation::yRot),
+            Codec.FLOAT.optionalFieldOf("x_rot", 0f)
+                .forGetter(PositionAndRotation::xRot),
+        )
+            .apply(instance, PositionAndRotation::of)
+    }
+
+    @JvmField
+    val SOUND_SOURCE: Codec<SoundSource> = Codec.STRING.comapFlatMap({
+        for (source in SoundSource.entries) {
+            if (source.getName() == it)
+                return@comapFlatMap DataResult.success(source)
+        }
+
+        DataResult.error { "Failed to find source by name $it!" }
+    }, SoundSource::getName)
+
     fun <T> Codec<T>.mutableListOf(): Codec<MutableList<T>> {
         return this.listOf().xmap({ it.toMutableList() }, Function.identity())
+    }
+
+    fun <K, V> multimap(keyCodec: Codec<K>, elementCodec: Codec<V>): Codec<Multimap<K, V>> {
+        return Codec.unboundedMap(keyCodec, elementCodec.listOf())
+            .xmap({ map ->
+                val multimap = HashMultimap.create<K, V>()
+                for ((key, values) in map) {
+                    multimap.putAll(key, values)
+                }
+
+                multimap
+            }, { multimap ->
+                multimap.asMap() as Map<K, List<V>>
+            })
     }
 }
