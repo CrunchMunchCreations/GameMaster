@@ -2,6 +2,7 @@ package xyz.crunchmunch.mods.gamemaster
 
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
+import xyz.crunchmunch.mods.gamemaster.server.CustomClickHandler
 
 object GameMasterRegistryKeys {
     // Custom game
@@ -13,6 +14,8 @@ object GameMasterRegistryKeys {
     val ANIMATION = AnimatableManager.ANIMATION_REGISTRY_KEY
     val MODEL = AnimatableManager.MODEL_REGISTRY_KEY
     val ANIMATABLE_ENTITY = AnimatableManager.ANIMATABLE_ENTITY_REGISTRY_KEY
+
+    val CUSTOM_CLICK_HANDLER = CustomClickHandler.REGISTRY_KEY
 
     // Timeline
 //    val TIMELINE = TimelineManager.REGISTRY_KEY

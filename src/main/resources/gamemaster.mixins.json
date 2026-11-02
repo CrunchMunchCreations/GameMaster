@@ -13,6 +13,7 @@
         "devtools.SharedConstantsMixin",
         "devtools.debug.CommandsMixin",
         "devtools.debug.ConnectionMixin",
+        "dialogs.ServerCommonPacketListenerImplMixin",
         "events.CraftingMenuMixin",
         "events.ItemEntityMixin",
         "events.ResultSlotMixin",
