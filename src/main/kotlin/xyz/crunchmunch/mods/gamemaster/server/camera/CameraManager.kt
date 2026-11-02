@@ -20,6 +20,7 @@ import xyz.crunchmunch.mods.gamemaster.GameMasterRegistryKeys
 import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframe
 import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframeTypes
 import xyz.crunchmunch.mods.gamemaster.utils.absSnapTo
+import xyz.crunchmunch.mods.gamemaster.utils.teleportTo
 import java.util.*
 
 object CameraManager {
@@ -94,6 +95,8 @@ object CameraManager {
         this.activeScenes.add(ActiveCameraScene(scene, level, camera, tracks))
 
         for (player in targets) {
+            player.teleportTo(level, scene.start.position().x, scene.start.position().y, scene.start.position().z, scene.start.yRot(), scene.start.xRot())
+
             player.setGameMode(GameType.SPECTATOR)
             player.setAttached(ACTIVE_SCENE_ATTACHMENT, sceneKey)
             player.setCamera(camera)
