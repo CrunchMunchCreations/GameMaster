@@ -132,6 +132,25 @@ fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildCon
             }
         }
 
+        literal("microwave") {
+            argument("uuid", UuidArgument.uuid()) {
+                suggest { suggestAnimatables() }
+
+                executesNoResult { ctx ->
+                    val uuid = UuidArgument.getUuid(ctx, "uuid")
+                    val animatable = AnimatableManager.animatables[uuid]
+
+                    if (animatable == null) {
+                        sendFailure(Component.literal("No entity exists by UUID $uuid!"))
+                        return@executesNoResult
+                    }
+
+                    AnimatableManager.microwave(animatable)
+                    this.sendSuccess(Component.literal("Microwaving animatable entity ${uuid}!"), true)
+                }
+            }
+        }
+
         literal("remove") {
             argument("uuid", UuidArgument.uuid()) {
                 suggest { suggestAnimatables() }

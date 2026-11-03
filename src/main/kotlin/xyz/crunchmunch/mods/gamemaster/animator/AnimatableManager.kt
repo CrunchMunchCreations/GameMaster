@@ -36,6 +36,8 @@ object AnimatableManager {
     private val animatablesMutable = Collections.synchronizedMap(mutableMapOf<UUID, AnimatableModel>())
     val animatables: Map<UUID, AnimatableModel> = Collections.unmodifiableMap(animatablesMutable)
 
+    val microwaving: MutableSet<AnimatableModel> = Collections.newSetFromMap(WeakHashMap())
+
     fun create(model: ModelDefinition, animation: MultiAnimationDefinition, level: ServerLevel, pos: Vec3): AnimatableModel {
         val animatable = AnimatableModel(model, animation, level)
         animatable.createNew(pos)
@@ -53,6 +55,10 @@ object AnimatableManager {
         val root = animatable.rootDisplay
         animatable.remove(false)
         animatable.createNew(root.position(), root)
+    }
+
+    fun microwave(entity: AnimatableModel) {
+        this.microwaving.add(entity)
     }
 
     init {
@@ -112,6 +118,11 @@ object AnimatableManager {
 
                             // We need to reload the entity.
                             animatable.loadFromExisting(existing)
+                        }
+
+                        if (this.microwaving.contains(animatable)) {
+                            existing.yRot += 1f
+                            existing.yRot = existing.yRot % 360f
                         }
 
                         animatable.tick()

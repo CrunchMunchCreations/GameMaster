@@ -140,9 +140,9 @@ open class AnimatableModel(
         this.currentState = AnimationState.STOPPED
     }
 
-    open fun tick() {
+    open fun tick(forceUpdate: Boolean = false) {
         val animation = this.currentAnimation
-        var hasChanged = false
+        var hasChanged = forceUpdate
 
         if (animation != null) {
             // Animation playing
@@ -206,7 +206,7 @@ open class AnimatableModel(
                         this.currentState = AnimationState.TRANSITIONING
                         this.currentTick = 0
 
-                        this.tick()
+                        this.tick(true)
                         return
                     }
                 }
@@ -269,7 +269,7 @@ open class AnimatableModel(
                 scale(scale)
                 scale(rescale)
                 // FIXME: this rotates incorrectly, needs fixing later
-                rotateZYX((rotation * INVERTED_ROTATIONS + Vector3f(rootDisplay.xRot, rootDisplay.yRot + ROTATION_FIX, 0f)) * Mth.DEG_TO_RAD)
+                rotateZYX((rotation + Vector3f(rootDisplay.xRot, -rootDisplay.yRot, 0f)) * Mth.DEG_TO_RAD)
             }
 
             val remainingDuration = if (currentState != AnimationState.PLAYING || currentTick > endTick)
@@ -382,19 +382,17 @@ open class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
             matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
-            matrixStack.rotateZYX(localRotation * INVERTED_ROTATIONS * Mth.DEG_TO_RAD)
+            matrixStack.rotateZYX(localRotation * Vector3f(1f, 1f, -1f) * Mth.DEG_TO_RAD)
 
-            if (startTick == currentTick) {
-                val transformation = Transformation(matrixStack.get(Matrix4f()))
+            val transformation = Transformation(matrixStack.get(Matrix4f()))
 
-                if (
-                    transformation.translation() != entity.translation || transformation.leftRotation() != entity.leftRotation
-                    || transformation.rightRotation() != entity.rightRotation || transformation.scale() != entity.scale
-                ) {
-                    entity.transformationInterpolationDelay = 0
-                    entity.transformationInterpolationDuration = remainingDuration
-                    entity.setTransformation(transformation)
-                }
+            if (
+                transformation.translation() != entity.translation || transformation.leftRotation() != entity.leftRotation
+                || transformation.rightRotation() != entity.rightRotation || transformation.scale() != entity.scale
+            ) {
+                entity.transformationInterpolationDelay = 0
+                entity.transformationInterpolationDuration = remainingDuration
+                entity.setTransformation(transformation)
             }
 
             matrixStack.popMatrix()
@@ -403,7 +401,7 @@ open class AnimatableModel(
             matrixStack.translate(localTranslation)
             matrixStack.scale(localScale)
             matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
-            matrixStack.rotateZYX(localRotation * INVERTED_ROTATIONS * Mth.DEG_TO_RAD)
+            matrixStack.rotateZYX(localRotation * Mth.DEG_TO_RAD)
 
             this.recursiveAnimateHierarchy(entity, currentTick, remainingDuration, startTick, matrixStack)
 
@@ -463,10 +461,5 @@ open class AnimatableModel(
         }
 
         return displays
-    }
-
-    companion object {
-        private const val ROTATION_FIX = 0f
-        private val INVERTED_ROTATIONS = Vector3f(1f, -1f, -1f)
     }
 }
