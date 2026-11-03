@@ -35,6 +35,12 @@ object CameraManager {
         CameraKeyframeTypes.init()
 
         ServerTickEvents.END_LEVEL_TICK.register { level ->
+            var hasFinished = false
+            val finishedScenes by lazy {
+                hasFinished = true
+                mutableListOf<ActiveCameraScene>()
+            }
+
             for (scene in this.activeScenes) {
                 if (scene.level != level)
                     continue
@@ -42,11 +48,21 @@ object CameraManager {
                 for ((_, track) in scene.tracks) {
                     track.tick()
                 }
+
+                if (scene.tracks.values.all { it.isComplete }) {
+                    finishedScenes.add(scene)
+                }
+            }
+
+            if (hasFinished) {
+                for (scene in finishedScenes) {
+                    this.endScene(scene)
+                }
             }
         }
     }
 
-    private fun CameraScene.buildTrack(level: ServerLevel, camera: Display): Map<ResourceKey<MapCodec<out CameraKeyframe>>, CameraTrack<CameraKeyframe>> {
+    private fun CameraScene.buildTracks(level: ServerLevel, camera: Display): Map<ResourceKey<MapCodec<out CameraKeyframe>>, CameraTrack<CameraKeyframe>> {
         val keyframeTracks = mutableMapOf<ResourceKey<MapCodec<out CameraKeyframe>>, MutableMap<Int, CameraKeyframe>>()
 
         this.keyframes.forEach { tick, keyframe ->
@@ -89,7 +105,7 @@ object CameraManager {
             .forEach { it.remove(Entity.RemovalReason.DISCARDED) }
 
         val camera = this.createCameraEntity(level, scene)
-        val tracks = scene.buildTrack(level, camera)
+        val tracks = scene.buildTracks(level, camera)
         level.addFreshEntity(camera)
 
         this.activeScenes.add(ActiveCameraScene(scene, level, camera, tracks))
@@ -103,27 +119,24 @@ object CameraManager {
         }
     }
 
-    fun endScene(scene: CameraScene) {
+    fun endScene(activeScene: ActiveCameraScene) {
         // If the scene was ended prematurely before the queue could finish running,
         // we need to reset all state as best as possible.
 
-        val activeScenes = this.activeScenes.filter { it.scene == scene }
-        if (activeScenes.isNotEmpty()) {
-            for (activeScene in activeScenes) {
-                val key = activeScene.scene.key(activeScene.level)
+        val key = activeScene.scene.key(activeScene.level)
 
-                for ((_, track) in activeScene.tracks) {
-                    track.stopAndReset()
-                }
+        for ((_, track) in activeScene.tracks) {
+            track.stopAndReset()
+        }
 
-                for (player in activeScene.level.players()) {
-                    if (player.getAttached(ACTIVE_SCENE_ATTACHMENT) == key) {
-                        player.setCamera(null)
-                        player.setGameMode(GameType.ADVENTURE)
-                    }
-                }
+        for (player in activeScene.level.players()) {
+            if (player.getAttached(ACTIVE_SCENE_ATTACHMENT) == key) {
+                player.setCamera(null)
+                player.setGameMode(GameType.ADVENTURE)
             }
         }
+
+        this.activeScenes.remove(activeScene)
     }
 
     private fun createCameraEntity(level: ServerLevel, scene: CameraScene): Display {
