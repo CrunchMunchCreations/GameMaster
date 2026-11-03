@@ -119,7 +119,7 @@ object GameMarkerManager {
 
         level.addFreshEntity(marker)
 
-        val gameMarker = type.initializer.invoke(marker, data)
+        val gameMarker = type.initializer.invoke(type, marker, data)
         trackedGameMarkers.add(gameMarker)
 
         return gameMarker
@@ -242,7 +242,7 @@ object GameMarkerManager {
         try {
             val data = data.read(type.dataCodec).orElseThrow()
 
-            val gameMarker = type.initializer.invoke(marker, data)
+            val gameMarker = type.initializer.invoke(type, marker, data)
             gameMarker.entityLoaded()
             trackedGameMarkers.add(gameMarker)
 
