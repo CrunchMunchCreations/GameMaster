@@ -3,6 +3,7 @@ package xyz.crunchmunch.mods.gamemaster.game.marker
 import com.mojang.serialization.MapCodec
 import net.minecraft.world.entity.Entity
 
+@JvmRecord
 data class GameMarkerType<MARKER : GameMarker<DATA>, DATA : Any>(
     /**
      * Codec for any data stored within the marker to be read.
@@ -12,5 +13,7 @@ data class GameMarkerType<MARKER : GameMarker<DATA>, DATA : Any>(
     /**
      * Initializer for creating the game marker.
      */
-    val initializer: (Entity, DATA) -> MARKER
-)
+    val initializer: (GameMarkerType<MARKER, DATA>, Entity, DATA) -> MARKER,
+) {
+    constructor(dataCodec: MapCodec<DATA>, initializer: (Entity, DATA) -> MARKER) : this(dataCodec, { _, entity, data -> initializer(entity, data) })
+}
