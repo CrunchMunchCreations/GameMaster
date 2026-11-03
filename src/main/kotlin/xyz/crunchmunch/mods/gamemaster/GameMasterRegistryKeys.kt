@@ -5,6 +5,9 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.PrerequisiteManager
 import xyz.crunchmunch.mods.gamemaster.server.CustomClickHandler
 import xyz.crunchmunch.mods.gamemaster.server.camera.CameraScene
 import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframe
@@ -31,9 +34,9 @@ object GameMasterRegistryKeys {
     }
 
     // Timeline
-//    val TIMELINE = TimelineManager.REGISTRY_KEY
-//    val KEYPOINT_TYPE = KeypointManager.REGISTRY_KEY
-//    val PREREQUISITE_TYPE = PrerequisiteManager.REGISTRY_KEY
+    val TIMELINE = TimelineManager.REGISTRY_KEY
+    val KEYPOINT_TYPE = KeypointManager.REGISTRY_KEY
+    val PREREQUISITE_TYPE = PrerequisiteManager.REGISTRY_KEY
 
     fun init() {}
 }
