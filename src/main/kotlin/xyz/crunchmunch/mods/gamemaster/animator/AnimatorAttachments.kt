@@ -5,9 +5,8 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceKey
-import net.minecraft.util.ExtraCodecs
-import org.joml.Vector3f
 import xyz.crunchmunch.mods.gamemaster.GameMaster
+import xyz.crunchmunch.mods.gamemaster.animator.util.InterpolatingVector3f
 
 object AnimatorAttachments {
     @JvmField val MODEL_PART_ID = register("model/part_id") {
@@ -26,44 +25,19 @@ object AnimatorAttachments {
         persistent(UUIDUtil.CODEC)
     }
 
-    @JvmField val START_TICK = register("animation/start_tick") {
-        persistent(Codec.INT)
-        initializer { 0 }
-    }
-
-    @JvmField val END_TICK = register("animation/end_tick") {
-        persistent(Codec.INT)
-        initializer { 0 }
-    }
-
     @JvmField val LOCAL_TRANSLATION = register("transform/local_translation") {
-        persistent(ExtraCodecs.VECTOR3F)
-        initializer { Vector3f() }
+        persistent(InterpolatingVector3f.CODEC)
+        initializer { InterpolatingVector3f() }
     }
 
     @JvmField val LOCAL_ROTATION = register("transform/local_rotation") {
-        persistent(ExtraCodecs.VECTOR3F)
-        initializer { Vector3f() }
+        persistent(InterpolatingVector3f.CODEC)
+        initializer { InterpolatingVector3f() }
     }
 
     @JvmField val LOCAL_SCALE = register("transform/local_scale") {
-        persistent(ExtraCodecs.VECTOR3F)
-        initializer { Vector3f(1f, 1f, 1f) }
-    }
-
-    @JvmField val PREV_LOCAL_TRANSLATION = register("transform/previous_local_translation") {
-        persistent(ExtraCodecs.VECTOR3F)
-        initializer { Vector3f() }
-    }
-
-    @JvmField val PREV_LOCAL_ROTATION = register("transform/previous_local_rotation") {
-        persistent(ExtraCodecs.VECTOR3F)
-        initializer { Vector3f() }
-    }
-
-    @JvmField val PREV_LOCAL_SCALE = register("transform/previous_local_scale") {
-        persistent(ExtraCodecs.VECTOR3F)
-        initializer { Vector3f(1f, 1f, 1f) }
+        persistent(InterpolatingVector3f.CODEC)
+        initializer { InterpolatingVector3f(1f, 1f, 1f) }
     }
 
     @JvmField val RESCALE = register("transform/rescale") {

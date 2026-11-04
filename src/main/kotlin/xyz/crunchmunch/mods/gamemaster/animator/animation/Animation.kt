@@ -2,6 +2,7 @@ package xyz.crunchmunch.mods.gamemaster.animator.animation
 
 import xyz.crunchmunch.mods.gamemaster.animator.util.PosRotScale
 
+@JvmRecord
 data class Animation(
     val parts: Map<String, Map<Int, PosRotScale>>,
     val loop: LoopType,

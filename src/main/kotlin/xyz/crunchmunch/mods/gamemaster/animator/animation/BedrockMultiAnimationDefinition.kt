@@ -8,12 +8,14 @@ import org.joml.Vector3fc
 import org.joml.div
 import org.joml.times
 import xyz.crunchmunch.mods.gamemaster.animator.util.PosRotScale
+import xyz.crunchmunch.mods.gamemaster.utils.GameMasterCodecs
 
 // Bedrock's animation format, adapted for use within GameMaster.
+@JvmRecord
 data class BedrockMultiAnimationDefinition(
     override val animations: Map<String, Animation>,
     val formatVersion: String
-) : MultiAnimationDefinition() {
+) : MultiAnimationDefinition {
     override val type: AnimationDefinitionType<*>
         get() = AnimationDefinitionTypes.BEDROCK
 
@@ -23,7 +25,7 @@ data class BedrockMultiAnimationDefinition(
             instance.group(
                 Codec.withAlternative(
                     Codec.unboundedMap(
-                        TICKS_AS_SECONDS_STRING_CODEC,
+                        GameMasterCodecs.TICKS_AS_SECONDS_STRING_CODEC,
                         ExtraCodecs.VECTOR3F.xmap({ (it / 16f) as Vector3fc }, { it * 16f })
                     ),
                     ExtraCodecs.VECTOR3F.xmap({ it / 16f }, { it * 16f })
@@ -34,7 +36,7 @@ data class BedrockMultiAnimationDefinition(
 
                 Codec.withAlternative(
                     Codec.unboundedMap(
-                        TICKS_AS_SECONDS_STRING_CODEC,
+                        GameMasterCodecs.TICKS_AS_SECONDS_STRING_CODEC,
                         ExtraCodecs.VECTOR3F
                     ),
                     ExtraCodecs.VECTOR3F
@@ -45,7 +47,7 @@ data class BedrockMultiAnimationDefinition(
 
                 Codec.withAlternative(
                     Codec.unboundedMap(
-                        TICKS_AS_SECONDS_STRING_CODEC,
+                        GameMasterCodecs.TICKS_AS_SECONDS_STRING_CODEC,
                         ExtraCodecs.VECTOR3F
                     ),
                     ExtraCodecs.VECTOR3F
@@ -66,18 +68,18 @@ data class BedrockMultiAnimationDefinition(
                             val posRotScale = mutableMapOf<Int, PosRotScale>()
 
                             for ((tick, position) in mapping.position) {
-                                posRotScale.computeIfAbsent(tick) { PosRotScale() }
-                                    .position.set(position)
+                                posRotScale[tick] = posRotScale.computeIfAbsent(tick) { PosRotScale() }
+                                    .withPosition(position)
                             }
 
                             for ((tick, rotation) in mapping.rotation) {
-                                posRotScale.computeIfAbsent(tick) { PosRotScale() }
-                                    .rotation.set(rotation)
+                                posRotScale[tick] = posRotScale.computeIfAbsent(tick) { PosRotScale() }
+                                    .withRotation(rotation)
                             }
 
                             for ((tick, scale) in mapping.scale) {
-                                posRotScale.computeIfAbsent(tick) { PosRotScale() }
-                                    .scale.set(scale)
+                                posRotScale[tick] = posRotScale.computeIfAbsent(tick) { PosRotScale() }
+                                    .withScale(scale)
                             }
 
                             parts[partName] = posRotScale
@@ -88,9 +90,9 @@ data class BedrockMultiAnimationDefinition(
                         val mappings = mutableMapOf<String, BoneAnimationMapping>()
                         for ((partName, partInfo) in parts) {
                             mappings[partName] = BoneAnimationMapping(
-                                partInfo.mapValues { it.value.position },
-                                partInfo.mapValues { it.value.rotation },
-                                partInfo.mapValues { it.value.scale }
+                                partInfo.filterValues { it.position.isPresent }.mapValues { it.value.position.orElseThrow() },
+                                partInfo.filterValues { it.rotation.isPresent }.mapValues { it.value.rotation.orElseThrow() },
+                                partInfo.filterValues { it.scale.isPresent }.mapValues { it.value.scale.orElseThrow() }
                             )
                         }
 
@@ -105,10 +107,10 @@ data class BedrockMultiAnimationDefinition(
                 )
                     .optionalFieldOf("loop", LoopType.PLAY_ONCE)
                     .forGetter(Animation::loop),
-                TICKS_AS_SECONDS_FLOAT_CODEC
+                GameMasterCodecs.TICKS_AS_SECONDS_FLOAT_CODEC
                     .fieldOf("animation_length")
                     .forGetter(Animation::maxLength),
-                TICKS_AS_SECONDS_FLOAT_CODEC
+                GameMasterCodecs.TICKS_AS_SECONDS_FLOAT_CODEC
                     .optionalFieldOf("loop_delay", 0)
                     .forGetter(Animation::loopDelay)
             )
