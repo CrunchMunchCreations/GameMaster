@@ -13,4 +13,8 @@ open class CountdownManager {
     open fun init(server: MinecraftServer, game: CustomGame<*, *, *>? = null) {}
     open fun update(ticks: Int, game: CustomGame<*, *, *>? = null) {}
     open fun setVisibility(isVisible: Boolean, game: CustomGame<*, *, *>? = null) {}
+
+    open fun startCountdown(ticks: Int, game: CustomGame<*, *, *>? = null) {
+        this.update(ticks, game)
+    }
 }

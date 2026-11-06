@@ -14,7 +14,7 @@ class WaitTimeKeypoint(val duration: Duration, val showCountdown: Boolean = true
     override suspend fun execute(context: TimelineContext) {
         if (showCountdown) {
             context.gameManager.countdownManager.setVisibility(true)
-            context.gameManager.countdownManager.update(this.duration.ticks)
+            context.gameManager.countdownManager.startCountdown(this.duration.ticks)
         }
 
         delay(this.duration)
