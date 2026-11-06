@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries
 import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import xyz.crunchmunch.mods.gamemaster.GameMaster
@@ -16,14 +15,14 @@ import java.util.*
 object TimelineManager {
     val REGISTRY_KEY: ResourceKey<Registry<Timeline>> = ResourceKey.createRegistryKey(GameMaster.id("timeline"))
 
-    val contexts: MutableMap<Identifier, TimelineContext> = Collections.synchronizedMap(mutableMapOf())
+    private val contexts: MutableMap<ResourceKey<Timeline>, TimelineContext> = Collections.synchronizedMap(mutableMapOf())
 
     fun init() {
         DynamicRegistries.register(REGISTRY_KEY, Timeline.CODEC)
     }
 
     fun start(server: MinecraftServer, key: ResourceKey<Timeline>) {
-        if (this.contexts.contains(key.identifier())) {
+        if (this.contexts.contains(key)) {
             throw IllegalArgumentException("This timeline is currently already running!")
         }
 
@@ -36,7 +35,7 @@ object TimelineManager {
         }
 
         val context = TimelineContext(server, timeline)
-        this.contexts[key.identifier()] = context
+        this.contexts[key] = context
 
         // Load all the timeline's keypoints into the queue
         context.pushNewKeypoints()
@@ -63,7 +62,7 @@ object TimelineManager {
                         context.remainingKeypoints.pop()
                     }
 
-                    contexts.remove(key.identifier())
+                    contexts.remove(key)
                 }
             }
         }

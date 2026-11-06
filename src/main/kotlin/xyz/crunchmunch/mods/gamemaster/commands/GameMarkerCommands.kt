@@ -4,11 +4,10 @@ import de.phyrone.brig.wrapper.DSLCommandNode
 import de.phyrone.brig.wrapper.executesNoResult
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.DimensionArgument
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.ResourceArgument
+import net.minecraft.commands.arguments.ResourceKeyArgument
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
@@ -18,18 +17,19 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.level.storage.TagValueInput
 import net.minecraft.world.level.storage.TagValueOutput
+import xyz.crunchmunch.mods.gamemaster.GameMasterRegistryKeys
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
+import xyz.crunchmunch.mods.gamemaster.utils.DynamicCommandExceptions
 import xyz.crunchmunch.mods.gamemaster.utils.sendSuccess
 
 fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuildContext) {
     literal("markers") {
         literal("count") {
-            argument("type", IdentifierArgument.id()) {
-                suggest { SharedSuggestionProvider.suggestResource(GameMarkerManager.TYPE_REGISTRY.keySet(), this) }
-
+            argument("type", ResourceKeyArgument.key(GameMasterRegistryKeys.GAME_MARKER_TYPE)) {
                 executes { ctx ->
-                    val typeId = IdentifierArgument.getId(ctx, "type")
-                    val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeId)
+                    val typeKey = ResourceKeyArgument.getRegistryKey(ctx, "type", GameMasterRegistryKeys.GAME_MARKER_TYPE, DynamicCommandExceptions.RESOURCE_KEY)
+                    val typeId = typeKey.identifier()
+                    val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeKey)
 
                     if (type == null) {
                         sendFailure(Component.literal("No game markers exist by the ID $typeId!"))
@@ -94,12 +94,11 @@ fun DSLCommandNode<CommandSourceStack>.gameMarkerCommands(buildCtx: CommandBuild
         }
 
         literal("list") {
-            argument("type", IdentifierArgument.id()) {
-                suggest { SharedSuggestionProvider.suggestResource(GameMarkerManager.TYPE_REGISTRY.keySet(), this) }
-
+            argument("type", ResourceKeyArgument.key(GameMasterRegistryKeys.GAME_MARKER_TYPE)) {
                 executes { ctx ->
-                    val typeId = IdentifierArgument.getId(ctx, "type")
-                    val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeId)
+                    val typeKey = ResourceKeyArgument.getRegistryKey(ctx, "type", GameMasterRegistryKeys.GAME_MARKER_TYPE, DynamicCommandExceptions.RESOURCE_KEY)
+                    val typeId = typeKey.identifier()
+                    val type = GameMarkerManager.TYPE_REGISTRY.getValue(typeKey)
 
                     if (type == null) {
                         sendFailure(Component.literal("No game markers exist by the ID $typeId!"))

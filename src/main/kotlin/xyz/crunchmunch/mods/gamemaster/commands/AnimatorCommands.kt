@@ -9,14 +9,12 @@ import de.phyrone.brig.wrapper.executesNoResult
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.ResourceKeyArgument
 import net.minecraft.commands.arguments.UuidArgument
 import net.minecraft.commands.arguments.coordinates.RotationArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.TextColor
-import net.minecraft.resources.ResourceKey
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntitySpawnRequest
 import net.minecraft.world.entity.LivingEntity
@@ -26,30 +24,19 @@ import xyz.crunchmunch.mods.gamemaster.GameMasterRegistryKeys
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableEntity
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableEntityType
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
+import xyz.crunchmunch.mods.gamemaster.utils.DynamicCommandExceptions
 import xyz.crunchmunch.mods.gamemaster.utils.execute
 import xyz.crunchmunch.mods.gamemaster.utils.sendSuccess
 
 fun DSLCommandNode<CommandSourceStack>.animatorCommands(context: CommandBuildContext) {
     literal("animator") {
         literal("create") {
-            argument("model", IdentifierArgument.id()) {
-                suggest {
-                    for (key in context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).listElementIds()) {
-                        suggest(key.identifier().toString())
-                    }
-                }
-
-                argument("animations", IdentifierArgument.id()) {
-                    suggest {
-                        for (key in context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).listElementIds()) {
-                            suggest(key.identifier().toString())
-                        }
-                    }
-
+            argument("model", ResourceKeyArgument.key(GameMasterRegistryKeys.MODEL)) {
+                argument("animations", ResourceKeyArgument.key(GameMasterRegistryKeys.ANIMATION)) {
                     argument("pos", Vec3Argument.vec3(true)) {
                         executesNoResult { ctx ->
-                            val modelHolder = context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getOrThrow(ResourceKey.create(AnimatableManager.MODEL_REGISTRY_KEY, IdentifierArgument.getId(ctx, "model")))
-                            val animationsHolder = context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).getOrThrow(ResourceKey.create(AnimatableManager.ANIMATION_REGISTRY_KEY, IdentifierArgument.getId(ctx, "animations")))
+                            val modelHolder = context.lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getOrThrow(ResourceKeyArgument.getRegistryKey(ctx, "model", GameMasterRegistryKeys.MODEL, DynamicCommandExceptions.RESOURCE_KEY))
+                            val animationsHolder = context.lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).getOrThrow(ResourceKeyArgument.getRegistryKey(ctx, "animations", GameMasterRegistryKeys.ANIMATION, DynamicCommandExceptions.RESOURCE_KEY))
                             val pos = Vec3Argument.getVec3(ctx, "pos")
 
                             val animatable = AnimatableManager.create(modelHolder.value(), animationsHolder.value(), this.level, pos)
