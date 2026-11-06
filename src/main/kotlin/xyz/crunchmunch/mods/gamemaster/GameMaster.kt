@@ -16,6 +16,8 @@ import xyz.crunchmunch.mods.gamemaster.commands.*
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.GameMasterKeypoints
+import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.GameMasterPrerequisites
 import xyz.crunchmunch.mods.gamemaster.server.GameMasterNotificationService
 import xyz.crunchmunch.mods.gamemaster.server.camera.CameraManager
 import xyz.crunchmunch.mods.gamemaster.server.camera.cameraCommands
@@ -41,6 +43,8 @@ class GameMaster : ModInitializer {
         GameMasterRegistries.init()
         CameraManager.init()
         TimelineManager.init()
+        GameMasterKeypoints.init()
+        GameMasterPrerequisites.init()
 
         CommandRegistrationCallback.EVENT.register { dispatcher, buildContext, environment ->
             dispatcher.literal("gamemaster") {

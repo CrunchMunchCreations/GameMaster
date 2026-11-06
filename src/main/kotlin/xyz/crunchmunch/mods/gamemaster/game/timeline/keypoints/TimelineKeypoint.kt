@@ -2,6 +2,7 @@ package xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
+import xyz.crunchmunch.mods.gamemaster.GameMasterRegistries
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 
 abstract class TimelineKeypoint<T : TimelineKeypoint<T>>(val type: Type<T>) {
@@ -10,7 +11,7 @@ abstract class TimelineKeypoint<T : TimelineKeypoint<T>>(val type: Type<T>) {
     abstract suspend fun execute(context: TimelineContext)
 
     companion object {
-        val CODEC: Codec<TimelineKeypoint<*>> = GameMasterKeypoints.REGISTRY.byNameCodec()
+        val CODEC: Codec<TimelineKeypoint<*>> = GameMasterRegistries.KEYPOINT_TYPE.byNameCodec()
             .dispatch("type", TimelineKeypoint<*>::type, Type<*>::codec)
     }
 }
