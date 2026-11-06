@@ -19,6 +19,7 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
 class BranchTimelineKeypoint(override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<BranchTimelineKeypoint>(GameMasterKeypoints.BRANCH_TIMELINE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
         val forked = context.fork()
+        forked.pushNewKeypoints()
         forked.remainingKeypoints.addAll(keypoints)
 
         TimelineManager.scope.launch {
