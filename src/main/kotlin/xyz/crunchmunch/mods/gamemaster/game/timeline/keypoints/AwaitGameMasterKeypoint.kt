@@ -33,7 +33,11 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
                 .withStyle { style -> style.withClickEvent(ClickEvent.SuggestCommand("/gamemaster timeline proceed")) }, false)
         }
 
-        context.pause()
+        if (context.root != context) {
+            context.root.remainingKeypoints.addFirst(this)
+        }
+
+        context.root.pause()
         val approver = channel.receive()
 
         context.broadcastToGameMasters { player ->
@@ -43,7 +47,7 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
                 .append("."), false)
         }
 
-        context.resume()
+        context.root.resume()
     }
 
     override fun toString(): String = "Await GameMasters"

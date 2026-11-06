@@ -12,6 +12,7 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
  */
 class CategorizeTimelineKeypoint(val category: String, override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<CategorizeTimelineKeypoint>(GameMasterKeypoints.CATEGORIZE_TIMELINE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
+        context.remainingKeypoints.pop() // we need to pop ourselves out.
         context.pushNewKeypoints()
         context.remainingKeypoints.addAll(this.keypoints)
     }

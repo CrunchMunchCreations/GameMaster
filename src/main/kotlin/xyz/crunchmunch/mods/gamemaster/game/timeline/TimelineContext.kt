@@ -20,6 +20,7 @@ data class TimelineContext(
     val server: MinecraftServer,
     val timeline: Timeline,
     val gameManager: GameManager<*, *, *>,
+    val parent: TimelineContext? = null,
 ) {
     private val isPaused = atomic(false)
     private val channels: MutableList<Channel<Unit>> = Collections.synchronizedList(mutableListOf())
@@ -83,6 +84,8 @@ data class TimelineContext(
     }
 
     suspend fun checkPause() {
+        this.parent?.checkPause()
+
         if (isPaused.value) {
             val channel = Channel<Unit>()
             this.channels.add(channel)
@@ -131,4 +134,19 @@ data class TimelineContext(
         val category = this.categorizedKeypoints[categoryId] ?: throw IllegalArgumentException("Unknown category ID $categoryId!")
         this.skippedKeypoints.add(category)
     }
+
+    fun fork(): TimelineContext {
+        return TimelineContext(server, timeline, gameManager, this)
+    }
+
+    val root: TimelineContext
+        get() {
+            var root = this
+
+            while (root.parent != null) {
+                root = root.parent
+            }
+
+            return root
+        }
 }
