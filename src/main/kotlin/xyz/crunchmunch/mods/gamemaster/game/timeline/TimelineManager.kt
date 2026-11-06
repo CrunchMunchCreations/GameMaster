@@ -56,24 +56,32 @@ object TimelineManager {
         runBlocking {
             scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 while (!context.keypointsQueue.isEmpty && context.isRunning) {
-                    context.checkPause()
+                    try {
+                        context.checkPause()
 
-                    if (context.remainingKeypoints.isEmpty()) {
-                        context.popKeypoints()
-                        continue
-                    }
-
-                    val keypoint = context.remainingKeypoints.peek()
-
-                    if (!context.skippedKeypoints.contains(keypoint)) {
-                        if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
-                            AwaitGameMasterKeypoint(Component.empty()).execute(context)
+                        if (context.remainingKeypoints.isEmpty()) {
+                            context.popKeypoints()
+                            continue
                         }
 
-                        keypoint.execute(context)
-                    }
+                        val keypoint = context.remainingKeypoints.peek()
 
-                    context.remainingKeypoints.pop()
+                        if (!context.skippedKeypoints.contains(keypoint)) {
+                            if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
+                                val awaitKeypoint = AwaitGameMasterKeypoint(Component.empty())
+                                context.remainingKeypoints.addFirst(awaitKeypoint)
+                                awaitKeypoint.execute(context)
+                            }
+
+                            keypoint.execute(context)
+                        }
+
+                        context.remainingKeypoints.pop()
+                    } catch (e: Exception) {
+                        context.pause()
+                        GameMaster.logger.error("An error occurred in timeline ${key.identifier()}!", e)
+                        context.broadcastToGameMasters(Component.literal("An error occurred while executing timeline ${key.identifier()}! Timeline has been paused immediately for safety. Error:").withStyle(ChatFormatting.RED).append(e.message ?: e.localizedMessage))
+                    }
                 }
 
                 contexts.remove(key)
