@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permissions
 import xyz.crunchmunch.mods.gamemaster.GameMaster
+import xyz.crunchmunch.mods.gamemaster.game.GameManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
 import java.util.*
 
@@ -24,7 +25,7 @@ object TimelineManager {
         DynamicRegistries.register(REGISTRY_KEY, Timeline.CODEC)
     }
 
-    fun start(server: MinecraftServer, key: ResourceKey<Timeline>) {
+    fun start(server: MinecraftServer, key: ResourceKey<Timeline>, manager: GameManager<*, *, *>) {
         if (this.contexts.contains(key)) {
             throw IllegalArgumentException("This timeline is currently already running!")
         }
@@ -44,7 +45,7 @@ object TimelineManager {
             }
         }
 
-        val context = TimelineContext(server, timeline)
+        val context = TimelineContext(server, timeline, manager)
         this.contexts[key] = context
 
         // Load all the timeline's keypoints into the queue

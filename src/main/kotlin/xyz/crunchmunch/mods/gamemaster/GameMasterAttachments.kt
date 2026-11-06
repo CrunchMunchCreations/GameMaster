@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.minecraft.core.UUIDUtil
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableEntity
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableEntityType
+import xyz.crunchmunch.mods.gamemaster.game.GameManager
 import java.util.*
 
 object GameMasterAttachments {
@@ -18,6 +19,9 @@ object GameMasterAttachments {
     }
 
     @JvmField val ANIMATABLE_ENTITY: AttachmentType<AnimatableEntity<*>> = AttachmentRegistry.create(GameMaster.id("animatable_entity"))
+
+    // Global (Server)
+    @JvmField val GAME_MANAGER: AttachmentType<GameManager<*, *, *>> = AttachmentRegistry.create(GameMaster.id("manager/game"))
 
     fun init() {}
 }

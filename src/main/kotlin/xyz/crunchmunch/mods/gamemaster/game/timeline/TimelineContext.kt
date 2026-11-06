@@ -10,12 +10,14 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permissions
+import xyz.crunchmunch.mods.gamemaster.game.GameManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
 import java.util.*
 
 data class TimelineContext(
     val server: MinecraftServer,
     val timeline: Timeline,
+    val gameManager: GameManager<*, *, *>,
 ) {
     private val isPaused = atomic(false)
     private val channels: MutableList<Channel<Unit>> = Collections.synchronizedList(mutableListOf())

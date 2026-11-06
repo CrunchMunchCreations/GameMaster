@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.ResourceKeyArgument
 import net.minecraft.network.chat.Component
+import xyz.crunchmunch.mods.gamemaster.GameMasterAttachments
 import xyz.crunchmunch.mods.gamemaster.GameMasterRegistryKeys
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
 import xyz.crunchmunch.mods.gamemaster.utils.DynamicCommandExceptions
@@ -23,7 +24,7 @@ fun DSLCommandNode<CommandSourceStack>.timelineCommands() {
                         return@executesNoResult
                     }
 
-                    TimelineManager.start(server, key)
+                    TimelineManager.start(server, key, server.globalAttachments().getAttachedOrThrow(GameMasterAttachments.GAME_MANAGER))
                     sendSuccess(Component.literal("Started timeline ${key.identifier()}."))
                 }
             }
