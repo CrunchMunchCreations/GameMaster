@@ -1,21 +1,21 @@
 package xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints
 
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
 
 /**
  * A timeline keypoint that is designed to run multiple keypoints in the exact same tick.
  */
 class MultipleKeypoint(override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<MultipleKeypoint>(GameMasterKeypoints.MULTIPLE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
-        for (keypoint in keypoints) {
-            context.server.execute {
-                runBlocking {
-                    keypoint.execute(context)
-                }
+        keypoints.map { keypoint ->
+            TimelineManager.scope.async {
+                keypoint.execute(context)
             }
-        }
+        }.awaitAll()
     }
 
     override fun toString(): String = "Multiple (${keypoints.joinToString(", ")})"
