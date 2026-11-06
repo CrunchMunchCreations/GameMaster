@@ -29,6 +29,8 @@ class BranchTimelineKeypoint(val keypoints: List<TimelineKeypoint<*>>) : Timelin
         }
     }
 
+    override fun toString(): String = "Branch Timeline (${this.keypoints.size} keypoints)"
+
     companion object {
         val CODEC = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

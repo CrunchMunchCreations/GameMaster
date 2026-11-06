@@ -15,6 +15,8 @@ class CategorizeTimelineKeypoint(val category: String, val keypoints: List<Timel
         context.remainingKeypoints.addAll(this.keypoints)
     }
 
+    override fun toString(): String = "Categorize ($category, ${keypoints.size} keypoints)"
+
     companion object {
         val CODEC = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

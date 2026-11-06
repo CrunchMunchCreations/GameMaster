@@ -4,10 +4,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries
+import net.minecraft.ChatFormatting
 import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.permissions.Permissions
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
 import java.util.*
@@ -29,7 +31,14 @@ object TimelineManager {
         val timeline = server.registryAccess().lookupOrThrow(REGISTRY_KEY).getValueOrThrow(key)
 
         for (prerequisite in timeline.prerequisites) {
-            if (!prerequisite.meetsPrerequisite) {
+            if (!prerequisite.meetsPrerequisite(server)) {
+                for (player in server.playerList.players) {
+                    if (player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
+                        player.sendSystemMessage(Component.literal("Prerequisite not met! Timeline cannot start!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                        player.sendSystemMessage(prerequisite.prerequisiteFailedMessage)
+                    }
+                }
+
                 throw IllegalStateException("Prerequisite not met! ${prerequisite.prerequisiteFailedMessage.string}")
             }
         }
@@ -44,7 +53,7 @@ object TimelineManager {
         runBlocking {
             coroutineScope {
                 launch {
-                    while (!context.keypointsQueue.isEmpty) {
+                    while (!context.keypointsQueue.isEmpty && context.isRunning) {
                         context.checkPause()
 
                         if (context.remainingKeypoints.isEmpty()) {
@@ -66,5 +75,20 @@ object TimelineManager {
                 }
             }
         }
+    }
+
+    fun stop(key: ResourceKey<Timeline>) {
+        val context = this.getContext(key) ?: throw IllegalArgumentException("This timeline is not active!")
+
+        context.stop()
+    }
+
+    fun isActive(key: ResourceKey<Timeline>): Boolean {
+        val context = this.getContext(key) ?: return false
+        return context.isRunning
+    }
+
+    fun getContext(key: ResourceKey<Timeline>): TimelineContext? {
+        return this.contexts[key]
     }
 }

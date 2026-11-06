@@ -20,11 +20,18 @@ data class TimelineContext(
     private val isPaused = atomic(false)
     private val channels: MutableList<Channel<Unit>> = Collections.synchronizedList(mutableListOf())
 
+    private val isActive = atomic(true)
+
+    val isRunning: Boolean
+        get() = this.isActive.value
+
     val keypointsQueue: Stack<Deque<TimelineKeypoint<*>>> = ObjectArrayList()
     val remainingKeypoints: Deque<TimelineKeypoint<*>>
         get() = this.keypointsQueue.top()
 
     val passedKeypoints: MutableList<TimelineKeypoint<*>> = Collections.synchronizedList(mutableListOf())
+
+    fun isPaused(): Boolean = this.isPaused.value
 
     fun pushNewKeypoints() {
         this.keypointsQueue.push(Queues.synchronizedDeque(Queues.newArrayDeque()))
@@ -71,5 +78,11 @@ data class TimelineContext(
 
             this.channels.clear()
         }
+    }
+
+    fun stop() {
+        this.pause()
+        this.broadcastToGameMasters(Component.literal("Active timeline has been stopped!"))
+        this.isActive.lazySet(false)
     }
 }

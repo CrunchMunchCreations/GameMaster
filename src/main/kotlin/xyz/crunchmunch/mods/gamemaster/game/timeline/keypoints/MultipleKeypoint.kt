@@ -18,6 +18,8 @@ class MultipleKeypoint(val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypo
         }
     }
 
+    override fun toString(): String = "Multiple (${keypoints.joinToString(", ")})"
+
     companion object {
         val CODEC = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

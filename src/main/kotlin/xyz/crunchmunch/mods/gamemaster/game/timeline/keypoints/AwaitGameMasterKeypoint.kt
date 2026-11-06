@@ -41,6 +41,8 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
         }
     }
 
+    override fun toString(): String = "Await GameMasters"
+
     companion object {
         val CODEC: MapCodec<AwaitGameMasterKeypoint> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
