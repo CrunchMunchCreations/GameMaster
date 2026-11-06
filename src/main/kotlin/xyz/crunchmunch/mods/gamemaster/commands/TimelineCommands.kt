@@ -130,7 +130,7 @@ fun DSLCommandNode<CommandSourceStack>.timelineCommands() {
                         .append("${key.identifier()}")
                     )
                     sendSystemMessage(Component.empty()
-                        .append(" - Status:")
+                        .append(" - Status: ")
                         .apply {
                             if (context.isRunning) {
                                 if (context.isPaused())
@@ -145,7 +145,7 @@ fun DSLCommandNode<CommandSourceStack>.timelineCommands() {
 
                     sendSystemMessage(Component.literal("Active Keypoints").withStyle(ChatFormatting.BOLD))
                     for (keypoint in context.remainingKeypoints) {
-                        sendSystemMessage(Component.literal("$keypoint"))
+                        sendSystemMessage(Component.literal(" - $keypoint"))
                     }
                 }
             }
