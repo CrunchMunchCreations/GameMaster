@@ -90,6 +90,9 @@ abstract class CustomGame<S : SidebarManager, T : TeamManager, C : CountdownMana
         return this.settings.spawnSettings.pos
     }
 
+    open val isReady: Boolean
+        get() = !this.properties.doesPreReset || this.hasPreReset
+
     /**
      * Runs preparations for the game before the game begins. This includes teleporting players to
      * the designated level.
