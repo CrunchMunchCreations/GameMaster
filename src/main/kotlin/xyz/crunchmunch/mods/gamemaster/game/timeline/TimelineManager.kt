@@ -9,6 +9,7 @@ import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permissions
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
@@ -90,5 +91,18 @@ object TimelineManager {
 
     fun getContext(key: ResourceKey<Timeline>): TimelineContext? {
         return this.contexts[key]
+    }
+
+    fun findWaitingContexts(): Collection<ResourceKey<Timeline>> {
+        return this.contexts.filterValues { it.remainingKeypoints.firstOrNull() is AwaitGameMasterKeypoint }.keys
+    }
+
+    fun proceedContext(key: ResourceKey<Timeline>, player: ServerPlayer) {
+        val context = this.getContext(key) ?: return
+
+        runBlocking {
+            (context.remainingKeypoints.firstOrNull() as? AwaitGameMasterKeypoint)
+                ?.channel?.send(player)
+        }
     }
 }

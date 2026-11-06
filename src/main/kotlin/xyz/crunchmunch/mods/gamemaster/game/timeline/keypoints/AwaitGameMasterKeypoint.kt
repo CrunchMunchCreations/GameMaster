@@ -14,6 +14,8 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 import xyz.crunchmunch.mods.gamemaster.utils.playNotifySound
 
 class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGameMasterKeypoint>(KeypointManager.AWAIT_GAMEMASTER) {
+    val channel = Channel<ServerPlayer>()
+
     override suspend fun execute(context: TimelineContext) {
         context.broadcastToGameMasters { player ->
             player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.UI, 0.75f, 1f)
@@ -31,6 +33,7 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
                 .withStyle { style -> style.withClickEvent(ClickEvent.SuggestCommand("/gamemaster timeline proceed")) }, false)
         }
 
+        context.pause()
         val approver = channel.receive()
 
         context.broadcastToGameMasters { player ->
@@ -39,6 +42,8 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
                 .append(approver.displayName ?: approver.name)
                 .append("."), false)
         }
+
+        context.resume()
     }
 
     override fun toString(): String = "Await GameMasters"
@@ -52,6 +57,5 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
             )
                 .apply(instance, ::AwaitGameMasterKeypoint)
         }
-        val channel = Channel<ServerPlayer>()
     }
 }

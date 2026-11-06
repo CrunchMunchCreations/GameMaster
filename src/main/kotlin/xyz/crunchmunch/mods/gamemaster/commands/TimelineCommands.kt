@@ -148,5 +148,43 @@ fun DSLCommandNode<CommandSourceStack>.timelineCommands() {
                 }
             }
         }
+
+        literal("proceed") {
+            require { isPlayer }
+
+            argument("id", ResourceKeyArgument.key(GameMasterRegistryKeys.TIMELINE)) {
+                executesNoResult { ctx ->
+                    val contextKey = ResourceKeyArgument.getRegistryKey(ctx, "id", GameMasterRegistryKeys.TIMELINE, DynamicCommandExceptions.RESOURCE_KEY)
+                    val waitingContexts = TimelineManager.findWaitingContexts()
+
+                    if (!waitingContexts.contains(contextKey)) {
+                        sendFailure(Component.literal("Selected timeline is not waiting for anyone!"))
+                        return@executesNoResult
+                    }
+
+                    TimelineManager.proceedContext(contextKey, playerOrException)
+                    sendSuccess(Component.literal("Timeline ${contextKey.identifier()} is now proceeding."))
+                }
+            }
+
+            executesNoResult {
+                val waitingContexts = TimelineManager.findWaitingContexts()
+
+                if (waitingContexts.isEmpty()) {
+                    sendFailure(Component.literal("No timelines are currently waiting!"))
+                    return@executesNoResult
+                }
+
+                if (waitingContexts.size > 1) {
+                    sendFailure(Component.literal("Too many timelines are waiting! Please use the ID-based command instead to select."))
+                    return@executesNoResult
+                }
+
+                val contextKey = waitingContexts.first()
+                TimelineManager.proceedContext(contextKey, playerOrException)
+
+                sendSuccess(Component.literal("Timeline ${contextKey.identifier()} is now proceeding."))
+            }
+        }
     }
 }
