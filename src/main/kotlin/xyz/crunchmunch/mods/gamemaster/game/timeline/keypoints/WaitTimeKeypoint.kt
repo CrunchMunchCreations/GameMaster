@@ -12,8 +12,10 @@ import kotlin.time.Duration
 
 class WaitTimeKeypoint(val duration: Duration, val showCountdown: Boolean = true) : TimelineKeypoint<WaitTimeKeypoint>(GameMasterKeypoints.WAIT_TIME) {
     override suspend fun execute(context: TimelineContext) {
-        if (showCountdown)
+        if (showCountdown) {
+            context.gameManager.countdownManager.setVisibility(true)
             context.gameManager.countdownManager.update(this.duration.ticks)
+        }
 
         delay(this.duration)
     }

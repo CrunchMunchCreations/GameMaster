@@ -23,7 +23,7 @@ class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGa
             player.sendSystemMessage(Component.empty()
                 .append("[GameMaster] ")
                 .append(
-                    Component.literal("GameMaster is awaiting confirmation before proceeding with the timeline!")
+                    Component.literal("GameMaster is awaiting confirmation before proceeding with the timeline! ")
                         .withStyle(ChatFormatting.RED)
                 )
                 .append(
