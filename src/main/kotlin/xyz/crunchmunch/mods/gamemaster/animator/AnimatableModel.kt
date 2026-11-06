@@ -145,6 +145,13 @@ open class AnimatableModel(
         val animation = this.currentAnimation
         var hasChanged = forceUpdate
 
+        // If the rotation was updated externally, make sure to handle that.
+        if (this.cachedYaw != this.rootDisplay.yRot || cachedPitch != this.rootDisplay.xRot) {
+            hasChanged = true
+            this.cachedYaw = this.rootDisplay.yRot
+            this.cachedPitch = this.rootDisplay.xRot
+        }
+
         if (animation != null) {
             // Animation playing
             when (this.currentState) {
@@ -253,13 +260,6 @@ open class AnimatableModel(
                 this.currentState = AnimationState.PLAYING
                 this.currentTick = 0
             }
-        }
-
-        // If the rotation was updated externally, make sure to handle that.
-        if (this.cachedYaw != this.rootDisplay.yRot || cachedPitch != this.rootDisplay.xRot) {
-            hasChanged = true
-            this.cachedYaw = this.rootDisplay.yRot
-            this.cachedPitch = this.rootDisplay.xRot
         }
 
         if (!hasChanged) {
