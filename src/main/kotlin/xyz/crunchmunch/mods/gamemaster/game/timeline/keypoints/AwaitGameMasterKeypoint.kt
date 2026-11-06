@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundSource
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 import xyz.crunchmunch.mods.gamemaster.utils.playNotifySound
 
-class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGameMasterKeypoint>(KeypointManager.AWAIT_GAMEMASTER) {
+class AwaitGameMasterKeypoint(val message: Component) : TimelineKeypoint<AwaitGameMasterKeypoint>(GameMasterKeypoints.AWAIT_GAMEMASTER) {
     val channel = Channel<ServerPlayer>()
 
     override suspend fun execute(context: TimelineContext) {

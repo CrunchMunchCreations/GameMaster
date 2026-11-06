@@ -5,8 +5,8 @@ import net.fabricmc.fabric.api.event.registry.RegistryAttribute
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
-import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
-import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.PrerequisiteManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.GameMasterKeypoints
+import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.GameMasterPrerequisites
 import xyz.crunchmunch.mods.gamemaster.server.CustomClickHandler
 
 object GameMasterRegistries {
@@ -21,8 +21,8 @@ object GameMasterRegistries {
     @JvmField val ANIMATABLE_ENTITY = AnimatableManager.ANIMATABLE_ENTITY_REGISTRY
 
     // Timeline
-    @JvmField val KEYPOINT = KeypointManager.REGISTRY
-    @JvmField val PREREQUISITE = PrerequisiteManager.REGISTRY
+    @JvmField val KEYPOINT = GameMasterKeypoints.REGISTRY
+    @JvmField val PREREQUISITE = GameMasterPrerequisites.REGISTRY
 
     @JvmField val CUSTOM_CLICK_HANDLER = CustomClickHandler.REGISTRY
 

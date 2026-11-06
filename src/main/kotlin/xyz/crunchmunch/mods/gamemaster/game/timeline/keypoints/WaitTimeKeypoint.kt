@@ -10,7 +10,7 @@ import xyz.crunchmunch.mods.gamemaster.utils.getTimeString
 import xyz.crunchmunch.mods.gamemaster.utils.ticks
 import kotlin.time.Duration
 
-class WaitTimeKeypoint(val duration: Duration, val showCountdown: Boolean = true) : TimelineKeypoint<WaitTimeKeypoint>(KeypointManager.WAIT_TIME) {
+class WaitTimeKeypoint(val duration: Duration, val showCountdown: Boolean = true) : TimelineKeypoint<WaitTimeKeypoint>(GameMasterKeypoints.WAIT_TIME) {
     override suspend fun execute(context: TimelineContext) {
         if (showCountdown)
             context.gameManager.countdownManager.update(this.duration.ticks)

@@ -7,12 +7,14 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 
-object PrerequisiteManager {
+object GameMasterPrerequisites {
     val REGISTRY_KEY: ResourceKey<Registry<TimelinePrerequisite.Type>> = ResourceKey.createRegistryKey(GameMaster.id("timeline/prerequisite"))
     val REGISTRY: Registry<TimelinePrerequisite.Type> = FabricRegistryBuilder.create(REGISTRY_KEY)
         .attribute(RegistryAttribute.MODDED)
         .attribute(RegistryAttribute.OPTIONAL)
         .buildAndRegister()
+
+    fun init() {}
 
     private fun <T : TimelinePrerequisite> register(path: String, codec: MapCodec<T>): TimelinePrerequisite.Type {
         return Registry.register(REGISTRY, GameMaster.id(path), TimelinePrerequisite.Type(codec))

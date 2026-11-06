@@ -10,7 +10,7 @@ abstract class TimelineKeypoint<T : TimelineKeypoint<T>>(val type: Type<T>) {
     abstract suspend fun execute(context: TimelineContext)
 
     companion object {
-        val CODEC: Codec<TimelineKeypoint<*>> = KeypointManager.REGISTRY.byNameCodec()
+        val CODEC: Codec<TimelineKeypoint<*>> = GameMasterKeypoints.REGISTRY.byNameCodec()
             .dispatch("type", TimelineKeypoint<*>::type, Type<*>::codec)
     }
 }

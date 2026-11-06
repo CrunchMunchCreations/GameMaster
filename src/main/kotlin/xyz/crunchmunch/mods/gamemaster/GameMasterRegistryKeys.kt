@@ -7,8 +7,8 @@ import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
-import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
-import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.PrerequisiteManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.GameMasterKeypoints
+import xyz.crunchmunch.mods.gamemaster.game.timeline.prerequisite.GameMasterPrerequisites
 import xyz.crunchmunch.mods.gamemaster.server.CustomClickHandler
 import xyz.crunchmunch.mods.gamemaster.server.camera.CameraScene
 import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframe
@@ -39,8 +39,8 @@ object GameMasterRegistryKeys {
 
     // Timeline
     @JvmField val TIMELINE = TimelineManager.REGISTRY_KEY
-    @JvmField val KEYPOINT_TYPE = KeypointManager.REGISTRY_KEY
-    @JvmField val PREREQUISITE_TYPE = PrerequisiteManager.REGISTRY_KEY
+    @JvmField val KEYPOINT_TYPE = GameMasterKeypoints.REGISTRY_KEY
+    @JvmField val PREREQUISITE_TYPE = GameMasterPrerequisites.REGISTRY_KEY
 
     fun init() {}
 }

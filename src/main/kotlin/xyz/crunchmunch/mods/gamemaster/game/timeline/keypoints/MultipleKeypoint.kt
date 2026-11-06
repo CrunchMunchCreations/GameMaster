@@ -7,7 +7,7 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 /**
  * A timeline keypoint that is designed to run multiple keypoints in the exact same tick.
  */
-class MultipleKeypoint(override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<MultipleKeypoint>(KeypointManager.MULTIPLE), MultiKeypointHolder {
+class MultipleKeypoint(override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<MultipleKeypoint>(GameMasterKeypoints.MULTIPLE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
         for (keypoint in keypoints) {
             context.server.execute {
