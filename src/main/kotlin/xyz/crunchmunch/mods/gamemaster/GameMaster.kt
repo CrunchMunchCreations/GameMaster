@@ -12,10 +12,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatableManager
 import xyz.crunchmunch.mods.gamemaster.animator.AnimatorAttachments
-import xyz.crunchmunch.mods.gamemaster.commands.animatorCommands
-import xyz.crunchmunch.mods.gamemaster.commands.freezeCommands
-import xyz.crunchmunch.mods.gamemaster.commands.gameMarkerCommands
-import xyz.crunchmunch.mods.gamemaster.commands.inventoryCommands
+import xyz.crunchmunch.mods.gamemaster.commands.*
 import xyz.crunchmunch.mods.gamemaster.game.CustomGameManager
 import xyz.crunchmunch.mods.gamemaster.game.marker.GameMarkerManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
@@ -54,6 +51,7 @@ class GameMaster : ModInitializer {
                 freezeCommands()
                 animatorCommands(buildContext)
                 cameraCommands()
+                timelineCommands()
             }
         }
     }
