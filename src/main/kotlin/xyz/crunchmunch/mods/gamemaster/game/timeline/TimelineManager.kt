@@ -1,8 +1,6 @@
 package xyz.crunchmunch.mods.gamemaster.game.timeline
 
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Registry
@@ -15,9 +13,12 @@ import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.game.GameManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
 import java.util.*
+import java.util.concurrent.Executors
 
 object TimelineManager {
     val REGISTRY_KEY: ResourceKey<Registry<Timeline>> = ResourceKey.createRegistryKey(GameMaster.id("timeline"))
+    val dispatcher = Executors.newVirtualThreadPerTaskExecutor().asCoroutineDispatcher() + CoroutineName("GameMaster Timeline Dispatcher")
+    val scope = CoroutineScope(dispatcher)
 
     private val contexts: MutableMap<ResourceKey<Timeline>, TimelineContext> = Collections.synchronizedMap(mutableMapOf())
 
@@ -53,31 +54,29 @@ object TimelineManager {
         context.remainingKeypoints.addAll(timeline.keypoints)
 
         runBlocking {
-            coroutineScope {
-                launch {
-                    while (!context.keypointsQueue.isEmpty && context.isRunning) {
-                        context.checkPause()
+            scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                while (!context.keypointsQueue.isEmpty && context.isRunning) {
+                    context.checkPause()
 
-                        if (context.remainingKeypoints.isEmpty()) {
-                            context.popKeypoints()
-                            continue
-                        }
-
-                        val keypoint = context.remainingKeypoints.peek()
-
-                        if (!context.skippedKeypoints.contains(keypoint)) {
-                            if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
-                                AwaitGameMasterKeypoint(Component.empty()).execute(context)
-                            }
-
-                            keypoint.execute(context)
-                        }
-
-                        context.remainingKeypoints.pop()
+                    if (context.remainingKeypoints.isEmpty()) {
+                        context.popKeypoints()
+                        continue
                     }
 
-                    contexts.remove(key)
+                    val keypoint = context.remainingKeypoints.peek()
+
+                    if (!context.skippedKeypoints.contains(keypoint)) {
+                        if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
+                            AwaitGameMasterKeypoint(Component.empty()).execute(context)
+                        }
+
+                        keypoint.execute(context)
+                    }
+
+                    context.remainingKeypoints.pop()
                 }
+
+                contexts.remove(key)
             }
         }
     }

@@ -1,11 +1,11 @@
 package xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline
 
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.minecraft.network.chat.Component
 import xyz.crunchmunch.mods.gamemaster.game.timeline.Timeline
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
+import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineManager
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.GameMasterKeypoints
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.MultiKeypointHolder
@@ -16,16 +16,14 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
  */
 class BranchTimelineKeypoint(override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<BranchTimelineKeypoint>(GameMasterKeypoints.BRANCH_TIMELINE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
-        coroutineScope {
-            launch {
-                for (keypoint in keypoints) {
-                    if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
-                        AwaitGameMasterKeypoint(Component.empty()).execute(context)
-                    }
-
-                    context.checkPause()
-                    keypoint.execute(context)
+        TimelineManager.scope.launch {
+            for (keypoint in keypoints) {
+                if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
+                    AwaitGameMasterKeypoint(Component.empty()).execute(context)
                 }
+
+                context.checkPause()
+                keypoint.execute(context)
             }
         }
     }
