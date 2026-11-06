@@ -11,7 +11,9 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permissions
 import xyz.crunchmunch.mods.gamemaster.game.GameManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.MultiKeypointHolder
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline.CategorizeTimelineKeypoint
 import java.util.*
 
 data class TimelineContext(
@@ -27,11 +29,36 @@ data class TimelineContext(
     val isRunning: Boolean
         get() = this.isActive.value
 
-    val keypointsQueue: Stack<Deque<TimelineKeypoint<*>>> = ObjectArrayList()
+    val keypointsQueue: Stack<Deque<TimelineKeypoint<*>>>
+        field = ObjectArrayList()
     val remainingKeypoints: Deque<TimelineKeypoint<*>>
         get() = this.keypointsQueue.top()
 
-    val passedKeypoints: MutableList<TimelineKeypoint<*>> = Collections.synchronizedList(mutableListOf())
+    val skippedKeypoints: List<TimelineKeypoint<*>>
+        field = mutableListOf()
+
+    private val categorizedKeypoints = this.timeline.run {
+        val categorized = mutableMapOf<String, CategorizeTimelineKeypoint>()
+
+        fun readKeypoints(keypoints: List<TimelineKeypoint<*>>) {
+            for (keypoint in keypoints) {
+                if (keypoint is CategorizeTimelineKeypoint) {
+                    if (categorized.contains(keypoint.category))
+                        throw IllegalStateException("Multiple keypoint categories share the name ${keypoint.category}!")
+
+                    categorized[keypoint.category] = keypoint
+                }
+
+                if (keypoint is MultiKeypointHolder) {
+                    readKeypoints(keypoint.keypoints)
+                }
+            }
+        }
+
+        readKeypoints(this.keypoints)
+
+        categorized
+    }
 
     fun isPaused(): Boolean = this.isPaused.value
 
@@ -86,5 +113,22 @@ data class TimelineContext(
         this.pause()
         this.broadcastToGameMasters(Component.literal("Active timeline has been stopped!"))
         this.isActive.lazySet(false)
+    }
+
+    val categories: Collection<String> = this.categorizedKeypoints.keys
+
+    fun pushCategory(categoryId: String) {
+        val category = this.categorizedKeypoints[categoryId] ?: throw IllegalArgumentException("Unknown category ID $categoryId!")
+
+        if (!this.isPaused())
+            throw IllegalStateException("Cannot push category while timeline is actively running!")
+
+        this.pushNewKeypoints()
+        this.remainingKeypoints.addAll(category.keypoints)
+    }
+
+    fun skipCategory(categoryId: String) {
+        val category = this.categorizedKeypoints[categoryId] ?: throw IllegalArgumentException("Unknown category ID $categoryId!")
+        this.skippedKeypoints.add(category)
     }
 }

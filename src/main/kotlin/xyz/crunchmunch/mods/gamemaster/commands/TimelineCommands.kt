@@ -1,5 +1,6 @@
 package xyz.crunchmunch.mods.gamemaster.commands
 
+import com.mojang.brigadier.arguments.StringArgumentType
 import de.phyrone.brig.wrapper.DSLCommandNode
 import de.phyrone.brig.wrapper.executesNoResult
 import net.minecraft.ChatFormatting
@@ -185,6 +186,88 @@ fun DSLCommandNode<CommandSourceStack>.timelineCommands() {
                 TimelineManager.proceedContext(contextKey, playerOrException)
 
                 sendSuccess(Component.literal("Timeline ${contextKey.identifier()} is now proceeding."))
+            }
+        }
+
+        literal("skip") {
+            argument("id", ResourceKeyArgument.key(GameMasterRegistryKeys.TIMELINE)) {
+                argument("category", StringArgumentType.word()) {
+                    suggest {
+                        val key = ResourceKeyArgument.getRegistryKey(it, "id", GameMasterRegistryKeys.TIMELINE, DynamicCommandExceptions.RESOURCE_KEY)
+                        val context = TimelineManager.getContext(key)
+
+                        if (context != null) {
+                            for (category in context.categories) {
+                                suggest(category)
+                            }
+                        }
+                    }
+
+                    executesNoResult {
+                        val key = ResourceKeyArgument.getRegistryKey(it, "id", GameMasterRegistryKeys.TIMELINE, DynamicCommandExceptions.RESOURCE_KEY)
+                        val category = StringArgumentType.getString(it, "category")
+                        val context = TimelineManager.getContext(key)
+
+                        if (context == null) {
+                            sendFailure(Component.literal("This timeline is not active!"))
+                            return@executesNoResult
+                        }
+
+                        if (!context.categories.contains(category)) {
+                            sendFailure(Component.literal("No categories exist under that name!"))
+                            return@executesNoResult
+                        }
+
+                        if (!context.isPaused()) {
+                            sendFailure(Component.literal("Timeline is not paused! Please pause the timeline before skipping a category."))
+                            return@executesNoResult
+                        }
+
+                        context.skipCategory(category)
+                        sendSuccess(Component.literal("Skipping category $category once we get to it."))
+                    }
+                }
+            }
+        }
+
+        literal("rewind") {
+            argument("id", ResourceKeyArgument.key(GameMasterRegistryKeys.TIMELINE)) {
+                argument("category", StringArgumentType.word()) {
+                    suggest {
+                        val key = ResourceKeyArgument.getRegistryKey(it, "id", GameMasterRegistryKeys.TIMELINE, DynamicCommandExceptions.RESOURCE_KEY)
+                        val context = TimelineManager.getContext(key)
+
+                        if (context != null) {
+                            for (category in context.categories) {
+                                suggest(category)
+                            }
+                        }
+                    }
+
+                    executesNoResult {
+                        val key = ResourceKeyArgument.getRegistryKey(it, "id", GameMasterRegistryKeys.TIMELINE, DynamicCommandExceptions.RESOURCE_KEY)
+                        val category = StringArgumentType.getString(it, "category")
+                        val context = TimelineManager.getContext(key)
+
+                        if (context == null) {
+                            sendFailure(Component.literal("This timeline is not active!"))
+                            return@executesNoResult
+                        }
+
+                        if (!context.categories.contains(category)) {
+                            sendFailure(Component.literal("No categories exist under that name!"))
+                            return@executesNoResult
+                        }
+
+                        if (!context.isPaused()) {
+                            sendFailure(Component.literal("Timeline is not paused! Please pause the timeline before rewinding a category."))
+                            return@executesNoResult
+                        }
+
+                        context.pushCategory(category)
+                        sendSuccess(Component.literal("Rewinding category $category."))
+                    }
+                }
             }
         }
     }

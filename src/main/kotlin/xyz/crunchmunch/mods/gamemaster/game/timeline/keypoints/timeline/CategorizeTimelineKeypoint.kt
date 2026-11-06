@@ -4,12 +4,13 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.MultiKeypointHolder
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
 
 /**
  * Basically, runs a timeline within itself, additionally allowing said timeline to be cancelled and rewound at will.
  */
-class CategorizeTimelineKeypoint(val category: String, val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<CategorizeTimelineKeypoint>(KeypointManager.CATEGORIZE_TIMELINE) {
+class CategorizeTimelineKeypoint(val category: String, override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<CategorizeTimelineKeypoint>(KeypointManager.CATEGORIZE_TIMELINE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
         context.pushNewKeypoints()
         context.remainingKeypoints.addAll(this.keypoints)

@@ -8,12 +8,13 @@ import xyz.crunchmunch.mods.gamemaster.game.timeline.Timeline
 import xyz.crunchmunch.mods.gamemaster.game.timeline.TimelineContext
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.AwaitGameMasterKeypoint
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.KeypointManager
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.MultiKeypointHolder
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.TimelineKeypoint
 
 /**
  * A timeline keypoint that is designed to run its own independent timeline at the same time as the main timeline.
  */
-class BranchTimelineKeypoint(val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<BranchTimelineKeypoint>(KeypointManager.BRANCH_TIMELINE) {
+class BranchTimelineKeypoint(override val keypoints: List<TimelineKeypoint<*>>) : TimelineKeypoint<BranchTimelineKeypoint>(KeypointManager.BRANCH_TIMELINE), MultiKeypointHolder {
     override suspend fun execute(context: TimelineContext) {
         coroutineScope {
             launch {

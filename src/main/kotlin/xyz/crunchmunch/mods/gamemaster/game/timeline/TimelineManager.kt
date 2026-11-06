@@ -65,11 +65,14 @@ object TimelineManager {
 
                         val keypoint = context.remainingKeypoints.peek()
 
-                        if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
-                            AwaitGameMasterKeypoint(Component.empty()).execute(context)
+                        if (!context.skippedKeypoints.contains(keypoint)) {
+                            if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
+                                AwaitGameMasterKeypoint(Component.empty()).execute(context)
+                            }
+
+                            keypoint.execute(context)
                         }
 
-                        keypoint.execute(context)
                         context.remainingKeypoints.pop()
                     }
 
