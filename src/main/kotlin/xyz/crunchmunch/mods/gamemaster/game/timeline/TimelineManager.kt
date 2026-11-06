@@ -64,7 +64,7 @@ object TimelineManager {
                             continue
                         }
 
-                        val keypoint = context.remainingKeypoints.pop()
+                        val keypoint = context.remainingKeypoints.peek()
 
                         if (!context.skippedKeypoints.contains(keypoint)) {
                             if (context.timeline.type == Timeline.Type.CONFIRMATIONAL) {
@@ -75,6 +75,8 @@ object TimelineManager {
 
                             keypoint.execute(context)
                         }
+
+                        context.remainingKeypoints.pop()
                     } catch (e: Exception) {
                         context.pause()
                         GameMaster.logger.error("An error occurred in timeline ${key.identifier()}!", e)
