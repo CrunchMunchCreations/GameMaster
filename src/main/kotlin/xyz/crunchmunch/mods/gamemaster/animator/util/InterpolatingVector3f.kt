@@ -55,7 +55,9 @@ data class InterpolatingVector3f(
         }
 
         @JvmStatic
-        fun requiresUpdate(currentTick: Int, position: InterpolatingVector3f, rotation: InterpolatingVector3f, scale: InterpolatingVector3f): Boolean {
+        fun requiresUpdate(currentTick: Int, transforms: InterpolatingTransforms): Boolean {
+            val (position, rotation, scale) = transforms
+
             if (position.endTick == currentTick)
                 return rotation.hasRemaining(currentTick) || scale.hasRemaining(currentTick)
 

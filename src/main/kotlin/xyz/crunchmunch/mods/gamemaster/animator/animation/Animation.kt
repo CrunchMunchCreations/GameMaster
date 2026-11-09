@@ -36,7 +36,7 @@ data class Animation(
         val map = mutableMapOf<String, Pair<Int, PosRotScale>>()
 
         for ((partName, frameMap) in parts) {
-            val nextFrame = (frameMap.keys.sorted().firstOrNull { it > tick }) ?: continue
+            val nextFrame = (frameMap.keys.sorted().firstOrNull { it > tick || (tick == 0 && it == 0) }) ?: continue
 
             map[partName] = Pair(nextFrame, frameMap[nextFrame]!!)
         }

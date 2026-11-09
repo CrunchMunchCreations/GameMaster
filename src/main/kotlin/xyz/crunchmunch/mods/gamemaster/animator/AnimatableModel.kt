@@ -16,6 +16,7 @@ import xyz.crunchmunch.mods.gamemaster.animator.animation.Animation
 import xyz.crunchmunch.mods.gamemaster.animator.animation.AnimationState
 import xyz.crunchmunch.mods.gamemaster.animator.animation.LoopType
 import xyz.crunchmunch.mods.gamemaster.animator.animation.MultiAnimationDefinition
+import xyz.crunchmunch.mods.gamemaster.animator.util.InterpolatingTransforms
 import xyz.crunchmunch.mods.gamemaster.animator.util.InterpolatingVector3f
 import xyz.crunchmunch.mods.gamemaster.utils.*
 import java.util.*
@@ -168,28 +169,13 @@ open class AnimatableModel(
                                 return this.isPresent && (this.orElseThrow() != attached?.current || endTick != attached.endTick)
                             }
 
-                            if (posRotScale.position neq display.getAttached(AnimatorAttachments.LOCAL_TRANSLATION)
-                                || posRotScale.rotation neq display.getAttached(AnimatorAttachments.LOCAL_ROTATION)
-                                || posRotScale.scale neq display.getAttached(AnimatorAttachments.LOCAL_SCALE)
+                            val transforms = display.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS)
+                            if (posRotScale.position neq transforms.translation
+                                || posRotScale.rotation neq transforms.rotation
+                                || posRotScale.scale neq transforms.scale
                             ) {
                                 hasChanged = true
-                                posRotScale.position.ifPresent { value ->
-                                    display.modifyAttached(AnimatorAttachments.LOCAL_TRANSLATION) { vec: InterpolatingVector3f? ->
-                                        (vec ?: InterpolatingVector3f()).update(value, currentTick, endTick)
-                                    }
-                                }
-
-                                posRotScale.rotation.ifPresent { value ->
-                                    display.modifyAttached(AnimatorAttachments.LOCAL_ROTATION) { vec: InterpolatingVector3f? ->
-                                        (vec ?: InterpolatingVector3f()).update(value, currentTick, endTick)
-                                    }
-                                }
-
-                                posRotScale.scale.ifPresent { value ->
-                                    display.modifyAttached(AnimatorAttachments.LOCAL_SCALE) { vec: InterpolatingVector3f? ->
-                                        (vec ?: InterpolatingVector3f()).update(value, currentTick, endTick)
-                                    }
-                                }
+                                display.setAttached(AnimatorAttachments.LOCAL_TRANSFORMS, transforms.update(posRotScale, currentTick, endTick))
                             }
                         }
                     } else {
@@ -202,17 +188,7 @@ open class AnimatableModel(
                             }
 
                             LoopType.PLAY_ONCE -> {
-                                for ((id, display) in this.idToDisplayMapping) {
-                                    display.transformationInterpolationDuration = 0
-                                    display.transformationInterpolationDelay = 0
-                                    display.translation = this.initialPositions[id] ?: Vector3f()
-                                    display.leftRotation = Quaternionf()
-                                    display.scale = Vector3f(1f, 1f, 1f)
-
-                                    display.removeAttached(AnimatorAttachments.LOCAL_TRANSLATION)
-                                    display.removeAttached(AnimatorAttachments.LOCAL_ROTATION)
-                                    display.removeAttached(AnimatorAttachments.LOCAL_SCALE)
-                                }
+                                this.resetTransforms()
                             }
 
                             LoopType.HOLD_ON_LAST_FRAME -> {}
@@ -247,6 +223,8 @@ open class AnimatableModel(
                 AnimationState.STOPPED -> {
                     this.currentAnimation = null
                     this.currentTick = 0
+
+                    this.resetTransforms()
                 }
             }
         } else {
@@ -264,11 +242,7 @@ open class AnimatableModel(
 
         if (!hasChanged) {
             for (display in this.idToDisplayMapping.values) {
-                val translation = display.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
-                val rotation = display.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
-                val scale = display.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
-
-                if (InterpolatingVector3f.requiresUpdate(currentTick, translation, rotation, scale)) {
+                if (InterpolatingVector3f.requiresUpdate(currentTick, display.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS))) {
                     hasChanged = true
                     break
                 }
@@ -278,12 +252,12 @@ open class AnimatableModel(
         // Second pass, apply to all things down the chain
         // Only actually handle this if anything did animate.
         if (hasChanged) {
-            val translation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
-            val rotation = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
-            val scale = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
             val rescale = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.RESCALE)
 
-            val estimatedEndTick = estimateEndTick(currentTick, translation, rotation, scale)
+            val transforms = this.rootDisplay.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS)
+            val (translation, rotation, scale) = transforms
+
+            val estimatedEndTick = transforms.estimateEndTick(currentTick)
             val remainingDuration = estimatedEndTick - currentTick
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
@@ -293,7 +267,7 @@ open class AnimatableModel(
                 rotateZYX((rotation.get(estimatedEndTick) + Vector3f(rootDisplay.xRot, -rootDisplay.yRot, 0f)) * Mth.DEG_TO_RAD)
             }
 
-            recursiveAnimateHierarchy(this.rootDisplay, currentTick, matrixStack)
+            recursiveAnimateHierarchy(this.rootDisplay, currentTick, matrixStack, estimatedEndTick)
 
             // We have to handle translation and rotation here slightly differently, because we're the root.
             this.rootDisplay.posRotInterpolationDuration = remainingDuration
@@ -329,25 +303,27 @@ open class AnimatableModel(
         return list
     }
 
-    fun estimateEndTick(currentTick: Int, translation: InterpolatingVector3f, rotation: InterpolatingVector3f, scale: InterpolatingVector3f): Int {
-        var estimatedEndTick = -1
+    fun resetTransforms() {
+        for ((id, display) in this.idToDisplayMapping) {
+            display.transformationInterpolationDuration = 0
+            display.transformationInterpolationDelay = 0
+            display.translation = this.initialPositions[id] ?: Vector3f()
+            display.leftRotation = Quaternionf()
+            display.scale = Vector3f(display.getAttachedOrElse(AnimatorAttachments.RESCALE, 1f))
 
-        if (translation.endTick > 0 && translation.endTick > currentTick)
-            estimatedEndTick = translation.endTick
-
-        if (rotation.endTick > 0 && rotation.endTick > currentTick && (estimatedEndTick == -1 || rotation.endTick < estimatedEndTick))
-            estimatedEndTick = rotation.endTick
-
-        if (scale.endTick > 0 && scale.endTick > currentTick && (estimatedEndTick == -1 || scale.endTick < estimatedEndTick))
-            estimatedEndTick = scale.endTick
-
-        if (estimatedEndTick == -1)
-            return currentTick
-
-        return estimatedEndTick
+            display.removeAttached(AnimatorAttachments.LOCAL_TRANSFORMS)
+        }
     }
 
-    protected open fun recursiveAnimateHierarchy(part: Display, currentTick: Int, matrixStack: Matrix4fStack) {
+    private fun estimateEndTick(currentTick: Int, current: InterpolatingTransforms, parentEstimatedEndTick: Int): Int {
+        val currentEstimated = current.estimateEndTick(currentTick)
+        if (currentEstimated != currentTick)
+            return currentEstimated
+
+        return parentEstimatedEndTick
+    }
+
+    protected open fun recursiveAnimateHierarchy(part: Display, currentTick: Int, matrixStack: Matrix4fStack, parentEstimatedEndTick: Int) {
         for (entity in part.passengers) {
             if (entity !is Display)
                 continue
@@ -357,20 +333,21 @@ open class AnimatableModel(
 
             val partId = entity.getAttachedOrThrow(AnimatorAttachments.MODEL_PART_ID)
 
-            val localTranslation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSLATION)
-            val localRotation = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_ROTATION)
-            val localScale = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_SCALE)
+            val localTransforms = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS)
+            val rescale = entity.getAttachedOrCreate(AnimatorAttachments.RESCALE)
 
-            val estimatedEndTick = estimateEndTick(currentTick, localTranslation, localRotation, localScale)
+            val estimatedEndTick = estimateEndTick(currentTick, localTransforms, parentEstimatedEndTick)
             val remainingDuration = estimatedEndTick - currentTick
+
+            val (localTranslation, localRotation, localScale) = localTransforms
 
             matrixStack.pushMatrix()
 
             matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
             matrixStack.scale(localScale.get(estimatedEndTick))
-            matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
+            matrixStack.scale(rescale)
             matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * Vector3f(1f, -1f, -1f) * Mth.DEG_TO_RAD)
-            matrixStack.translate(localTranslation.get(estimatedEndTick))
+            matrixStack.translate(localTranslation.get(estimatedEndTick).div(rescale))
 
             /*Gizmos.billboardText("${localRotation.x()} ${localRotation.y()} ${localRotation.z()}", entity.position().add(Vec3(matrixStack.getTranslation(Vector3f()))), TextGizmo.Style.whiteAndCentered().withScale(0.25f))
                 .persistForMillis(100)
@@ -391,11 +368,12 @@ open class AnimatableModel(
 
             matrixStack.pushMatrix()
             //matrixStack.scale(localScale)
-            matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
+//            matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
             matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * Vector3f(1f, -1f, -1f) * Mth.DEG_TO_RAD)
             matrixStack.translate(localTranslation.get(estimatedEndTick))
+//            matrixStack.scale(1f / entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
 
-            this.recursiveAnimateHierarchy(entity, currentTick, matrixStack)
+            this.recursiveAnimateHierarchy(entity, currentTick, matrixStack, estimatedEndTick)
 
             matrixStack.popMatrix()
         }

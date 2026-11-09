@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceKey
 import xyz.crunchmunch.mods.gamemaster.GameMaster
-import xyz.crunchmunch.mods.gamemaster.animator.util.InterpolatingVector3f
+import xyz.crunchmunch.mods.gamemaster.animator.util.InterpolatingTransforms
 
 object AnimatorAttachments {
     @JvmField val MODEL_PART_ID = register("model/part_id") {
@@ -25,19 +25,9 @@ object AnimatorAttachments {
         persistent(UUIDUtil.CODEC)
     }
 
-    @JvmField val LOCAL_TRANSLATION = register("transform/local_translation") {
-        persistent(InterpolatingVector3f.CODEC)
-        initializer { InterpolatingVector3f() }
-    }
-
-    @JvmField val LOCAL_ROTATION = register("transform/local_rotation") {
-        persistent(InterpolatingVector3f.CODEC)
-        initializer { InterpolatingVector3f() }
-    }
-
-    @JvmField val LOCAL_SCALE = register("transform/local_scale") {
-        persistent(InterpolatingVector3f.CODEC)
-        initializer { InterpolatingVector3f(1f, 1f, 1f) }
+    @JvmField val LOCAL_TRANSFORMS = register("transform/local_transforms") {
+        persistent(InterpolatingTransforms.CODEC)
+        initializer { InterpolatingTransforms() }
     }
 
     @JvmField val RESCALE = register("transform/rescale") {
