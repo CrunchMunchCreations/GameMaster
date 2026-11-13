@@ -276,7 +276,7 @@ open class AnimatableModel(
             this.rootDisplay.posRotInterpolationDuration = remainingDuration
             this.rootDisplay.transformationInterpolationDelay = 0
             this.rootDisplay.transformationInterpolationDuration = remainingDuration
-            this.rootDisplay.translation = translation.get(estimatedEndTick)
+            this.rootDisplay.translation = -offsetPos.toVector3f() + translation.get(estimatedEndTick)
             this.rootDisplay.yRot = cachedYaw + rotation.get(estimatedEndTick).y()
             this.rootDisplay.xRot = cachedPitch + rotation.get(estimatedEndTick).x()
         }
@@ -314,6 +314,8 @@ open class AnimatableModel(
             display.transformationInterpolationDuration = 0
             display.transformationInterpolationDelay = 0
             display.translation = this.initialPositions[id] ?: Vector3f()
+            if (id == "root")
+                display.translation = -this.offsetPos.toVector3f() + display.translation
             display.leftRotation = Quaternionf()
             display.scale = Vector3f(display.getAttachedOrElse(AnimatorAttachments.RESCALE, 1f))
 
