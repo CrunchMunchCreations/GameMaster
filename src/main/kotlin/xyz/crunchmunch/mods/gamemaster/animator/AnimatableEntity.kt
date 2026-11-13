@@ -80,7 +80,8 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
 
     open fun onRemoved(reason: Entity.RemovalReason) {
         this.animatable.remove(true)
-        this.interaction.remove(Entity.RemovalReason.DISCARDED)
+        if (this::interaction.isInitialized)
+            this.interaction.remove(Entity.RemovalReason.DISCARDED)
     }
 
     protected open fun getHeadDisplay(): Display? {
