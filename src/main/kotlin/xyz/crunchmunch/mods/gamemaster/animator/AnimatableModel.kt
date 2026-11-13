@@ -284,6 +284,9 @@ open class AnimatableModel(
     }
 
     open fun remove(includeRoot: Boolean = true) {
+        if (!this::rootDisplay.isInitialized)
+            return
+
         val list = collectEntitiesForRemoval(this.rootDisplay)
         for (entity in list) {
             if (includeRoot || entity != this.rootDisplay) {
