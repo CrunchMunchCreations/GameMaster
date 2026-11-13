@@ -23,7 +23,7 @@ import java.util.*
 
 open class AnimatableModel(
     val model: ModelDefinition, val animations: MultiAnimationDefinition,
-    val level: ServerLevel
+    val level: ServerLevel,
 ) {
     val modelKey: ResourceKey<ModelDefinition> = this.level.registryAccess().lookupOrThrow(AnimatableManager.MODEL_REGISTRY_KEY).getResourceKey(model).orElseThrow()
     val animationsKey: ResourceKey<MultiAnimationDefinition> = this.level.registryAccess().lookupOrThrow(AnimatableManager.ANIMATION_REGISTRY_KEY).getResourceKey(animations).orElseThrow()
@@ -347,7 +347,7 @@ open class AnimatableModel(
             matrixStack.scale(localScale.get(estimatedEndTick))
             matrixStack.scale(rescale)
             matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * Vector3f(1f, -1f, -1f) * Mth.DEG_TO_RAD)
-            matrixStack.translate(localTranslation.get(estimatedEndTick).div(rescale))
+            matrixStack.translate(localTranslation.get(estimatedEndTick) / rescale)
 
             /*Gizmos.billboardText("${localRotation.x()} ${localRotation.y()} ${localRotation.z()}", entity.position().add(Vec3(matrixStack.getTranslation(Vector3f()))), TextGizmo.Style.whiteAndCentered().withScale(0.25f))
                 .persistForMillis(100)
@@ -368,10 +368,10 @@ open class AnimatableModel(
 
             matrixStack.pushMatrix()
             //matrixStack.scale(localScale)
-//            matrixStack.scale(entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
+//            matrixStack.scale(rescale)
             matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * Vector3f(1f, -1f, -1f) * Mth.DEG_TO_RAD)
             matrixStack.translate(localTranslation.get(estimatedEndTick))
-//            matrixStack.scale(1f / entity.getAttachedOrCreate(AnimatorAttachments.RESCALE))
+//            matrixStack.scale(1f / rescale)
 
             this.recursiveAnimateHierarchy(entity, currentTick, matrixStack, estimatedEndTick)
 
@@ -392,6 +392,7 @@ open class AnimatableModel(
             display.setAttached(AnimatorAttachments.MODEL_PART_ID, part.id)
             display.setAttached(AnimatorAttachments.MODEL_KEY, this.modelKey)
             display.setAttached(AnimatorAttachments.RESCALE, part.rescale)
+            display.itemTransform = part.display
 
             val definition = model.definitions[part.id]
             if (definition != null) {

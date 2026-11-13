@@ -14,7 +14,7 @@ import xyz.crunchmunch.mods.gamemaster.utils.GameMasterCodecs
 @JvmRecord
 data class BedrockMultiAnimationDefinition(
     override val animations: Map<String, Animation>,
-    val formatVersion: String
+    val formatVersion: String,
 ) : MultiAnimationDefinition {
     override val type: AnimationDefinitionType<*>
         get() = AnimationDefinitionTypes.BEDROCK

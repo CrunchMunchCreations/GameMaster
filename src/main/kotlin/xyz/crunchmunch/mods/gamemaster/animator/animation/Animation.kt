@@ -7,7 +7,7 @@ data class Animation(
     val parts: Map<String, Map<Int, PosRotScale>>,
     val loop: LoopType,
     val maxLength: Int,
-    val loopDelay: Int
+    val loopDelay: Int,
 ) {
     fun getPartsAtTick(tick: Int): Map<String, PosRotScale> {
         val map = mutableMapOf<String, PosRotScale>()

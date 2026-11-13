@@ -6,6 +6,7 @@ import net.minecraft.core.Holder
 import net.minecraft.resources.Identifier
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemDisplayContext
 import org.joml.Vector3f
 import org.joml.div
 import org.joml.times
@@ -13,7 +14,7 @@ import java.util.*
 
 data class ModelDefinition(
     val definitions: Map<String, ItemDefinition>,
-    val parts: List<ModelPart>
+    val parts: List<ModelPart>,
 ) {
     fun collectAllParts(parts: List<ModelPart> = this.parts): List<ModelPart> {
         val list = mutableListOf<ModelPart>()
@@ -52,6 +53,7 @@ data class ModelDefinition(
         val origin: Vector3f,
         val children: List<ModelPart>,
         val rescale: Float,
+        val display: ItemDisplayContext,
     ) {
         companion object {
             val CODEC = Codec.recursive("model_part") { codec ->
@@ -66,6 +68,8 @@ data class ModelDefinition(
                             .forGetter(ModelPart::children),
                         ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf("rescale", 1f)
                             .forGetter(ModelPart::rescale),
+                        ItemDisplayContext.CODEC.optionalFieldOf("display", ItemDisplayContext.NONE)
+                            .forGetter(ModelPart::display),
                     )
                         .apply(instance, ::ModelPart)
                 }
