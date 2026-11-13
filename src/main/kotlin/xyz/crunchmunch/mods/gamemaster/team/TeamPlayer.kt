@@ -56,15 +56,13 @@ data class TeamPlayer(
         }
 
         fun createFromUsername(username: String): TeamPlayer {
-            val profileOptional = GameMaster.server.services().profileResolver.fetchByName(username) ?: throw IllegalStateException("Failed to get profile cache from server!")
-            val profile = profileOptional.orElseThrow()
-
+            val profile = GameMaster.server.services().profileResolver.fetchByName(username).orElseThrow { IllegalStateException("Could not find profile for $username!") }
             return createFromProfile(profile)
         }
 
         fun createFromId(uuid: UUID): TeamPlayer {
-            val result = GameMaster.server.services().sessionService().fetchProfile(uuid, false)
-            return createFromProfile(result?.profile ?: throw IllegalStateException("Could not find profile for $uuid!"))
+            val profile = GameMaster.server.services().profileResolver.fetchById(uuid).orElseThrow { IllegalStateException("Could not find profile for $uuid!") }
+            return createFromProfile(profile)
         }
 
         fun createFromProfile(profile: GameProfile): TeamPlayer {
