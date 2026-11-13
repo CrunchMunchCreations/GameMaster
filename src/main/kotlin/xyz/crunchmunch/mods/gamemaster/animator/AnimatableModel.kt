@@ -343,11 +343,17 @@ open class AnimatableModel(
 
             matrixStack.pushMatrix()
 
-            matrixStack.translate(this.initialPositions[partId] ?: Vector3f())
-            matrixStack.scale(localScale.get(estimatedEndTick))
+            val POS_INVERT = Vector3f(1f, 1f, -1f)
+            val ROT_INVERT = Vector3f(1f, -1f, -1f)
+
+            val translation = localTranslation.get(estimatedEndTick) * POS_INVERT
+
+            matrixStack.translate((this.initialPositions[partId] ?: Vector3f()))
             matrixStack.scale(rescale)
-            matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * Vector3f(1f, -1f, -1f) * Mth.DEG_TO_RAD)
-            matrixStack.translate(localTranslation.get(estimatedEndTick) / rescale)
+            matrixStack.translate(translation / rescale)
+
+            matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * ROT_INVERT * Mth.DEG_TO_RAD)
+            matrixStack.scale(localScale.get(estimatedEndTick))
 
             /*Gizmos.billboardText("${localRotation.x()} ${localRotation.y()} ${localRotation.z()}", entity.position().add(Vec3(matrixStack.getTranslation(Vector3f()))), TextGizmo.Style.whiteAndCentered().withScale(0.25f))
                 .persistForMillis(100)
@@ -367,10 +373,12 @@ open class AnimatableModel(
             matrixStack.popMatrix()
 
             matrixStack.pushMatrix()
-            //matrixStack.scale(localScale)
+            matrixStack.translate((this.initialPositions[partId] ?: Vector3f()))
 //            matrixStack.scale(rescale)
-            matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * Vector3f(1f, -1f, -1f) * Mth.DEG_TO_RAD)
-            matrixStack.translate(localTranslation.get(estimatedEndTick))
+            matrixStack.translate(translation)
+            matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * ROT_INVERT * Mth.DEG_TO_RAD)
+            matrixStack.translate((this.initialPositions[partId] ?: Vector3f()) * -1f)
+            matrixStack.scale(localScale.get(estimatedEndTick))
 //            matrixStack.scale(1f / rescale)
 
             this.recursiveAnimateHierarchy(entity, currentTick, matrixStack, estimatedEndTick)
