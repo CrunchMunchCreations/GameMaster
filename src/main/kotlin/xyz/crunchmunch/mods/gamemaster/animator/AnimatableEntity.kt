@@ -17,7 +17,9 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         private set
 
     private val hasHeadRotation = this.animatable.model.hasPart("head")
+    private val hasTorsoRotation = this.animatable.model.hasPart("torso")
     protected var enableHeadRotation = this.hasHeadRotation
+    protected var enableTorsoRotation = this.hasTorsoRotation
 
     protected fun lockHeadRotation() {
         if (this.hasHeadRotation)
@@ -27,6 +29,16 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
     protected fun unlockHeadRotation() {
         if (this.hasHeadRotation)
             this.enableHeadRotation = true
+    }
+
+    protected fun lockTorsoRotation() {
+        if (this.hasTorsoRotation)
+            this.enableTorsoRotation = false
+    }
+
+    protected fun unlockTorsoRotation() {
+        if (this.hasTorsoRotation)
+            this.enableTorsoRotation = true
     }
 
     init {
@@ -41,6 +53,8 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
     protected open fun tryLoadEntity() {
         this.animatable.createNew(this.baseEntity.position())
         this.animatable.rootDisplay.startRiding(this.baseEntity, true, true)
+
+        this.animatable.offsetPos = this.baseEntity.getPassengerRidingPosition(this.animatable.rootDisplay).subtract(this.baseEntity.position())
 
         val interaction = EntityTypes.INTERACTION.create(baseEntity.level(), EntitySpawnReason.LOAD)!!
         interaction.snapTo(baseEntity.x, baseEntity.y, baseEntity.z, baseEntity.yRot, baseEntity.xRot)
@@ -61,7 +75,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
             this.tryLoadEntity()
         }
 
-        this.animatable.rootDisplay.yRot = -this.baseEntity.yRot
+        this.animatable.rootDisplay.yRot = this.baseEntity.yRot
         this.animatable.tick()
 
         if (this.enableHeadRotation) {
@@ -69,6 +83,13 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
             if (headDisplay != null) {
                 headDisplay.yRot = this.baseEntity.yHeadRot
                 headDisplay.xRot = this.baseEntity.xRot
+            }
+        }
+
+        if (this.enableTorsoRotation) {
+            val torsoDisplay = this.getTorsoDisplay()
+            if (torsoDisplay != null) {
+                torsoDisplay.yRot = this.baseEntity.yBodyRot
             }
         }
 
@@ -86,5 +107,9 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
 
     protected open fun getHeadDisplay(): Display? {
         return this.animatable.getPartById("head")
+    }
+
+    protected open fun getTorsoDisplay(): Display? {
+        return this.animatable.getPartById("torso")
     }
 }

@@ -51,6 +51,8 @@ open class AnimatableModel(
     private var cachedYaw = 0f
     private var cachedPitch = 0f
 
+    var offsetPos: Vec3 = Vec3.ZERO
+
     open fun isEntityLoaded(): Boolean {
         return ::rootDisplay.isInitialized && !this.rootDisplay.isRemoved
     }
@@ -261,6 +263,7 @@ open class AnimatableModel(
             val remainingDuration = estimatedEndTick - currentTick
 
             val matrixStack = Matrix4fStack(this.idToDisplayMapping.size).apply {
+                translate(-offsetPos.toVector3f())
                 translate(translation.get(estimatedEndTick))
                 scale(scale.get(estimatedEndTick))
                 scale(rescale)
