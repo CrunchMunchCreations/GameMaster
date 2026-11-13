@@ -62,8 +62,8 @@ object AnimatableManager {
     }
 
     init {
-        DynamicRegistries.register(ANIMATION_REGISTRY_KEY, MultiAnimationDefinition.CODEC)
-        DynamicRegistries.register(MODEL_REGISTRY_KEY, ModelDefinition.CODEC)
+        DynamicRegistries.registerReloadable(ANIMATION_REGISTRY_KEY, MultiAnimationDefinition.CODEC)
+        DynamicRegistries.registerReloadable(MODEL_REGISTRY_KEY, ModelDefinition.CODEC)
 
         AnimationDefinitionTypes.init()
 
