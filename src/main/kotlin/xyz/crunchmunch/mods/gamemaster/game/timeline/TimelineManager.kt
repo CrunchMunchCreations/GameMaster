@@ -23,7 +23,7 @@ object TimelineManager {
     private val contexts: MutableMap<ResourceKey<Timeline>, TimelineContext> = Collections.synchronizedMap(mutableMapOf())
 
     fun init() {
-        DynamicRegistries.registerReloadable(REGISTRY_KEY, Timeline.CODEC)
+        DynamicRegistries.register(REGISTRY_KEY, Timeline.CODEC)
     }
 
     fun start(server: MinecraftServer, key: ResourceKey<Timeline>, manager: GameManager<*, *, *>) {

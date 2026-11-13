@@ -31,7 +31,7 @@ object CameraManager {
     private val activeScenes: MutableList<ActiveCameraScene> = Collections.synchronizedList(mutableListOf())
 
     fun init() {
-        DynamicRegistries.registerReloadable(GameMasterRegistryKeys.CAMERA_SCENE, CameraScene.CODEC)
+        DynamicRegistries.register(GameMasterRegistryKeys.CAMERA_SCENE, CameraScene.CODEC)
         CameraKeyframeTypes.init()
 
         ServerTickEvents.END_LEVEL_TICK.register { level ->
