@@ -94,14 +94,6 @@ object AnimatableManager {
         ServerTickEvents.END_LEVEL_TICK.register { level ->
             val queuedForRemoval = mutableListOf<UUID>()
 
-            for (entity in (level.allEntities as Iterable<Entity?>)) {
-                if (entity == null) continue // ????????
-                if (entity.hasAttached(GameMasterAttachments.ANIMATABLE_ENTITY)) {
-                    val animatable = entity.getAttachedOrThrow(GameMasterAttachments.ANIMATABLE_ENTITY)
-                    animatable.tick()
-                }
-            }
-
             synchronized(this.animatables) {
                 for ((uuid, animatable) in this.animatables) {
                     try {

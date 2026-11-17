@@ -12,6 +12,14 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements AttachmentTarget {
+    @Inject(method = "commonTick", at = @At("HEAD"))
+    private void gamemaster$handleAnimatableEntityTick(CallbackInfo ci) {
+        if (this.hasAttached(GameMasterAttachments.ANIMATABLE_ENTITY)) {
+            var animatable = this.getAttachedOrThrow(GameMasterAttachments.ANIMATABLE_ENTITY);
+            animatable.tick();
+        }
+    }
+
     @Inject(method = "setRemoved", at = @At("HEAD"))
     private void gamemaster$handleAnimatableEntityRemoved(Entity.RemovalReason reason, CallbackInfo ci) {
         if (this.hasAttached(GameMasterAttachments.ANIMATABLE_ENTITY)) {
