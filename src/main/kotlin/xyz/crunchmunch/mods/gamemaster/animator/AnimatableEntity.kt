@@ -79,7 +79,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         if (this.enableHeadRotation) {
             val headDisplay = this.getHeadDisplay()
             if (headDisplay != null) {
-                headDisplay.yRot = this.baseEntity.yHeadRot
+                headDisplay.yRot = this.baseEntity.yHeadRot - this.baseEntity.yRot
                 headDisplay.xRot = this.baseEntity.xRot
             }
         }
@@ -87,7 +87,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         if (this.enableTorsoRotation) {
             val torsoDisplay = this.getTorsoDisplay()
             if (torsoDisplay != null) {
-                torsoDisplay.yRot = this.baseEntity.yBodyRot
+                torsoDisplay.yRot = this.baseEntity.yBodyRot - this.baseEntity.yRot
             }
         }
 
