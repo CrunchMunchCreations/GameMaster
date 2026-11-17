@@ -54,10 +54,8 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         this.animatable.createNew(this.baseEntity.position())
         this.animatable.rootDisplay.startRiding(this.baseEntity, true, true)
 
-        this.animatable.offsetPos = this.baseEntity.getPassengerRidingPosition(this.animatable.rootDisplay).subtract(this.baseEntity.position())
-
         val interaction = EntityTypes.INTERACTION.create(baseEntity.level(), EntitySpawnReason.LOAD)!!
-        interaction.snapTo(baseEntity.x, baseEntity.y, baseEntity.z, baseEntity.yRot, baseEntity.xRot)
+        interaction.absSnapTo(baseEntity.x, baseEntity.y, baseEntity.z, baseEntity.yRot, baseEntity.xRot)
         interaction.response = true
         interaction.width = this.type.dimensions.width
         interaction.height = this.type.dimensions.height

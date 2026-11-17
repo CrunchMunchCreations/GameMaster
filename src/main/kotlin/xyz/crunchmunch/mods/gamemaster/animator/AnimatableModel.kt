@@ -79,7 +79,7 @@ open class AnimatableModel(
         this.cachedYaw = rootDisplay.yRot
         this.cachedPitch = rootDisplay.xRot
 
-        this.rootDisplay.snapTo(pos)
+        this.rootDisplay.absSnapTo(pos)
         this.rootDisplay.setAttached(AnimatorAttachments.MODEL_KEY, this.modelKey)
         this.rootDisplay.setAttached(AnimatorAttachments.ANIMATIONS_KEY, this.animationsKey)
 
@@ -249,6 +249,21 @@ open class AnimatableModel(
                     break
                 }
             }
+        }
+
+        // Handle passenger offset stuff, so these guys actually get placed correctly.
+        if (this.rootDisplay.isPassenger) {
+            val vehicle = this.rootDisplay.vehicle
+            if (vehicle != null) {
+                val offsetPos = vehicle.getPassengerRidingPosition(this.rootDisplay).subtract(vehicle.position())
+                if (offsetPos != this.offsetPos) {
+                    this.offsetPos = offsetPos
+                    hasChanged = true
+                }
+            }
+        } else if (this.offsetPos != Vec3.ZERO) {
+            this.offsetPos = Vec3.ZERO
+            hasChanged = true
         }
 
         // Second pass, apply to all things down the chain
