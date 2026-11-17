@@ -14,4 +14,5 @@ data class AnimatableEntityType<E : LivingEntity, R : AnimatableEntity<E>>(
 
     val model: ResourceKey<ModelDefinition>,
     val animations: ResourceKey<MultiAnimationDefinition>,
+    val hasHitbox: Boolean = false,
 )

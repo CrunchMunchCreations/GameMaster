@@ -4,6 +4,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.*
+import org.joml.Vector3f
 import xyz.crunchmunch.mods.gamemaster.GameMasterAttachments
 
 abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType<T, out AnimatableEntity<T>>, val baseEntity: T) {
@@ -54,15 +55,17 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
         this.animatable.createNew(this.baseEntity.position())
         this.animatable.rootDisplay.startRiding(this.baseEntity, true, true)
 
-        val interaction = EntityTypes.INTERACTION.create(baseEntity.level(), EntitySpawnReason.LOAD)!!
-        interaction.absSnapTo(baseEntity.x, baseEntity.y, baseEntity.z, baseEntity.yRot, baseEntity.xRot)
-        interaction.response = true
-        interaction.width = this.type.dimensions.width
-        interaction.height = this.type.dimensions.height
-        interaction.startRiding(this.baseEntity, true, true)
+        if (this.type.hasHitbox) {
+            val interaction = EntityTypes.INTERACTION.create(baseEntity.level(), EntitySpawnReason.LOAD)!!
+            interaction.absSnapTo(baseEntity.x, baseEntity.y, baseEntity.z, baseEntity.yRot, baseEntity.xRot)
+            interaction.response = true
+            interaction.width = this.type.dimensions.width
+            interaction.height = this.type.dimensions.height
+            interaction.startRiding(this.baseEntity, true, true)
 
-        this.baseEntity.level().addFreshEntity(interaction)
-        this.interaction = interaction
+            this.baseEntity.level().addFreshEntity(interaction)
+            this.interaction = interaction
+        }
     }
 
     open fun tick() {
@@ -78,17 +81,12 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
 
         if (this.enableHeadRotation) {
             val headDisplay = this.getHeadDisplay()
-            if (headDisplay != null) {
-                headDisplay.yRot = this.baseEntity.yHeadRot - this.baseEntity.yRot
-                headDisplay.xRot = this.baseEntity.xRot
-            }
+            headDisplay?.setAttached(AnimatorAttachments.OFFSET_ROTATIONS, Vector3f(this.baseEntity.xRot, this.baseEntity.yHeadRot - this.baseEntity.yRot, 0f))
         }
 
         if (this.enableTorsoRotation) {
             val torsoDisplay = this.getTorsoDisplay()
-            if (torsoDisplay != null) {
-                torsoDisplay.yRot = this.baseEntity.yBodyRot - this.baseEntity.yRot
-            }
+            torsoDisplay?.setAttached(AnimatorAttachments.OFFSET_ROTATIONS, Vector3f(0f, this.baseEntity.yBodyRot - this.baseEntity.yRot, 0f))
         }
 
         if (this.baseEntity.removalReason != null) {
@@ -99,7 +97,7 @@ abstract class AnimatableEntity<T : LivingEntity>(val type: AnimatableEntityType
 
     open fun onRemoved(reason: Entity.RemovalReason) {
         this.animatable.remove(true)
-        if (this::interaction.isInitialized)
+        if (this.type.hasHitbox && this::interaction.isInitialized)
             this.interaction.remove(Entity.RemovalReason.DISCARDED)
     }
 

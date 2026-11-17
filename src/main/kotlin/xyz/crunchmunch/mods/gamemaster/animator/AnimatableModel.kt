@@ -248,6 +248,11 @@ open class AnimatableModel(
                     hasChanged = true
                     break
                 }
+
+                if (display.getAttachedOrCreate(AnimatorAttachments.OFFSET_ROTATIONS) != display.getAttachedOrCreate(AnimatorAttachments.PREV_OFFSET_ROTATIONS)) {
+                    display.setAttached(AnimatorAttachments.PREV_OFFSET_ROTATIONS, display.getAttachedOrCreate(AnimatorAttachments.OFFSET_ROTATIONS))
+                    hasChanged = true
+                }
             }
         }
 
@@ -358,6 +363,7 @@ open class AnimatableModel(
 
             val localTransforms = entity.getAttachedOrCreate(AnimatorAttachments.LOCAL_TRANSFORMS)
             val rescale = entity.getAttachedOrCreate(AnimatorAttachments.RESCALE)
+            val offsetRotations = entity.getAttachedOrCreate(AnimatorAttachments.OFFSET_ROTATIONS)
 
             val estimatedEndTick = estimateEndTick(currentTick, localTransforms, parentEstimatedEndTick)
             val remainingDuration = estimatedEndTick - currentTick
@@ -366,9 +372,6 @@ open class AnimatableModel(
 
             matrixStack.pushMatrix()
 
-            val POS_INVERT = Vector3f(1f, 1f, -1f)
-            val ROT_INVERT = Vector3f(1f, -1f, -1f)
-
             val translation = localTranslation.get(estimatedEndTick) * POS_INVERT
 
             matrixStack.translate((this.initialPositions[partId] ?: Vector3f()))
@@ -376,6 +379,7 @@ open class AnimatableModel(
             matrixStack.translate(translation / rescale)
 
             matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * ROT_INVERT * Mth.DEG_TO_RAD)
+            matrixStack.rotateZYX(offsetRotations * Mth.DEG_TO_RAD)
             matrixStack.scale(localScale.get(estimatedEndTick))
 
             /*Gizmos.billboardText("${localRotation.x()} ${localRotation.y()} ${localRotation.z()}", entity.position().add(Vec3(matrixStack.getTranslation(Vector3f()))), TextGizmo.Style.whiteAndCentered().withScale(0.25f))
@@ -400,6 +404,7 @@ open class AnimatableModel(
 //            matrixStack.scale(rescale)
             matrixStack.translate(translation)
             matrixStack.rotateZYX(localRotation.get(estimatedEndTick) * ROT_INVERT * Mth.DEG_TO_RAD)
+            matrixStack.rotateZYX(offsetRotations * Mth.DEG_TO_RAD)
             matrixStack.translate((this.initialPositions[partId] ?: Vector3f()) * -1f)
             matrixStack.scale(localScale.get(estimatedEndTick))
 //            matrixStack.scale(1f / rescale)
@@ -461,5 +466,10 @@ open class AnimatableModel(
         }
 
         return displays
+    }
+
+    companion object {
+        private val POS_INVERT = Vector3f(1f, 1f, -1f)
+        private val ROT_INVERT = Vector3f(1f, -1f, -1f)
     }
 }
