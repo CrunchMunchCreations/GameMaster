@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.ExtraCodecs
+import net.minecraft.world.phys.Vec2
 import org.joml.Vector3f
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.animator.util.InterpolatingTransforms
@@ -30,6 +31,11 @@ object AnimatorAttachments {
     @JvmField val LOCAL_TRANSFORMS = register("transform/local_transforms") {
         persistent(InterpolatingTransforms.CODEC)
         initializer { InterpolatingTransforms() }
+    }
+
+    @JvmField val ANIMATABLE_ROTATIONS = register("transform/animatable_rotations") {
+        persistent(Vec2.CODEC)
+        initializer { Vec2.ZERO }
     }
 
     @JvmField val OFFSET_ROTATIONS = register("transform/offset_rotations") {

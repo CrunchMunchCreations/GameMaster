@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.*
 import xyz.crunchmunch.mods.gamemaster.animator.animation.Animation
@@ -68,18 +69,9 @@ open class AnimatableModel(
     open fun createNew(pos: Vec3, rootDisplay: Display = EntityTypes.TEXT_DISPLAY.create(this.level, EntitySpawnReason.TRIGGERED)
         ?: throw IllegalStateException("Failed to load root display!")
     ) {
-        rootDisplay.width = 1f
-        rootDisplay.height = 1f
-        rootDisplay.shadowRadius = 0.5f
-        this.rootDisplay = rootDisplay
+        this.loadFromRoot(rootDisplay)
 
-        this.cachedX = pos.x
-        this.cachedY = pos.y
-        this.cachedZ = pos.z
-        this.cachedYaw = rootDisplay.yRot
-        this.cachedPitch = rootDisplay.xRot
-
-        this.rootDisplay.absSnapTo(pos)
+        this.rootDisplay.absSnapTo(pos, this.rootDisplay.yRot, this.rootDisplay.xRot)
         this.rootDisplay.setAttached(AnimatorAttachments.MODEL_KEY, this.modelKey)
         this.rootDisplay.setAttached(AnimatorAttachments.ANIMATIONS_KEY, this.animationsKey)
 
@@ -91,6 +83,14 @@ open class AnimatableModel(
     }
 
     open fun loadFromExisting(root: Display) {
+        this.loadFromRoot(root)
+
+        this.idToDisplayMapping = this.recursiveLoadExistingParts(root).apply {
+            this["root"] = root
+        }
+    }
+
+    private fun loadFromRoot(root: Display) {
         root.width = 1f
         root.height = 1f
         root.shadowRadius = 0.5f
@@ -102,9 +102,12 @@ open class AnimatableModel(
         this.cachedYaw = root.yRot
         this.cachedPitch = root.xRot
 
-        this.idToDisplayMapping = this.recursiveLoadExistingParts(root).apply {
-            this["root"] = root
-        }
+//        println("${this.modelKey}: has rotations: ${root.hasAttached(AnimatorAttachments.ANIMATABLE_ROTATIONS)}, ${root.getAttached(AnimatorAttachments.ANIMATABLE_ROTATIONS)}")
+//        if (root.hasAttached(AnimatorAttachments.ANIMATABLE_ROTATIONS)) {
+//            val rotations = root.getAttachedOrCreate(AnimatorAttachments.ANIMATABLE_ROTATIONS)
+//            root.yRot = rotations.y
+//            root.xRot = rotations.x
+//        }
     }
 
     fun queueAnimationIfNonePlaying(id: String) {
@@ -151,8 +154,10 @@ open class AnimatableModel(
         // If the rotation was updated externally, make sure to handle that.
         if (this.cachedYaw != this.rootDisplay.yRot || cachedPitch != this.rootDisplay.xRot) {
             hasChanged = true
+//            println("${this.modelKey}: we fucking updated, why? (original: ${this.cachedYaw}, ${this.cachedPitch}), (current: ${this.rootDisplay.yRot}, ${this.rootDisplay.xRot}), prev: ${this.rootDisplay.getAttached(AnimatorAttachments.ANIMATABLE_ROTATIONS)}")
             this.cachedYaw = this.rootDisplay.yRot
             this.cachedPitch = this.rootDisplay.xRot
+            this.rootDisplay.setAttached(AnimatorAttachments.ANIMATABLE_ROTATIONS, Vec2(this.cachedPitch, this.cachedYaw))
         }
 
         if (animation != null) {
