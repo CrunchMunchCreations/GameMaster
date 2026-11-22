@@ -8,6 +8,7 @@ import xyz.crunchmunch.mods.gamemaster.GameMasterRegistries
 object CameraKeyframeTypes {
     @JvmField val PATH = register("path", PathCameraKeyframe.CODEC)
     @JvmField val SOUND = register("sound", SoundCameraKeyframe.CODEC)
+    @JvmField val SET_TITLE = register("set_title", SetTitleCameraKeyframe.CODEC)
 
     fun init() {}
 

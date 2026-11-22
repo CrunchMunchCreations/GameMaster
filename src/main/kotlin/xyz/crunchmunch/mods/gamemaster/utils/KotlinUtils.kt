@@ -1,10 +1,13 @@
 package xyz.crunchmunch.mods.gamemaster.utils
 
+import com.google.common.collect.HashMultimap
+import com.google.common.collect.Multimap
 import com.mojang.brigadier.context.CommandContext
 import de.phyrone.brig.wrapper.DSLCommandNode
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Holder
 import net.minecraft.core.PositionAndRotation
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
@@ -241,7 +244,11 @@ var Entity.customData: CustomData
     }
 
 fun ServerPlayer.playNotifySound(sound: SoundEvent, source: SoundSource, volume: Float = 1f, pitch: Float = 1f) {
-    this.connection.send(ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, this.x, this.y, this.z, volume, pitch, this.random.nextLong()))
+    this.playNotifySound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, volume, pitch)
+}
+
+fun ServerPlayer.playNotifySound(sound: Holder<SoundEvent>, source: SoundSource, volume: Float = 1f, pitch: Float = 1f) {
+    this.connection.send(ClientboundSoundPacket(sound, source, this.x, this.y, this.z, volume, pitch, this.random.nextLong()))
 }
 
 fun AttributeInstance.addTransientModifierSafe(modifier: AttributeModifier) {
@@ -260,6 +267,16 @@ fun Entity.absSnapTo(position: Vec3, yRot: Float = 0f, xRot: Float = 0f) {
 
 fun Entity.absSnapTo(posRot: PositionAndRotation) {
     this.absSnapTo(posRot.position(), posRot.yRot(), posRot.xRot())
+}
+
+fun <K, V> multiMapOf(vararg pairs: Pair<K, V>): Multimap<K, V> {
+    val map = HashMultimap.create<K, V>()
+
+    for ((key, value) in pairs) {
+        map.put(key, value)
+    }
+
+    return map
 }
 
 val BlockPos.center: Vec3
