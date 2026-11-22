@@ -155,7 +155,7 @@ object GameMasterCodecs {
 
                 multimap
             }, { multimap ->
-                multimap.asMap() as Map<K, List<V>>
+                multimap.asMap().mapValues { it.value.toList() }
             })
     }
 }
