@@ -19,7 +19,7 @@ data class CameraScene(
     companion object {
         @JvmField val CODEC: Codec<CameraScene> = RecordCodecBuilder.create { instance ->
             instance.group(
-                GameMasterCodecs.multimap(Codec.INT, CameraKeyframe.CODEC).fieldOf("keyframes")
+                GameMasterCodecs.multimap(GameMasterCodecs.STRINGIFIED_INT, CameraKeyframe.CODEC).fieldOf("keyframes")
                     .forGetter(CameraScene::keyframes),
                 ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension")
                     .forGetter(CameraScene::dimension),

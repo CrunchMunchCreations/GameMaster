@@ -138,6 +138,10 @@ object GameMasterCodecs {
         DataResult.error { "Failed to find source by name $it!" }
     }, SoundSource::getName)
 
+    @JvmField val STRINGIFIED_INT: Codec<Int> = Codec.STRING
+        .comapFlatMap({ DataResult.success(it.toIntOrNull() ?: return@comapFlatMap DataResult.error { "Could not parse $it as an int!" }) },
+            { it.toString() })
+
     @JvmField val TICKS_AS_SECONDS_STRING_CODEC: Codec<Int> = Codec.STRING.xmap({ (it.toFloat() * 20).toInt() }, { (it.toFloat() / 20f).toString() })
     @JvmField val TICKS_AS_SECONDS_FLOAT_CODEC: Codec<Int> = Codec.FLOAT.xmap({ (it.toFloat() * 20).toInt() }, { (it.toFloat() / 20f) })
 
