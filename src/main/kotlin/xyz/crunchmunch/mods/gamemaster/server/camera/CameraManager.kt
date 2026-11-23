@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries
+import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -58,6 +59,17 @@ object CameraManager {
                 for (scene in finishedScenes) {
                     this.endScene(scene)
                 }
+            }
+        }
+
+        EntityTrackingEvents.START_TRACKING.register { entity, player ->
+            if (entity !is CameraEntity)
+                return@register
+
+            val sceneKey = entity.getAttached(ACTIVE_SCENE_ATTACHMENT)
+            if (sceneKey != null && player.getAttached(ACTIVE_SCENE_ATTACHMENT) == sceneKey) {
+                player.setCamera(null)
+                player.setCamera(entity)
             }
         }
     }
@@ -136,6 +148,8 @@ object CameraManager {
             }
         }
 
+        activeScene.camera.remove(Entity.RemovalReason.DISCARDED)
+
         this.activeScenes.remove(activeScene)
     }
 
@@ -146,8 +160,9 @@ object CameraManager {
         val entity = EntityTypes.ITEM_DISPLAY.create(level, EntitySpawnReason.TRIGGERED) ?: throw IllegalStateException("Failed to create shared camera entity!")
         entity.absSnapTo(scene.start)
         entity.isPermanentlyInvulnerable = true
-        entity.isInvisible = true
         entity.transformationInterpolationDelay = 0
+        entity.needsSync = true
+        entity.setAttached(ACTIVE_SCENE_ATTACHMENT, scene.key(level))
 
         return entity
     }
