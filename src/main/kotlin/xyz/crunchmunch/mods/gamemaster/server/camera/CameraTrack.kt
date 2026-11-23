@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel
 import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframe
 
 class CameraTrack<T : CameraKeyframe>(private val keyframes: Map<Int, T>, level: ServerLevel, camera: CameraEntity, activeScene: ResourceKey<CameraScene>) {
-    private val keyframeQueue = Queues.newArrayDeque(keyframes.map { QueuedKeyframe(it.key, it.value) })
+    private val keyframeQueue = Queues.newArrayDeque(keyframes.map { QueuedKeyframe(it.key, it.value) }.sortedBy { it.tick })
     private val context = CameraTrackContext.Mutable(activeScene, level, camera)
     private var currentTick = 0
 
@@ -57,11 +57,13 @@ class CameraTrack<T : CameraKeyframe>(private val keyframes: Map<Int, T>, level:
     fun stopAndReset() {
         val context = this.context
 
-        if (this.currentTick >= this.keyframeQueue.first.tick)
-            this.keyframeQueue.first.keyframe.stop(context)
+        if (this.keyframeQueue.isNotEmpty()) {
+            if (this.currentTick >= this.keyframeQueue.first.tick)
+                this.keyframeQueue.first.keyframe.stop(context)
 
-        this.keyframeQueue.last.keyframe.stop(context) // Last keyframe should always send the player somewhere.
-        this.keyframeQueue.clear()
+            this.keyframeQueue.last.keyframe.stop(context) // Last keyframe should always send the player somewhere.
+            this.keyframeQueue.clear()
+        }
 
         context.currentFrameTick = 0
         for (keyframe in this.keyframes.values) {
