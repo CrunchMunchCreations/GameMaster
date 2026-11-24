@@ -34,7 +34,7 @@ data class PathCameraKeyframe(
                 val remainingTicks = Mth.clamp(this.sustainTicks - context.currentFrameTick, 0, 59)
                 context.camera.posRotInterpolationDuration = remainingTicks
 
-                // forcefully sync the entity data IMMEDIATELY. otherwise they will fucking die.
+                // forcefully sync the entity data IMMEDIATELY. otherwise it will use whatever it was earlier.
                 for (player in PlayerLookup.tracking(context.camera)) {
                     player.connection.send(ClientboundSetEntityDataPacket(context.camera.id, context.camera.entityData.packDirty() ?: emptyList()))
                 }

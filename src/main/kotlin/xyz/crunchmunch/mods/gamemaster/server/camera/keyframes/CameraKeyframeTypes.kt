@@ -9,6 +9,7 @@ object CameraKeyframeTypes {
     @JvmField val PATH = register("path", PathCameraKeyframe.CODEC)
     @JvmField val SOUND = register("sound", SoundCameraKeyframe.CODEC)
     @JvmField val SET_TITLE = register("set_title", SetTitleCameraKeyframe.CODEC)
+    @JvmField val TELEPORT = register("teleport", TeleportCameraKeyframe.CODEC)
 
     fun init() {}
 

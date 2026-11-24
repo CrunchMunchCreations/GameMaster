@@ -144,8 +144,8 @@ var Display.scale: Vector3fc
     }
 
 // Incredibly shortened variant of Entity#teleportTo
-fun Entity.teleportTo(level: ServerLevel, x: Double, y: Double, z: Double, yaw: Float, pitch: Float) {
-    this.teleportTo(level, x, y, z, mutableSetOf(), yaw, pitch, true)
+fun Entity.teleportTo(level: ServerLevel, x: Double, y: Double, z: Double, yaw: Float, pitch: Float, resetCamera: Boolean = true) {
+    this.teleportTo(level, x, y, z, mutableSetOf(), yaw, pitch, resetCamera)
 }
 
 // Easier command DSL structures

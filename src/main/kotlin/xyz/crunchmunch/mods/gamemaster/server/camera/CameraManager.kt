@@ -1,6 +1,8 @@
 package xyz.crunchmunch.mods.gamemaster.server.camera
 
 import com.mojang.serialization.MapCodec
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.future.asDeferred
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries
@@ -23,6 +25,7 @@ import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframeTyp
 import xyz.crunchmunch.mods.gamemaster.utils.absSnapTo
 import xyz.crunchmunch.mods.gamemaster.utils.teleportTo
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 object CameraManager {
     val ACTIVE_SCENE_ATTACHMENT = AttachmentRegistry.create(GameMaster.id("camera/active_scene")) { builder ->
@@ -99,7 +102,7 @@ object CameraManager {
             }
     }
 
-    fun beginScene(server: MinecraftServer, scene: CameraScene, targets: Collection<ServerPlayer>) {
+    fun beginScene(server: MinecraftServer, scene: CameraScene, targets: Collection<ServerPlayer>): ActiveCameraScene {
         if (scene.keyframes.isEmpty)
             throw IllegalStateException("Scene does not contain any keyframes!")
 
@@ -120,7 +123,8 @@ object CameraManager {
         val tracks = scene.buildTracks(level, camera)
         level.addFreshEntity(camera)
 
-        this.activeScenes.add(ActiveCameraScene(scene, level, camera, tracks))
+        val activeScene = ActiveCameraScene(scene, level, camera, tracks)
+        this.activeScenes.add(activeScene)
 
         for (player in targets) {
             player.teleportTo(level, scene.start.position().x, scene.start.position().y, scene.start.position().z, scene.start.yRot(), scene.start.xRot())
@@ -129,6 +133,8 @@ object CameraManager {
             player.setAttached(ACTIVE_SCENE_ATTACHMENT, sceneKey)
             player.setCamera(camera)
         }
+
+        return activeScene
     }
 
     fun endScene(activeScene: ActiveCameraScene) {
@@ -151,6 +157,12 @@ object CameraManager {
         activeScene.camera.remove(Entity.RemovalReason.DISCARDED)
 
         this.activeScenes.remove(activeScene)
+    }
+
+    suspend fun startAndAwaitScene(server: MinecraftServer, scene: CameraScene, targets: Collection<ServerPlayer>) {
+        val activeScene = CompletableFuture.supplyAsync({ beginScene(server, scene, targets) }, server).asDeferred().await()
+        activeScene.tracks.map { it.value.completionHandler }
+            .awaitAll()
     }
 
     private fun createCameraEntity(level: ServerLevel, scene: CameraScene): Display {

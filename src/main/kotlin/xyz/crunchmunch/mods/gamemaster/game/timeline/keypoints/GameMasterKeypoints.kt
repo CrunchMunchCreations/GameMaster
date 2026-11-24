@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec
 import net.minecraft.core.Registry
 import xyz.crunchmunch.mods.gamemaster.GameMaster
 import xyz.crunchmunch.mods.gamemaster.GameMasterRegistries
+import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.camera.StartCameraSceneKeypoint
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline.BranchTimelineKeypoint
 import xyz.crunchmunch.mods.gamemaster.game.timeline.keypoints.timeline.CategorizeTimelineKeypoint
 
@@ -13,6 +14,8 @@ object GameMasterKeypoints {
     val BRANCH_TIMELINE = register("timeline/branch", BranchTimelineKeypoint.CODEC)
     val WAIT_TIME = register("wait_time", WaitTimeKeypoint.CODEC)
     val AWAIT_GAMEMASTER = register("await_gamemaster", AwaitGameMasterKeypoint.CODEC)
+    val TITLE = register("title", TitleKeypoint.CODEC)
+    val START_CAMERA_SCENE = register("camera/start_scene", StartCameraSceneKeypoint.CODEC)
 
     fun init() {}
 

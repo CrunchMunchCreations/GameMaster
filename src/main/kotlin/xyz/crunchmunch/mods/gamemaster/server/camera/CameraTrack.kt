@@ -1,6 +1,8 @@
 package xyz.crunchmunch.mods.gamemaster.server.camera
 
 import com.google.common.collect.Queues
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import xyz.crunchmunch.mods.gamemaster.server.camera.keyframes.CameraKeyframe
@@ -9,6 +11,8 @@ class CameraTrack<T : CameraKeyframe>(private val keyframes: Map<Int, T>, level:
     private val keyframeQueue = Queues.newArrayDeque(keyframes.map { QueuedKeyframe(it.key, it.value) }.sortedBy { it.tick })
     private val context = CameraTrackContext.Mutable(activeScene, level, camera)
     private var currentTick = 0
+    val completionHandler: Deferred<Unit>
+        field = CompletableDeferred<Unit>()
 
     fun validate() {
         val ranges = mutableListOf<IntRange>()
@@ -52,6 +56,9 @@ class CameraTrack<T : CameraKeyframe>(private val keyframes: Map<Int, T>, level:
                 context.currentFrameTick++
             }
         }
+
+        if (keyframeQueue.isEmpty())
+            this.completionHandler.complete(Unit)
     }
 
     fun stopAndReset() {
@@ -69,6 +76,8 @@ class CameraTrack<T : CameraKeyframe>(private val keyframes: Map<Int, T>, level:
         for (keyframe in this.keyframes.values) {
             keyframe.reset(context)
         }
+
+        this.completionHandler.complete(Unit)
     }
 
     val isComplete: Boolean
