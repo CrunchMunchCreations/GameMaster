@@ -69,10 +69,12 @@ object CameraManager {
             if (entity !is CameraEntity)
                 return@register
 
-            val sceneKey = entity.getAttached(ACTIVE_SCENE_ATTACHMENT)
-            if (sceneKey != null && player.getAttached(ACTIVE_SCENE_ATTACHMENT) == sceneKey) {
-                player.setCamera(null)
-                player.setCamera(entity)
+            player.level().server.execute {
+                val sceneKey = entity.getAttached(ACTIVE_SCENE_ATTACHMENT)
+                if (sceneKey != null && player.getAttached(ACTIVE_SCENE_ATTACHMENT) == sceneKey) {
+                    player.setCamera(null)
+                    player.setCamera(entity)
+                }
             }
         }
     }
