@@ -22,11 +22,12 @@ data class TeleportCameraKeyframe(val to: PositionAndRotation) : CameraKeyframe 
             player.connection.send(ClientboundSetEntityDataPacket(context.camera.id, context.camera.entityData.packDirty() ?: emptyList()))
         }
 
-        context.camera.teleportTo(context.level, this.to.position().x, this.to.position().y, this.to.position().z, this.to.yRot(), this.to.xRot())
-        context.camera.needsSync = true
         for (player in context.activePlayers) {
             player.teleportTo(context.level, this.to.position().x, this.to.position().y, this.to.position().z, this.to.yRot(), this.to.xRot(), false)
         }
+
+        context.camera.teleportTo(context.level, this.to.position().x, this.to.position().y, this.to.position().z, this.to.yRot(), this.to.xRot())
+        context.camera.needsSync = true
     }
 
     companion object {
