@@ -167,7 +167,7 @@ object CameraManager {
             .awaitAll()
     }
 
-    private fun createCameraEntity(level: ServerLevel, scene: CameraScene): Display {
+    fun createCameraEntity(level: ServerLevel, scene: CameraScene): CameraEntity {
         if (level.dimension() != scene.dimension)
             throw IllegalArgumentException("Provided scene dimension ${scene.dimension.identifier()} does not match given level dimension ${level.dimension().identifier()}!")
 

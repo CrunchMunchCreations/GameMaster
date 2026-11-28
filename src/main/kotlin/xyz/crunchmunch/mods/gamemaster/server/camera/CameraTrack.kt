@@ -17,8 +17,8 @@ class CameraTrack<T : CameraKeyframe>(private val keyframes: Map<Int, T>, level:
     fun validate() {
         val ranges = mutableListOf<IntRange>()
 
-        for (keyframe in this.keyframeQueue) {
-            ranges.add(keyframe.tick..(keyframe.tick + keyframe.keyframe.sustainTicks))
+        for ((tick, frame) in this.keyframeQueue) {
+            ranges.add(tick..(tick + frame.sustainTicks))
         }
 
         for ((i, range) in ranges.withIndex()) {
